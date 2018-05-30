@@ -2,18 +2,17 @@ package ch.unil.paf.pumba.controllers
 
 import java.io.{File, FileInputStream, FileOutputStream}
 import java.nio.file.{Files, Path}
-
-import ch.unil.paf.pumba.PlayWithControllerSpec
-import ch.unil.paf.pumba.dataset.services.DataSetService
 import org.scalatest.BeforeAndAfter
 import play.api.libs.Files.{SingletonTemporaryFileCreator, TemporaryFile}
 import play.api.mvc.MultipartFormData
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import ch.unil.paf.pumba.PlayWithControllerSpec
+import ch.unil.paf.pumba.dataset.services.DataSetService
 
 /**
   * @author Roman Mylonas
@@ -25,7 +24,7 @@ class UploadMaxQuantControllerSpec extends PlayWithControllerSpec with BeforeAnd
 
   after {
     //clean DB
-    //dataSetService.dropAll()
+    dataSetService.dropAll()
   }
 
   "UploadMaxQuantController POST" should {
@@ -51,6 +50,8 @@ class UploadMaxQuantControllerSpec extends PlayWithControllerSpec with BeforeAnd
       // check the results
       status(upload) mustBe OK
       contentType(upload) mustBe Some("text/plain")
+
+      // check that an id (only digits) is returned
       contentAsString(upload).forall(_.isDigit) mustEqual(true)
     }
 
