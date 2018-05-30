@@ -1,8 +1,9 @@
 package ch.unil.paf.pumba.dataset.importer
 
-import common.helpers.{FileFinder, Unzip}
-
+import ch.unil.paf.pumba.common.helpers.{FileFinder, Unzip}
 import java.io.File
+
+import ch.unil.paf.pumba.dataset.models.{DataSetId, MassFitResult}
 
 /**
   * @author Roman Mylonas
@@ -16,10 +17,10 @@ class ImportMQData {
     * @param removeZip
     * @return
     */
-  def unpackZip(zipFile: File, destPath: File, removeZip: Boolean): File ={
-    val isEmpty = Unzip.unzip(zipFile, destPath)
+  def unpackZip(zipFile: File, destPath: File, removeZip: Boolean): File = {
+    val isValidDir = Unzip.unzip(zipFile, destPath)
 
-    println(isEmpty)
+    if(! isValidDir) throw new Exception("ZIP file is empty [" + zipFile.getName + "]")
 
     val files: List[File] = FileFinder.getListOfDirs(destPath.getAbsolutePath)
 
@@ -36,6 +37,20 @@ class ImportMQData {
 
     return txtDir
   }
+
+
+  /**
+    * Create a new actor which makes the call to Rserve
+    *
+    * @param proteinGroups
+    * @return returns
+    */
+  def computeMassFit(proteinGroups: File): DataSetId = {
+    return DataSetId("dummy")
+  }
+
+
+
 
 }
 

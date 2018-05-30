@@ -9,13 +9,19 @@ import java.io.File
 import java.nio.file.{Path, Paths}
 
 import ch.unil.paf.pumba.dataset.services.DataSetService
-import ch.unil.paf.pumba.dataset.models.DataSet
+import ch.unil.paf.pumba.dataset.models._
+
+import scala.concurrent.ExecutionContext
+
 
 /**
  * Upload MaxQuant data
  */
 @Singleton
-class UploadMaxQuantController @Inject()(cc: ControllerComponents, config: Configuration, val reactiveMongoApi: ReactiveMongoApi)
+class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
+                                         cc: ControllerComponents,
+                                         config: Configuration,
+                                         val reactiveMongoApi: ReactiveMongoApi)
   extends AbstractController(cc) with MongoController with ReactiveMongoComponents{
 
 
@@ -46,7 +52,7 @@ class UploadMaxQuantController @Inject()(cc: ControllerComponents, config: Confi
       zipFile.ref.moveTo(fileDest, replace = true)
 
       // inset the status into the database
-      val dataSet: DataSet = new DataSet(id = dataSetId, status = "zip file uploaded", proteinGroupsFile = None)
+      val dataSet: DataSet = new DataSet(id = dataSetId, status = DataSetCreated, proteinGroupsFile = None)
       dataSetService.insertDataSet(dataSet)
 
     }

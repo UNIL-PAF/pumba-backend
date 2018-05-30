@@ -2,7 +2,7 @@ package ch.unil.paf.pumba.dataset.importer
 
 import java.io.File
 
-import common.helpers.Unzip
+import ch.unil.paf.pumba.common.helpers.Unzip
 import org.specs2.mutable.Specification
 
 /**

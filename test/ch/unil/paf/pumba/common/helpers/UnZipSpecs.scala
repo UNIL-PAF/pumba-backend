@@ -1,8 +1,6 @@
 package ch.unil.paf.pumba.common.helpers
 
 import java.io.File
-
-import common.helpers.{FileFinder, Unzip}
 import org.specs2.mutable.Specification
 
 /**
