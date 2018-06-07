@@ -8,4 +8,6 @@ package ch.unil.paf.pumba.dataset.models
 sealed trait DataSetStatus {def value: String}
 case object DataSetCreated extends DataSetStatus {val value = "created"}
 case object DataSetRunning extends DataSetStatus {val value = "running"}
+case object DataSetDone extends DataSetStatus {val value = "done"}
+case object DataSetError extends DataSetStatus {val value = "error"}
 

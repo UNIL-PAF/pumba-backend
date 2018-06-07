@@ -7,6 +7,6 @@ import ch.unil.paf.pumba.dataset.models.DataSetStatus
   *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
   */
 trait ChangeStatusCallback {
- def newStatus(status: DataSetStatus)
+ def newStatus(status: DataSetStatus, message: Option[String] = None)
 }
 

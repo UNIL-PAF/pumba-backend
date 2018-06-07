@@ -7,13 +7,18 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.12.4"
 
+//resolvers ++= Seq(
+//	"mvnrepository" at "https://repo.maven.apache.org/maven2"
+//)
+
 libraryDependencies ++= Seq(
 	guice,
 	"org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
 	"org.reactivemongo" %% "reactivemongo" % "0.13.0",
 	"org.reactivemongo" %% "play2-reactivemongo" % "0.13.0-play26",
 	"net.lingala.zip4j" % "zip4j" % "1.3.2",
-	specs2 % Test
+	specs2 % Test,
+  "com.typesafe.akka" %% "akka-testkit" % "2.5.11"
 )
 
 // Adds additional packages into Twirl
