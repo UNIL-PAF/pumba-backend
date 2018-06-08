@@ -9,7 +9,7 @@ import java.io.File
 import java.nio.file.{Path, Paths}
 
 import akka.actor.{ActorSystem, Props}
-import ch.unil.paf.pumba.common.rserve.{DummyChangeStatusCallback, RserveActor}
+import ch.unil.paf.pumba.common.rserve.{DummyChangeStatusCallback, DummyPostproccessingCallback, RserveActor}
 import ch.unil.paf.pumba.dataset.services.DataSetService
 import ch.unil.paf.pumba.dataset.models._
 import play.api.libs.Files.TemporaryFile
@@ -39,6 +39,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     val dataSetId: DataSetId = new DataSetId(Calendar.getInstance().getTime().getTime.toString)
 
     val uploadDir = config.get[String]("upload.dir")
+    val rScriptDir = config.get[String]("rscript.dir")
 
     // process the ZIP file
     request.body.file("zipFile").map { zipFile =>
@@ -50,8 +51,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
       dataSetService.insertDataSet(dataSet)
 
       // start Rserve for preprocessing
-      val rScriptDir = config.get[String]("rscipt.dir")
-      startScriptToFitMasses(dataSetId, dataDir)
+      startScriptToFitMasses(dataSetId, dataDir, rScriptDir)
     }
 
     Ok(dataSetId.value)
@@ -64,14 +64,15 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     * @param dataSetId
     * @param dataDir
     */
-  def startScriptToFitMasses(dataSetId: DataSetId, dataDir: Path) = {
+  def startScriptToFitMasses(dataSetId: DataSetId, dataDir: Path, rScriptDir: String) = {
     val actorSystem = ActorSystem()
 
-    val dummyCallback = new DummyChangeStatusCallback(dataSetId)
-    val rserveActor = actorSystem.actorOf(Props(new RserveActor(dummyCallback)), "rserve")
+    val changeCallback = new DummyChangeStatusCallback(dataSetId)
+    val postprocCallback = new DummyPostproccessingCallback()
+    val rserveActor = actorSystem.actorOf(Props(new RserveActor(changeCallback, postprocCallback)), "rserve")
 
     import ch.unil.paf.pumba.common.rserve.RserveActor.StartScript
-    rserveActor ! StartScript(filePath = Paths.get("dummy.R"), parameters = List())
+    rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "sayHello.R"), parameters = List())
   }
 
 

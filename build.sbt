@@ -27,3 +27,5 @@ libraryDependencies ++= Seq(
 // Adds additional packages into conf/routes
 // play.sbt.routes.RoutesKeys.routesImport += "ch.unil.binders._"
 
+// run tests with application.test.conf
+javaOptions in Test += "-Dconfig.file=conf/application.test.conf"

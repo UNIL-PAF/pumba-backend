@@ -16,7 +16,7 @@ import akka.actor.{Actor, ActorLogging, AllForOneStrategy}
   */
 
 object RserveActor {
-  def props(changeStatusCallback: ChangeStatusCallback) = Props(new RserveActor(changeStatusCallback))
+  def props(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback) = Props(new RserveActor(changeStatusCallback, postprocessingCallback))
 
   case class StartScript( filePath: Path,
                           parameters: List[(String, String)],
@@ -28,7 +28,7 @@ object RserveActor {
   case class ScriptException(exception: RserveException)
 }
 
-class RserveActor(changeStatusCallback: ChangeStatusCallback) extends Actor with ActorLogging {
+class RserveActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback) extends Actor with ActorLogging {
   import RserveActor._
   import ch.unil.paf.pumba.common.rserve.RunRScriptActor._
 
@@ -57,7 +57,8 @@ class RserveActor(changeStatusCallback: ChangeStatusCallback) extends Actor with
 
     case ScriptFinished => {
       log.info("called ScriptFinished")
-      changeStatusCallback.newStatus(DataSetDone)
+      changeStatusCallback.newStatus(DataSetRunning, message = Some("R script is done. Start post-processing."))
+      postprocessingCallback.startPostProcessing()
       context.stop(runScriptActor)
       self ! PoisonPill
     }

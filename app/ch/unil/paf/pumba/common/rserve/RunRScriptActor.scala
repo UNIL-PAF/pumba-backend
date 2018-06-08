@@ -22,7 +22,7 @@ class RunRScriptActor extends Actor with ActorLogging {
     case RunScript(command: String, mockCall: Boolean) =>
       if(mockCall) mockRserve(command)
       else runRScript(command)
-      sender ! ScriptFinished
+      sender ! ScriptFinished()
   }
 
   /**
