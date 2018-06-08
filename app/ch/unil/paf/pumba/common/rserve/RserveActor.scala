@@ -55,7 +55,7 @@ class RserveActor(changeStatusCallback: ChangeStatusCallback, postprocessingCall
 
     }
 
-    case ScriptFinished => {
+    case ScriptFinished() => {
       log.info("called ScriptFinished")
       changeStatusCallback.newStatus(DataSetRunning, message = Some("R script is done. Start post-processing."))
       postprocessingCallback.startPostProcessing()

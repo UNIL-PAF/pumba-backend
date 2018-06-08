@@ -31,7 +31,7 @@ class RserveActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Impli
     "change status" in {
       val rserveActor = TestActorRef(Props(new RserveActor(testChangeStatusCallback, postprocessingCallback)), "rserve-1")
       rserveActor ! StartScript(filePath = rScriptPath, parameters = List(), mockCall = true)
-      expectNoMessage(150 milli)
+      expectNoMessage(200 milli)
       testChangeStatusCallback.getLastStatus().value should equal ("running")
       testChangeStatusCallback.getLastMessage() should equal ("R script is done. Start post-processing.")
       postprocessingCallback.isPostprocessingDone() should equal (true)
@@ -43,7 +43,7 @@ class RserveActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Impli
       expectNoMessage(150 milli)
       testChangeStatusCallback.getLastStatus().value should equal ("error")
       testChangeStatusCallback.getLastMessage() should equal ("R script [not_existant.R] does not exist.")
-      postprocessingCallback.isPostprocessingDone() should equal (true)
+      postprocessingCallback.isPostprocessingDone() should equal (false)
     }
 
 

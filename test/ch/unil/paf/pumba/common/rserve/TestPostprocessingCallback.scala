@@ -9,7 +9,14 @@ class TestPostprocessingCallback extends PostprocessingCallback {
     TestPostprocessingCallback.postProcessingDone = true
   }
 
-  def isPostprocessingDone() = TestPostprocessingCallback.postProcessingDone
+  /**
+    * return info if postprocessing was called and reset it to false
+    */
+  def isPostprocessingDone() = {
+    val isDone = TestPostprocessingCallback.postProcessingDone
+    TestPostprocessingCallback.postProcessingDone = false
+    isDone
+  }
 
 }
 
