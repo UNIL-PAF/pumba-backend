@@ -47,7 +47,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
       val dataDir = copyZipFile(zipFile, new File(uploadDir + dataSetId))
 
       // set a creation status in the database
-      val dataSet: DataSet = new DataSet(id = dataSetId, status = DataSetCreated, proteinGroupsFile = None)
+      val dataSet: DataSet = new DataSet(id = dataSetId, status = DataSetCreated, message = None)
       dataSetService.insertDataSet(dataSet)
 
       // start Rserve for preprocessing

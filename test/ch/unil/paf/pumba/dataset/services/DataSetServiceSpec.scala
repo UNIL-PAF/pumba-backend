@@ -1,10 +1,12 @@
 package ch.unil.paf.pumba.dataset.services
 
 import ch.unil.paf.pumba.PlayWithMongoSpec
-import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetCreated}
+import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetCreated, DataSetDone, DataSetId}
 import org.scalatest.BeforeAndAfter
 import play.api.test.Helpers._
-import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
+import org.specs2.mutable.Specification
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -18,7 +20,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter{
   before {
     //Init DB
     await {
-      val dataSet = DataSet(id = "dummy_id", status = DataSetCreated, proteinGroupsFile = None)
+      val dataSet = DataSet(id = DataSetId("dummy_id"), status = DataSetCreated, message = None)
       dataSetService.insertDataSet(dataSet)
     }
   }
@@ -28,10 +30,33 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter{
     dataSetService.dropAll()
   }
 
-  "Insert a DataSet" in {
-    val dataSet = DataSet(id = "dummy_id_2", status = DataSetCreated, proteinGroupsFile = None)
-    val res:WriteResult = await(dataSetService.insertDataSet(dataSet))
-    res.ok mustEqual(true)
+  "DataSetService" should {
+
+    val dataSet = DataSet(id = DataSetId("dummy_id_2"), status = DataSetCreated, message = None)
+
+    "insert a DataSet" in {
+      val res:WriteResult = await(dataSetService.insertDataSet(dataSet))
+      res.ok mustEqual(true)
+    }
+
+    "find a DataSet" in {
+      val res: Option[DataSet] = await(dataSetService.findDataSet(DataSetId("dummy_id")))
+      res.get.id.value mustEqual("dummy_id")
+      res.get.status mustEqual(DataSetCreated)
+    }
+
+    "update a DataSet" in {
+      val updatedDataset = DataSet(id = DataSetId("dummy_id"), status = DataSetDone, message = Some("a new message"))
+      val res: UpdateWriteResult = await(dataSetService.updateDataSet(updatedDataset))
+      res.ok mustEqual(true)
+
+      // check if the status changed
+      val resFind: Option[DataSet] = await(dataSetService.findDataSet(DataSetId("dummy_id")))
+      resFind.get.message.get mustEqual("a new message")
+    }
+
+
+
   }
 
 

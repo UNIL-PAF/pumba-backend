@@ -53,7 +53,7 @@ class RserveActor(changeStatusCallback: ChangeStatusCallback, postprocessingCall
         log.info("finished StartScript in RserveActor")
       }
 
-    }
+     }
 
     case ScriptFinished() => {
       log.info("called ScriptFinished")

@@ -20,6 +20,8 @@ object DataSetJsonFormats {
       JsSuccess(json.as[String] match {
         case "created" => DataSetCreated
         case "running" => DataSetRunning
+        case "error" => DataSetError
+        case "done" => DataSetDone
       })
     }
 
