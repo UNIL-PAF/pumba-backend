@@ -1,6 +1,6 @@
 package ch.unil.paf.pumba.dataset.importer
 
-import ch.unil.paf.pumba.common.rserve.PostprocessingCallback
+import ch.unil.paf.pumba.common.rexec.PostprocessingCallback
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetDone, DataSetId, MassFitResult}
 import ch.unil.paf.pumba.dataset.services.DataSetService
 

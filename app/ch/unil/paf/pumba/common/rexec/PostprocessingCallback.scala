@@ -1,4 +1,4 @@
-package ch.unil.paf.pumba.common.rserve
+package ch.unil.paf.pumba.common.rexec
 
 /**
   * @author Roman Mylonas

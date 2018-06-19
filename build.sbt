@@ -18,7 +18,9 @@ libraryDependencies ++= Seq(
 	"org.reactivemongo" %% "play2-reactivemongo" % "0.13.0-play26",
 	"net.lingala.zip4j" % "zip4j" % "1.3.2",
 	specs2 % Test,
-  "com.typesafe.akka" %% "akka-testkit" % "2.5.11"
+  "com.typesafe.akka" %% "akka-testkit" % "2.5.11",
+	"org.nuiton.thirdparty" % "REngine" % "1.8-5",
+	"org.nuiton.thirdparty" % "Rserve" % "1.8-5"
 )
 
 // Adds additional packages into Twirl

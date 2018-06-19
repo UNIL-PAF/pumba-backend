@@ -1,4 +1,4 @@
-package ch.unil.paf.pumba.common.rserve
+package ch.unil.paf.pumba.common.rexec
 
 import ch.unil.paf.pumba.dataset.models.{DataSetCreated, DataSetId, DataSetStatus}
 

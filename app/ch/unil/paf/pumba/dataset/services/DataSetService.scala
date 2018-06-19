@@ -11,7 +11,7 @@ import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 import reactivemongo.bson.BSONDocument
 import play.modules.reactivemongo.json._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext) {
 	val collectionName = "dataset"
@@ -28,7 +28,6 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 
 		checkOrError[WriteResult](writeRes, (res) => (! res.ok), (res) => (res.writeErrors.foldLeft("")((a,b) => a + " ; " + b.errmsg)))
 	}
-
 
 	/**
 		* remove all DataSets
@@ -72,7 +71,7 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 	}
 
 	/**
-		* generic function which checks if the Future is valid and check the result
+		* generic function which checks if the result is valid and otherwise throws a DataBaseExcpetion
 		* @param res
 		* @param check
 		* @param error

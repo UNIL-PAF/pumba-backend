@@ -1,9 +1,9 @@
-package ch.unil.paf.pumba.common.rserve
+package ch.unil.paf.pumba.common.rexec
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
-import ch.unil.paf.pumba.common.rserve.RserveActor.{ScriptFinished, StartScript}
-import ch.unil.paf.pumba.common.rserve.RunRScriptActor.RunScript
+import ch.unil.paf.pumba.common.rexec.RexecActor.{ScriptFinished, StartScript}
+import ch.unil.paf.pumba.common.rexec.RunRScriptActor.RunScript
 import ch.unil.paf.pumba.dataset.models.DataSetId
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 

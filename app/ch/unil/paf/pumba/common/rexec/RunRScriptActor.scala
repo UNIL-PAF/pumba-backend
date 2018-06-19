@@ -1,4 +1,4 @@
-package ch.unil.paf.pumba.common.rserve
+package ch.unil.paf.pumba.common.rexec
 
 /**
   * @author Roman Mylonas
@@ -6,7 +6,7 @@ package ch.unil.paf.pumba.common.rserve
   */
 
 import akka.actor._
-import ch.unil.paf.pumba.common.rserve.RserveActor.ScriptFinished
+import ch.unil.paf.pumba.common.rexec.RexecActor.ScriptFinished
 
 object RunRScriptActor {
   def props() = Props[RunRScriptActor]

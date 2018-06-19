@@ -5,7 +5,7 @@ import java.nio.file.{Path, Paths}
 import java.util.Calendar
 
 import akka.actor.{ActorSystem, Props}
-import ch.unil.paf.pumba.common.rserve.RserveActor
+import ch.unil.paf.pumba.common.rexec.RexecActor
 import ch.unil.paf.pumba.dataset.importer.{DataSetChangeStatus, DataSetPostprocessing}
 import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.dataset.services.DataSetService
@@ -69,9 +69,9 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
 
     val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
     val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId)
-    val rserveActor = actorSystem.actorOf(Props(new RserveActor(changeCallback, postprocCallback)), "rserve")
+    val rserveActor = actorSystem.actorOf(Props(new RexecActor(changeCallback, postprocCallback)), "rserve")
 
-    import ch.unil.paf.pumba.common.rserve.RserveActor.StartScript
+    import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
     rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "sayHello.R"), parameters = List())
   }
 

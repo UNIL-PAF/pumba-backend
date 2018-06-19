@@ -1,17 +1,19 @@
-package ch.unil.paf.pumba.common.rserve
+package ch.unil.paf.pumba.common.rexec
 
 import java.nio.file.{Files, Path}
+
 import akka.actor._
 import ch.unil.paf.pumba.dataset.models._
 import akka.actor.{Actor, ActorLogging}
+import org.rosuda.REngine.Rserve.RConnection
 
 /**
   * @author Roman Mylonas
   *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
   */
 
-object RserveActor {
-  def props(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback) = Props(new RserveActor(changeStatusCallback, postprocessingCallback))
+object RexecActor {
+  def props(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback) = Props(new RexecActor(changeStatusCallback, postprocessingCallback))
 
   case class StartScript( filePath: Path,
                           parameters: List[(String, String)],
@@ -20,12 +22,12 @@ object RserveActor {
 
   case class ScriptFinished()
 
-  case class ScriptException(exception: RserveException)
+  case class ScriptException(exception: RexecException)
 }
 
-class RserveActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback) extends Actor with ActorLogging {
-  import RserveActor._
-  import ch.unil.paf.pumba.common.rserve.RunRScriptActor._
+class RexecActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback) extends Actor with ActorLogging {
+  import RexecActor._
+  import ch.unil.paf.pumba.common.rexec.RunRScriptActor._
 
   var runScriptActor: ActorRef = null
 
@@ -45,13 +47,13 @@ class RserveActor(changeStatusCallback: ChangeStatusCallback, postprocessingCall
         val command = filePath.toString
         runScriptActor = context.actorOf(RunRScriptActor.props(), "rscript")
         runScriptActor ! RunScript(command, mockCall)
-        log.info("finished StartScript in RserveActor")
+        log.info("finished StartScript in RserveActor.")
       }
 
      }
 
     case ScriptFinished() => {
-      log.info("called ScriptFinished")
+      log.info("called ScriptFinished.")
       changeStatusCallback.newStatus(DataSetRunning, message = Some("R script is done. Start post-processing."))
       postprocessingCallback.startPostProcessing()
       context.stop(runScriptActor)
@@ -63,6 +65,6 @@ class RserveActor(changeStatusCallback: ChangeStatusCallback, postprocessingCall
     log.info(errorMessage)
     changeStatusCallback.newStatus(DataSetError, message = Some(errorMessage))
     self ! PoisonPill
-    throw new RserveException(message = errorMessage)
+    throw new RexecException(message = errorMessage)
   }
 }

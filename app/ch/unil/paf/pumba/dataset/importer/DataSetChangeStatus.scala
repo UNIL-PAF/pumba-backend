@@ -1,6 +1,6 @@
 package ch.unil.paf.pumba.dataset.importer
 
-import ch.unil.paf.pumba.common.rserve.ChangeStatusCallback
+import ch.unil.paf.pumba.common.rexec.ChangeStatusCallback
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId, DataSetStatus}
 import ch.unil.paf.pumba.dataset.services.DataSetService
 
