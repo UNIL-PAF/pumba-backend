@@ -1,14 +1,9 @@
 package ch.unil.paf.pumba.common.rserve
 
 import java.nio.file.{Files, Path}
-
 import akka.actor._
 import ch.unil.paf.pumba.dataset.models._
-
-import scala.concurrent.duration._
-import akka.actor.SupervisorStrategy.{Escalate, Restart, Stop}
-import akka.actor.{Actor, ActorLogging, AllForOneStrategy}
-
+import akka.actor.{Actor, ActorLogging}
 
 /**
   * @author Roman Mylonas

@@ -1,14 +1,17 @@
 package ch.unil.paf.pumba.dataset.services
 
+import ch.unil.paf.pumba.common.helpers.DatabaseException
+
 import scala.concurrent.{ExecutionContext, Future}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.play.json.collection.JSONCollection
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId}
 import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats._
-import play.api.libs.json.Json
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 import reactivemongo.bson.BSONDocument
 import play.modules.reactivemongo.json._
+
+import scala.util.{Failure, Success, Try}
 
 class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext) {
 	val collectionName = "dataset"
@@ -21,7 +24,9 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		* @return
 		*/
 	def insertDataSet(dataSet: DataSet): Future[WriteResult] = {
-		collection(collectionName).flatMap(_.insert(dataSet))
+		val writeRes = collection(collectionName).flatMap(_.insert(dataSet))
+
+		checkOrError[WriteResult](writeRes, (res) => (! res.ok), (res) => (res.writeErrors.foldLeft("")((a,b) => a + " ; " + b.errmsg)))
 	}
 
 
@@ -30,7 +35,12 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		* @return
 		*/
 	def dropAll(): Future[Boolean] = {
-		collection(collectionName).flatMap(_.drop(failIfNotFound = false))
+		val dropRes = collection(collectionName).flatMap(_.drop(failIfNotFound = false))
+
+		// throw exception if drop went wrong
+		val errorMessage = "Something went wrong while dropping all DataSets."
+
+		checkOrError[Boolean](dropRes, (res) => (! res), (res) => (errorMessage))
 	}
 
 	/**
@@ -39,7 +49,12 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		*/
 	def updateDataSet(dataSet: DataSet): Future[UpdateWriteResult] = {
 		val selector = BSONDocument("id" -> dataSet.id.value)
-		collection(collectionName).flatMap(_.update(selector, dataSet, upsert = false))
+		val updateRes = collection(collectionName).flatMap(_.update(selector, dataSet, upsert = false))
+
+		// throw exception if the update went wrong
+		val errorMessage = s"Something went wrong while updating DataSet [${dataSet.id.value}]."
+
+		checkOrError[UpdateWriteResult](updateRes, (res) => (! res.ok), (res) => (res.errmsg.getOrElse(errorMessage)))
 	}
 
 	/**
@@ -48,7 +63,26 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		*/
 	def findDataSet(dataSetId: DataSetId): Future[Option[DataSet]] = {
 		val query = BSONDocument("id" -> dataSetId.value)
-		collection(collectionName).flatMap(_.find(query).one[DataSet])
+		val findRes = collection(collectionName).flatMap(_.find(query).one[DataSet])
+
+		// throw exception if the update went wrong
+		val errorMessage = s"Could not find DataSet [${dataSetId.value}]."
+
+		checkOrError[Option[DataSet]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
+	}
+
+	/**
+		* generic function which checks if the Future is valid and check the result
+		* @param res
+		* @param check
+		* @param error
+		* @tparam A
+		*/
+	private def checkOrError[A](res: Future[A], check: A => Boolean, error: A => String): Future[A] = {
+		res.transform {
+			case Success(res) => if(check(res)) Failure(new DatabaseException(error(res))) else Success(res)
+			case Failure(t) => Failure(new DatabaseException(t.getMessage))
+		}
 	}
 
 }

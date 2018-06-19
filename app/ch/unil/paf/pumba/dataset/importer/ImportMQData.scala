@@ -1,9 +1,9 @@
 package ch.unil.paf.pumba.dataset.importer
 
-import ch.unil.paf.pumba.common.helpers.{FileFinder, Unzip}
 import java.io.File
 
-import ch.unil.paf.pumba.dataset.models.{DataSetId, MassFitResult}
+import ch.unil.paf.pumba.common.helpers.{FileFinder, Unzip}
+import ch.unil.paf.pumba.dataset.models.DataSetId
 
 /**
   * @author Roman Mylonas
@@ -48,8 +48,6 @@ class ImportMQData {
   def computeMassFit(proteinGroups: File): DataSetId = {
     return DataSetId("dummy")
   }
-
-
 
 
 }

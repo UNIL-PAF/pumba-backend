@@ -28,6 +28,8 @@ object DataSetJsonFormats {
     def writes(o: DataSetStatus) = JsString(o.value)
   }
 
+  implicit val formatMassFitResult = Json.format[MassFitResult]
+
   implicit val formatDataSet = Json.format[DataSet]
 
 }

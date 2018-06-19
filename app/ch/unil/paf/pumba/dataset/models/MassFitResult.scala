@@ -6,4 +6,4 @@ import java.io.File
   * @author Roman Mylonas
   *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
   */
-case class MassFitResult(massFitPicture: File)
+case class MassFitResult(massFitPicturePath: String)

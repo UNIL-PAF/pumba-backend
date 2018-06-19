@@ -1,21 +1,21 @@
 package ch.unil.paf.pumba.controllers
 
-import javax.inject._
-import play.api._
-import play.api.mvc._
-import play.modules.reactivemongo._
-import java.util.Calendar
 import java.io.File
 import java.nio.file.{Path, Paths}
+import java.util.Calendar
 
 import akka.actor.{ActorSystem, Props}
-import ch.unil.paf.pumba.common.rserve.{DummyChangeStatusCallback, DummyPostproccessingCallback, RserveActor}
-import ch.unil.paf.pumba.dataset.services.DataSetService
+import ch.unil.paf.pumba.common.rserve.RserveActor
+import ch.unil.paf.pumba.dataset.importer.{DataSetChangeStatus, DataSetPostprocessing}
 import ch.unil.paf.pumba.dataset.models._
+import ch.unil.paf.pumba.dataset.services.DataSetService
+import javax.inject._
+import play.api._
 import play.api.libs.Files.TemporaryFile
+import play.api.mvc._
+import play.modules.reactivemongo._
 
 import scala.concurrent.ExecutionContext
-
 
 /**
  * Upload MaxQuant data
@@ -44,10 +44,10 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     // process the ZIP file
     request.body.file("zipFile").map { zipFile =>
       // copy file to it's new location
-      val dataDir = copyZipFile(zipFile, new File(uploadDir + dataSetId))
+      val dataDir = copyZipFile(zipFile, new File(uploadDir + dataSetId.value))
 
       // set a creation status in the database
-      val dataSet: DataSet = new DataSet(id = dataSetId, status = DataSetCreated, message = None)
+      val dataSet: DataSet = new DataSet(id = dataSetId, status = DataSetCreated, message = None, massFitResult = None)
       dataSetService.insertDataSet(dataSet)
 
       // start Rserve for preprocessing
@@ -67,8 +67,8 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
   def startScriptToFitMasses(dataSetId: DataSetId, dataDir: Path, rScriptDir: String) = {
     val actorSystem = ActorSystem()
 
-    val changeCallback = new DummyChangeStatusCallback(dataSetId)
-    val postprocCallback = new DummyPostproccessingCallback()
+    val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
+    val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId)
     val rserveActor = actorSystem.actorOf(Props(new RserveActor(changeCallback, postprocCallback)), "rserve")
 
     import ch.unil.paf.pumba.common.rserve.RserveActor.StartScript
