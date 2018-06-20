@@ -4,8 +4,10 @@ import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
 import ch.unil.paf.pumba.common.rexec.RexecActor.{ScriptFinished, StartScript}
 import ch.unil.paf.pumba.common.rexec.RunRScriptActor.RunScript
-import ch.unil.paf.pumba.dataset.models.DataSetId
+import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import play.api.test.Helpers.await
+import scala.concurrent.duration._
 
 /**
   * @author Roman Mylonas
@@ -21,23 +23,10 @@ class RunRScriptActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with I
   "RunRScriptActor" must {
 
     "work in mock mode" in {
-
-      val runRScriptActor = TestActorRef(Props(new RunRScriptActor()), "rscript-1")
+      val runRScriptActor = TestActorRef(Props(new RunRScriptActor("")), "rscript-1")
       runRScriptActor ! RunScript(command = "some_fake_command", mockCall = true)
       expectMsgType[ScriptFinished]
     }
-
-    "throw exception when r file not available" in {
-      val testProbe = TestProbe()
-
-      val runRScriptActor = TestActorRef(Props(new RunRScriptActor()), "rscript-2")
-      runRScriptActor ! RunScript(command = "some_fake_command")
-
-      testProbe
-
-
-    }
-
 
   }
 

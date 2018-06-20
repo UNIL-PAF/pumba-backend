@@ -13,7 +13,7 @@ import org.rosuda.REngine.Rserve.RConnection
   */
 
 object RexecActor {
-  def props(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback) = Props(new RexecActor(changeStatusCallback, postprocessingCallback))
+  def props(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback, rScriptBin: String) = Props(new RexecActor(changeStatusCallback, postprocessingCallback, rScriptBin))
 
   case class StartScript( filePath: Path,
                           parameters: List[(String, String)],
@@ -21,13 +21,24 @@ object RexecActor {
                         )
 
   case class ScriptFinished()
-
-  case class ScriptException(exception: RexecException)
 }
 
-class RexecActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback) extends Actor with ActorLogging {
+class RexecActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback, rScriptBin: String) extends Actor with ActorLogging {
   import RexecActor._
   import ch.unil.paf.pumba.common.rexec.RunRScriptActor._
+  import akka.actor.SupervisorStrategy._
+
+  override val supervisorStrategy =
+    OneForOneStrategy() {
+      case e: RexecException => {
+        createError(e.getMessage)
+        Escalate
+      }
+      case e: Exception => {
+        createError(e.getMessage)
+        Escalate
+      }
+    }
 
   var runScriptActor: ActorRef = null
 
@@ -45,7 +56,7 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallb
       } else {
         // create a new actor that runs the given script
         val command = filePath.toString
-        runScriptActor = context.actorOf(RunRScriptActor.props(), "rscript")
+        runScriptActor = context.actorOf(RunRScriptActor.props(rScriptBin), "rscript")
         runScriptActor ! RunScript(command, mockCall)
         log.info("finished StartScript in RserveActor.")
       }
@@ -65,6 +76,5 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallb
     log.info(errorMessage)
     changeStatusCallback.newStatus(DataSetError, message = Some(errorMessage))
     self ! PoisonPill
-    throw new RexecException(message = errorMessage)
   }
 }

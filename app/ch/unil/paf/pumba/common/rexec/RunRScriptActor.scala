@@ -9,18 +9,20 @@ import akka.actor._
 import ch.unil.paf.pumba.common.rexec.RexecActor.ScriptFinished
 
 object RunRScriptActor {
-  def props() = Props[RunRScriptActor]
+  def props(rscriptPath: String) = Props(new RunRScriptActor(rscriptPath))
 
   case class RunScript(command: String, mockCall: Boolean = false)
 }
 
-class RunRScriptActor extends Actor with ActorLogging {
+class RunRScriptActor(rscriptPath: String) extends Actor with ActorLogging {
 
   import RunRScriptActor._
 
   def receive = {
     case RunScript(command: String, mockCall: Boolean) =>
-      if(mockCall) mockRserve(command)
+      // for the tests
+      if(mockCall) mockRunScript(command)
+      // and in real life
       else runRScript(command)
       sender ! ScriptFinished()
   }
@@ -31,11 +33,13 @@ class RunRScriptActor extends Actor with ActorLogging {
     * @param command
     */
   private def runRScript(command: String): Unit = {
-    log.info(s"run real script with command [$command]")
-    val sleepTime = 100
-    log.info(s"sleep for $sleepTime millis")
-    Thread.sleep(sleepTime)
-    log.info("finished mock script")
+    log.info(s"run R script with command [$command]")
+    if(rscriptPath.isEmpty) throw new RexecException("Path to Rscript is not defined.")
+    val execString = s"${rscriptPath} ${command}"
+    import sys.process._
+    val res: Int = execString !;
+    if(res != 0) throw new RexecException(s"Command [${execString}] returned error status.")
+    log.info("script is done.")
   }
 
 
@@ -44,7 +48,7 @@ class RunRScriptActor extends Actor with ActorLogging {
     *
     * @param command
     */
-  private def mockRserve(command: String): Unit = {
+  private def mockRunScript(command: String): Unit = {
     log.info(s"run mock script with command [$command]")
     val sleepTime = 100
     log.info(s"sleep for $sleepTime millis")

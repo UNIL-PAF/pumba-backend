@@ -39,7 +39,8 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     val dataSetId: DataSetId = new DataSetId(Calendar.getInstance().getTime().getTime.toString)
 
     val uploadDir = config.get[String]("upload.dir")
-    val rScriptDir = config.get[String]("rscript.dir")
+    val rScriptData = config.get[String]("rscript.data")
+    val rScriptBin = config.get[String]("rscript.bin")
 
     // process the ZIP file
     request.body.file("zipFile").map { zipFile =>
@@ -51,7 +52,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
       dataSetService.insertDataSet(dataSet)
 
       // start Rserve for preprocessing
-      startScriptToFitMasses(dataSetId, dataDir, rScriptDir)
+      startScriptToFitMasses(dataSetId, dataDir, rScriptData, rScriptBin)
     }
 
     Ok(dataSetId.value)
@@ -64,12 +65,12 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     * @param dataSetId
     * @param dataDir
     */
-  def startScriptToFitMasses(dataSetId: DataSetId, dataDir: Path, rScriptDir: String) = {
+  def startScriptToFitMasses(dataSetId: DataSetId, dataDir: Path, rScriptDir: String, rScriptBin: String) = {
     val actorSystem = ActorSystem()
 
     val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
     val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId)
-    val rserveActor = actorSystem.actorOf(Props(new RexecActor(changeCallback, postprocCallback)), "rserve")
+    val rserveActor = actorSystem.actorOf(Props(new RexecActor(changeCallback, postprocCallback, rScriptBin)), "rserve")
 
     import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
     rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "sayHello.R"), parameters = List())
