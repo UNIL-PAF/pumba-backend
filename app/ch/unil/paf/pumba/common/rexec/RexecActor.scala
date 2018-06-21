@@ -5,7 +5,6 @@ import java.nio.file.{Files, Path}
 import akka.actor._
 import ch.unil.paf.pumba.dataset.models._
 import akka.actor.{Actor, ActorLogging}
-import org.rosuda.REngine.Rserve.RConnection
 
 /**
   * @author Roman Mylonas

@@ -1,13 +1,10 @@
 package ch.unil.paf.pumba.common.rexec
 
 import akka.actor.{ActorSystem, Props}
-import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
-import ch.unil.paf.pumba.common.rexec.RexecActor.{ScriptFinished, StartScript}
+import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
+import ch.unil.paf.pumba.common.rexec.RexecActor.ScriptFinished
 import ch.unil.paf.pumba.common.rexec.RunRScriptActor.RunScript
-import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-import play.api.test.Helpers.await
-import scala.concurrent.duration._
 
 /**
   * @author Roman Mylonas
