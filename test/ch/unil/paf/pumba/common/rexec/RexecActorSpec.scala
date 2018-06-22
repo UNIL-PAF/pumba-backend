@@ -52,7 +52,7 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
       testProbe watch rexecActor
 
       rexecActor ! StartScript(filePath = Paths.get("not_existant.R"), parameters = List())
-      expectNoMessage(10 milli)
+      expectNoMessage(50 milli)
       testChangeStatusCallback.getLastStatus().value should equal ("error")
       testChangeStatusCallback.getLastMessage() should equal ("R script [not_existant.R] does not exist.")
       postprocessingCallback.isPostprocessingDone() should equal (false)
@@ -63,7 +63,7 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
     "throw exception when rScriptBin does not exist" in {
       val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "")), "rserve-3")
       rexecActor ! StartScript(filePath = Paths.get("test/resources/common/r/sayHello.R"), parameters = List())
-      expectNoMessage(10 milli)
+      expectNoMessage(50 milli)
       testChangeStatusCallback.getLastStatus().value should equal ("error")
       testChangeStatusCallback.getLastMessage() should equal ("Path to Rscript is not defined.")
       postprocessingCallback.isPostprocessingDone() should equal (false)
