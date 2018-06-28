@@ -21,7 +21,8 @@ class RunRScriptActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with I
 
     "work in mock mode" in {
       val runRScriptActor = TestActorRef(Props(new RunRScriptActor("")), "rscript-1")
-      runRScriptActor ! RunScript(command = "some_fake_command", mockCall = true)
+      // since it's a mock call we don't provide any stdout or stderr files
+      runRScriptActor ! RunScript(command = "some_fake_command", None, None, mockCall = true)
       expectMsgType[ScriptFinished]
     }
 

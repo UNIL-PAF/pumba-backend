@@ -5,13 +5,15 @@ package ch.unil.paf.pumba.common.rexec
   *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
   */
 
+import java.io.{File, PrintWriter}
+
 import akka.actor._
 import ch.unil.paf.pumba.common.rexec.RexecActor.ScriptFinished
 
 object RunRScriptActor {
   def props(rscriptPath: String) = Props(new RunRScriptActor(rscriptPath))
 
-  case class RunScript(command: String, mockCall: Boolean = false)
+  case class RunScript(command: String, stdOutFile: Option[File], stdErrFile: Option[File], mockCall : Boolean = false)
 }
 
 class RunRScriptActor(rscriptPath: String) extends Actor with ActorLogging {
@@ -19,11 +21,11 @@ class RunRScriptActor(rscriptPath: String) extends Actor with ActorLogging {
   import RunRScriptActor._
 
   def receive = {
-    case RunScript(command: String, mockCall: Boolean) =>
+    case RunScript(command: String, stdOutFile: Option[File], stdErrFile: Option[File], mockCall: Boolean) =>
       // for the tests
       if(mockCall) mockRunScript(command)
       // and in real life
-      else runRScript(command)
+      else runRScript(command, stdOutFile, stdErrFile)
       sender ! ScriptFinished()
   }
 
@@ -32,12 +34,14 @@ class RunRScriptActor(rscriptPath: String) extends Actor with ActorLogging {
     *
     * @param command
     */
-  private def runRScript(command: String): Unit = {
+  private def runRScript(command: String, stdOutFile: Option[File], stdErrFile: Option[File]): Unit = {
     log.info(s"run R script with command [$command]")
     if(rscriptPath.isEmpty) throw new RexecException("Path to Rscript is not defined.")
     val execString = s"${rscriptPath} ${command}"
     import sys.process._
-    val res: Int = execString !;
+    val stdOutWriter: Option[PrintWriter] = stdOutFile.map(new PrintWriter(_))
+    val stdErrWriter: Option[PrintWriter] = stdErrFile.map(new PrintWriter(_))
+    val res: Int = if(stdOutFile.nonEmpty && stdErrFile.nonEmpty) execString !(ProcessLogger(stdOutWriter.get.println, stdErrWriter.get.println)) else execString !;
     if(res != 0) throw new RexecException(s"Command [${execString}] returned error status.")
     log.info("script is done.")
   }

@@ -70,10 +70,11 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
 
     val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
     val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId)
-    val rserveActor = actorSystem.actorOf(Props(new RexecActor(changeCallback, postprocCallback, rScriptBin)), "rserve")
+    val (stdOutFile, stdErrFile) = createRoutputFiles(dataDir)
+    val rserveActor = actorSystem.actorOf(Props(new RexecActor(changeCallback, postprocCallback, rScriptBin, Some(stdOutFile), Some(stdErrFile))), "rserve")
 
     import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
-    rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "sayHello.R"), parameters = List())
+    rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = List())
   }
 
 
@@ -96,6 +97,18 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     zipFile.ref.moveTo(fileDest, replace = true)
 
     fileDest
+  }
+
+  /**
+    * create log files for R
+    * @param dataDir
+    * @return
+    */
+  private def createRoutputFiles(dataDir: Path): (File, File) = {
+    println("dataDir: " + dataDir.toString)
+    val stdOutFile = new File(dataDir.toString + "/r_stdout.log")
+    val stdErrFile = new File(dataDir.toString + "/r_stderr.log")
+    (stdOutFile, stdErrFile)
   }
 
 }

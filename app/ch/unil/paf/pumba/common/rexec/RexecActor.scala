@@ -1,5 +1,6 @@
 package ch.unil.paf.pumba.common.rexec
 
+import java.io.File
 import java.nio.file.{Files, Path}
 
 import akka.actor._
@@ -12,7 +13,11 @@ import akka.actor.{Actor, ActorLogging}
   */
 
 object RexecActor {
-  def props(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback, rScriptBin: String) = Props(new RexecActor(changeStatusCallback, postprocessingCallback, rScriptBin))
+  def props(changeStatusCallback: ChangeStatusCallback,
+            postprocessingCallback: PostprocessingCallback,
+            rScriptBin: String,
+            stdOutFile: Option[File],
+            stdErrFile: Option[File]) = Props(new RexecActor(changeStatusCallback, postprocessingCallback, rScriptBin, stdOutFile, stdErrFile))
 
   case class StartScript( filePath: Path,
                           parameters: List[(String, String)],
@@ -22,7 +27,11 @@ object RexecActor {
   case class ScriptFinished()
 }
 
-class RexecActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallback: PostprocessingCallback, rScriptBin: String) extends Actor with ActorLogging {
+class RexecActor(changeStatusCallback: ChangeStatusCallback,
+                 postprocessingCallback: PostprocessingCallback,
+                 rScriptBin: String,
+                 stdOutFile: Option[File],
+                 stdErrFile: Option[File]) extends Actor with ActorLogging {
   import RexecActor._
   import ch.unil.paf.pumba.common.rexec.RunRScriptActor._
   import akka.actor.SupervisorStrategy._
@@ -56,7 +65,7 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback, postprocessingCallb
         // create a new actor that runs the given script
         val command = filePath.toString
         runScriptActor = context.actorOf(RunRScriptActor.props(rScriptBin), "rscript")
-        runScriptActor ! RunScript(command, mockCall)
+        runScriptActor ! RunScript(command, stdOutFile, stdErrFile, mockCall)
         log.info("finished StartScript in RserveActor.")
       }
 

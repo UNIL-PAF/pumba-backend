@@ -29,7 +29,8 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
     val rScriptPath = Paths.get("test/resources/common/r/sayHello.R")
 
     "change status" in {
-      val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "")), "rserve-1")
+      // since it's a mock call we don't provide any stdout or stderr files
+      val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "", None, None)), "rserve-1")
 
       // check if actor stopped
       val testProbe = TestProbe()
@@ -45,7 +46,8 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
     }
 
     "throw exception when file does not exist" in {
-      val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "")), "rserve-2")
+      // since it's a mock call we don't provide any stdout or stderr files
+      val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "", None, None)), "rserve-2")
 
       // check if actor stopped
       val testProbe = TestProbe()
@@ -61,7 +63,8 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
     }
 
     "throw exception when rScriptBin does not exist" in {
-      val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "")), "rserve-3")
+      // since it's a mock call we don't provide any stdout or stderr files
+      val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "", None, None)), "rserve-3")
       rexecActor ! StartScript(filePath = Paths.get("test/resources/common/r/sayHello.R"), parameters = List())
       expectNoMessage(50 milli)
       testChangeStatusCallback.getLastStatus().value should equal ("error")
@@ -70,7 +73,8 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
     }
 
     "throw exception when rScriptBin is wrong" in {
-      val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "/invalid/path/Rscript")), "rserve-4")
+      // since it's a mock call we don't provide any stdout or stderr files
+      val rexecActor = TestActorRef(Props(new RexecActor(testChangeStatusCallback, postprocessingCallback, "/invalid/path/Rscript", None, None)), "rserve-4")
       rexecActor ! StartScript(filePath = Paths.get("test/resources/common/r/sayHello.R"), parameters = List())
       expectNoMessage(50 milli)
       testChangeStatusCallback.getLastStatus().value should equal ("error")
