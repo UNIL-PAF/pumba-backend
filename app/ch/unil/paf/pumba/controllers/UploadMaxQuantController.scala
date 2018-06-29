@@ -52,26 +52,39 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
       dataSetService.insertDataSet(dataSet)
 
       // start Rserve for preprocessing
-      startScriptToFitMasses(dataSetId, dataDir, rScriptData, rScriptBin)
+      startScriptToFitMasses(dataSetId, uploadDir, dataDir, rScriptData, rScriptBin)
     }
 
     Ok(dataSetId.value)
   }
 
-
   /**
     * Start the R script which computes the fit to the masses
     *
     * @param dataSetId
+    * @param uploadDir
     * @param dataDir
+    * @param rScriptDir
+    * @param rScriptBin
     */
-  def startScriptToFitMasses(dataSetId: DataSetId, dataDir: Path, rScriptDir: String, rScriptBin: String) = {
+  def startScriptToFitMasses(dataSetId: DataSetId,
+                             uploadDir: String,
+                             dataDir: Path,
+                             rScriptDir: String,
+                             rScriptBin: String) = {
     val actorSystem = ActorSystem()
 
     val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
     val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId)
-    val (stdOutFile, stdErrFile) = createRoutputFiles(dataDir)
-    val rserveActor = actorSystem.actorOf(Props(new RexecActor(changeCallback, postprocCallback, rScriptBin, Some(stdOutFile), Some(stdErrFile))), "rserve")
+    val (stdOutFile, stdErrFile) = createRoutputFiles(uploadDir + dataSetId.value + "/logs")
+    val rserveActor = actorSystem.actorOf(
+                        Props(new RexecActor(
+                                      changeCallback,
+                                      postprocCallback,
+                                      rScriptBin,
+                                      Some(stdOutFile),
+                                      Some(stdErrFile))),
+                      "rserve")
 
     import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
     rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = List())
@@ -87,9 +100,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     */
   private def copyZipFile(zipFile: MultipartFormData.FilePart[TemporaryFile], newDir: File): Path = {
     // create a new directory and put the zip file in there
-    if(! newDir.mkdir()){
-      throw new Exception(s"could not create the directory [$newDir]")
-    }
+    createDir(newDir)
 
     val filename = Paths.get(zipFile.filename).getFileName
     val fileDest: Path = Paths.get(newDir + "/" + filename.toString)
@@ -101,14 +112,27 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
 
   /**
     * create log files for R
-    * @param dataDir
+    * @param logDir
     * @return
     */
-  private def createRoutputFiles(dataDir: Path): (File, File) = {
-    println("dataDir: " + dataDir.toString)
-    val stdOutFile = new File(dataDir.toString + "/r_stdout.log")
-    val stdErrFile = new File(dataDir.toString + "/r_stderr.log")
+  private def createRoutputFiles(logDir: String): (File, File) = {
+
+    createDir(new File(logDir))
+
+    val stdOutFile = new File(logDir + "/r_stdout.log")
+    val stdErrFile = new File(logDir + "/r_stderr.log")
     (stdOutFile, stdErrFile)
+  }
+
+
+  /**
+    * create a directory
+    * @param newDir
+    */
+  private def createDir(newDir: File) = {
+    if(! newDir.mkdir()){
+      throw new Exception(s"could not creates directory [${newDir.getAbsolutePath}]")
+    }
   }
 
 }

@@ -61,7 +61,6 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "throw exception when not finding" in {
-
       val res: Future[Option[DataSet]] = dataSetService.findDataSet(DataSetId("not_existing"))
 
       ScalaFutures.whenReady(res.failed) { e =>
