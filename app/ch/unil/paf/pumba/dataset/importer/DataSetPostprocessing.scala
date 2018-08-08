@@ -3,8 +3,10 @@ package ch.unil.paf.pumba.dataset.importer
 import ch.unil.paf.pumba.common.rexec.PostprocessingCallback
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetDone, DataSetId, MassFitResult}
 import ch.unil.paf.pumba.dataset.services.DataSetService
+import reactivemongo.api.commands.UpdateWriteResult
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 /**
   * @author Roman Mylonas
@@ -16,15 +18,22 @@ class DataSetPostprocessing(dataSetService: DataSetService, dataSetId: DataSetId
     // add the MassFitResult
     val oldData = dataSetService.findDataSet(dataSetId)
 
-    oldData.map( addMassFitResult(_) )
+    oldData.map(addMassFitResult(_))
   }
 
-  private def addMassFitResult(oldDataSetOption: Option[DataSet]) = {
+  private def addMassFitResult(oldDataSetOption: Option[DataSet]): Future[UpdateWriteResult] = {
+
     val oldDataSet = oldDataSetOption.get
-    val massFitResult = new MassFitResult(massFitPicturePath = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.png")
+    val massFitResult = MassFitResult(
+      massFitPicturePath = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.png",
+      massFitRData = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.RData"
+    )
+
     val message = Some("Data was successfully processed.")
     val newDataSet = oldDataSet.copy(massFitResult = Some(massFitResult), status = DataSetDone, message = message)
+
     dataSetService.updateDataSet(newDataSet)
+
   }
 
 }

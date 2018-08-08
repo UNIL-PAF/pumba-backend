@@ -72,7 +72,7 @@ class RunRScriptActor(rscriptPath: String) extends Actor with ActorLogging {
       }
     })
   }
-  
+
   /**
     * make a mock call to Rserve for testing
     *

@@ -38,18 +38,6 @@ class ImportMQData {
     return txtDir
   }
 
-
-  /**
-    * Create a new actor which makes the call to Rserve
-    *
-    * @param proteinGroups
-    * @return returns
-    */
-  def computeMassFit(proteinGroups: File): DataSetId = {
-    return DataSetId("dummy")
-  }
-
-
 }
 
 

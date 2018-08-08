@@ -6,7 +6,7 @@ import java.util.Calendar
 
 import akka.actor.{ActorSystem, Props}
 import ch.unil.paf.pumba.common.rexec.RexecActor
-import ch.unil.paf.pumba.dataset.importer.{DataSetChangeStatus, DataSetPostprocessing}
+import ch.unil.paf.pumba.dataset.importer.{DataSetChangeStatus, DataSetPostprocessing, ImportMQData}
 import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.dataset.services.DataSetService
 import javax.inject._
@@ -27,32 +27,37 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
                                          val reactiveMongoApi: ReactiveMongoApi)
   extends AbstractController(cc) with MongoController with ReactiveMongoComponents{
 
-
   // services
   val dataSetService = new DataSetService(reactiveMongoApi)
 
   /**
     * Upload a zip file and start the pre-processing
     */
-  def uploadZipFile() = Action(parse.multipartFormData) { request =>
+  def uploadZipFile(dataSetName: String, cellLine: String) = Action(parse.multipartFormData) { request =>
     // create a new id
     val dataSetId: DataSetId = new DataSetId(Calendar.getInstance().getTime().getTime.toString)
 
-    val uploadDir = config.get[String]("upload.dir")
+    val uploadDir = new File(config.get[String]("upload.dir") + dataSetId.value)
     val rScriptData = config.get[String]("rscript.data")
     val rScriptBin = config.get[String]("rscript.bin")
 
     // process the ZIP file
     request.body.file("zipFile").map { zipFile =>
       // copy file to it's new location
-      val dataDir = copyZipFile(zipFile, new File(uploadDir + dataSetId.value))
+      val dataDir = copyZipFile(zipFile, uploadDir)
 
       // set a creation status in the database
-      val dataSet: DataSet = new DataSet(id = dataSetId, status = DataSetCreated, message = None, massFitResult = None)
+      val dataSet: DataSet = DataSet(id = dataSetId, name = dataSetName, cellLine = cellLine, status = DataSetCreated, message = None, massFitResult = None)
       dataSetService.insertDataSet(dataSet)
 
+      // unzip the file
+      ImportMQData().unpackZip(dataDir.toFile, uploadDir, removeZip = false)
+
+      // create results directory
+      createDir(new File(uploadDir.toString + "/mass_fit_res"))
+
       // start Rserve for preprocessing
-      startScriptToFitMasses(dataSetId, uploadDir, dataDir, rScriptData, rScriptBin)
+      startScriptToFitMasses(dataSetId, uploadDir, rScriptData, rScriptBin)
     }
 
     Ok(dataSetId.value)
@@ -63,20 +68,18 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     *
     * @param dataSetId
     * @param uploadDir
-    * @param dataDir
     * @param rScriptDir
     * @param rScriptBin
     */
   def startScriptToFitMasses(dataSetId: DataSetId,
-                             uploadDir: String,
-                             dataDir: Path,
+                             uploadDir: File,
                              rScriptDir: String,
                              rScriptBin: String) = {
     val actorSystem = ActorSystem()
 
     val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
     val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId)
-    val (stdOutFile, stdErrFile) = createRoutputFiles(uploadDir + dataSetId.value + "/logs")
+    val (stdOutFile, stdErrFile) = createRoutputFiles(uploadDir + "/logs")
     val rserveActor = actorSystem.actorOf(
                         Props(new RexecActor(
                                       changeCallback,
@@ -87,7 +90,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
                       "rserve")
 
     import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
-    rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = List())
+    rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = List(uploadDir.toString + "/txt/proteinGroups.txt", uploadDir.toString + "/mass_fit_res"))
   }
 
 

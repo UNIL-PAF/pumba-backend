@@ -10,6 +10,7 @@ import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats._
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 import reactivemongo.bson.BSONDocument
 import play.modules.reactivemongo.json._
+import play.api.Logger
 
 import scala.util.{Failure, Success}
 
@@ -80,7 +81,10 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 	private def checkOrError[A](res: Future[A], check: A => Boolean, error: A => String): Future[A] = {
 		res.transform {
 			case Success(res) => if(check(res)) Failure(new DatabaseException(error(res))) else Success(res)
-			case Failure(t) => Failure(new DatabaseException(t.getMessage))
+			case Failure(t) => {
+				Logger.error("An error occured in DataSetService: " + t.toString)
+				Failure(new DatabaseException(t.getMessage))
+			}
 		}
 	}
 

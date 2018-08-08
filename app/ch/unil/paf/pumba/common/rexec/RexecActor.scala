@@ -20,7 +20,7 @@ object RexecActor {
             stdErrFile: Option[File]) = Props(new RexecActor(changeStatusCallback, postprocessingCallback, rScriptBin, stdOutFile, stdErrFile))
 
   case class StartScript( filePath: Path,
-                          parameters: List[(String, String)],
+                          parameters: List[String],
                           mockCall: Boolean = false
                         )
 
@@ -52,7 +52,7 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
 
   def receive = {
 
-    case StartScript(filePath: Path, parameters: List[(String, String)], mockCall: Boolean) => {
+    case StartScript(filePath: Path, parameters: List[String], mockCall: Boolean) => {
       // tell the callback that we started running
       log.info(s"start R script [$filePath]")
       changeStatusCallback.newStatus(DataSetRunning)
@@ -63,7 +63,7 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
         createError(errorMessage)
       } else {
         // create a new actor that runs the given script
-        val command = filePath.toString
+        val command = filePath.toString + " " + parameters.mkString(" ")
         runScriptActor = context.actorOf(RunRScriptActor.props(rScriptBin), "rscript")
         runScriptActor ! RunScript(command, stdOutFile, stdErrFile, mockCall)
         log.info("finished StartScript in RserveActor.")

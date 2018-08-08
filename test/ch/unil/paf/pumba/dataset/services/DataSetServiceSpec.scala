@@ -25,7 +25,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
   before {
     //Init DB
     await {
-      val dataSet = DataSet(id = DataSetId("dummy_id"), status = DataSetCreated, message = None, massFitResult = None)
+      val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", cellLine = "Jurkat", status = DataSetCreated, message = None, massFitResult = None)
       dataSetService.insertDataSet(dataSet)
     }
   }
@@ -37,7 +37,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   "DataSetService" should {
 
-    val dataSet = DataSet(id = DataSetId("dummy_id_2"), status = DataSetCreated, message = None, massFitResult = None)
+    val dataSet = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", cellLine = "Jurkat", status = DataSetCreated, message = None, massFitResult = None)
 
     "insert a DataSet" in {
       val res: WriteResult = await(dataSetService.insertDataSet(dataSet))
@@ -51,7 +51,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "update a DataSet" in {
-      val updatedDataset = DataSet(id = DataSetId("dummy_id"), status = DataSetDone, message = Some("a new message"), massFitResult = None)
+      val updatedDataset = DataSet(id = DataSetId("dummy_id"), name = "dummy", cellLine = "Jurkat", status = DataSetDone, message = Some("a new message"), massFitResult = None)
       val res: UpdateWriteResult = await(dataSetService.updateDataSet(updatedDataset))
       res.ok mustEqual (true)
 
