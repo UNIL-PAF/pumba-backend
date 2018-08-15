@@ -2,17 +2,17 @@ package ch.unil.paf.pumba.dataset.services
 
 import ch.unil.paf.pumba.PlayWithMongoSpec
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetCreated, DataSetDone, DataSetId}
+import ch.unil.paf.pumba.common.helpers.DatabaseException
+
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.{AsyncAssertions, ScalaFutures, Waiters}
 import play.api.test.Helpers._
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 import org.scalatest._
 import Matchers._
-import ch.unil.paf.pumba.common.helpers.DatabaseException
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+
 
 /**
   * @author Roman Mylonas

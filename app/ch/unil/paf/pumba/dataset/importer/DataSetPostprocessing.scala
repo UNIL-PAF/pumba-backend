@@ -3,10 +3,8 @@ package ch.unil.paf.pumba.dataset.importer
 import ch.unil.paf.pumba.common.rexec.PostprocessingCallback
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetDone, DataSetId, MassFitResult}
 import ch.unil.paf.pumba.dataset.services.DataSetService
-import reactivemongo.api.commands.UpdateWriteResult
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 /**
   * @author Roman Mylonas
@@ -16,12 +14,17 @@ class DataSetPostprocessing(dataSetService: DataSetService, dataSetId: DataSetId
 
   def startPostProcessing() = {
     // add the MassFitResult
-    val oldData = dataSetService.findDataSet(dataSetId)
+    val oldDataFuture = dataSetService.findDataSet(dataSetId)
 
-    oldData.map(addMassFitResult(_))
+    for {
+      oldData <- oldDataFuture
+      newDataSet = addMassFitResult(oldData)
+      ok <- addProteinsToDb(newDataSet)
+    } yield (ok)
+
   }
 
-  private def addMassFitResult(oldDataSetOption: Option[DataSet]): Future[UpdateWriteResult] = {
+  private def addMassFitResult(oldDataSetOption: Option[DataSet]): DataSet = {
 
     val oldDataSet = oldDataSetOption.get
     val massFitResult = MassFitResult(
@@ -34,6 +37,11 @@ class DataSetPostprocessing(dataSetService: DataSetService, dataSetId: DataSetId
 
     dataSetService.updateDataSet(newDataSet)
 
+    newDataSet
+  }
+
+  private def addProteinsToDb(dataSet: DataSet): Future[Boolean] = {
+    return Future{true}
   }
 
 }
