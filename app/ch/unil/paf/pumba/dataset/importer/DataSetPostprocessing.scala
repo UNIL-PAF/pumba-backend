@@ -8,7 +8,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author Roman Mylonas
-  *         copyright 2016-2017, SIB Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 class DataSetPostprocessing(dataSetService: DataSetService, dataSetId: DataSetId)(implicit ec: ExecutionContext) extends PostprocessingCallback{
 

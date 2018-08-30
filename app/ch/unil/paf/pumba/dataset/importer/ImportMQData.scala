@@ -3,11 +3,10 @@ package ch.unil.paf.pumba.dataset.importer
 import java.io.File
 
 import ch.unil.paf.pumba.common.helpers.{FileFinder, Unzip}
-import ch.unil.paf.pumba.dataset.models.DataSetId
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 class ImportMQData {
 

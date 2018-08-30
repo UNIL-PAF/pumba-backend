@@ -8,17 +8,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * @author Roman Mylonas
-  *         copyright 2016-2017, SIB Swiss Institute of Bioinformatics
+  * copyright 2018, Protein Analysis Facility UNIL
   */
 
 
 final case class DatabaseException(private val message: String = "",
                                  private val cause: Throwable = None.orNull) extends Exception(message, cause)
 
-
-
 trait DatabaseError {
-
   /**
     * generic function which checks if the result is valid and otherwise throws a DataBaseExcpetion
     * @param res

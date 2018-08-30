@@ -10,9 +10,12 @@ import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats._
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 import reactivemongo.bson.BSONDocument
 import play.modules.reactivemongo.json._
-import play.api.Logger
 
-import scala.util.{Failure, Success}
+
+/**
+	* @author Roman Mylonas
+	* copyright 2018, Protein Analysis Facility UNIL
+	*/
 
 class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext) extends DatabaseError{
 	val collectionName = "dataset"
