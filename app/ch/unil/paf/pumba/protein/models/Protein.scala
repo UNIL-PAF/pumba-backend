@@ -8,8 +8,8 @@ import ch.unil.paf.pumba.dataset.models.DataSetId
   */
 case class Protein(
                     dataSetId: DataSetId,
-                    proteinIDs: List[String],
-                    geneNames: List[String],
+                    proteinIDs: Seq[String],
+                    geneNames: Seq[String],
                     theoMolWeight: Double,
-                    intensities: List[Double]
+                    intensities: Seq[Double]
                   )
