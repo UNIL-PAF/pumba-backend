@@ -16,7 +16,7 @@ import ch.unil.paf.pumba.dataset.services.DataSetService
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 class UploadMaxQuantControllerSpec extends PlayWithControllerSpec with BeforeAndAfter {
 

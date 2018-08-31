@@ -7,7 +7,7 @@ import play.modules.reactivemongo.ReactiveMongoApi
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 
 trait PlayWithMongoSpec extends PlaySpec with GuiceOneAppPerSuite {

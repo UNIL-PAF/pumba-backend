@@ -3,7 +3,7 @@ import ch.unil.paf.pumba.dataset.models.{DataSetId, DataSetStatus}
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 class DummyChangeStatusCallback(id: DataSetId) extends ChangeStatusCallback {
 

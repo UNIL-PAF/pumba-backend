@@ -5,7 +5,7 @@ import org.specs2.mutable.Specification
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 class UnZipSpecs extends Specification {
 

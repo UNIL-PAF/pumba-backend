@@ -5,7 +5,7 @@ import akka.stream.ActorMaterializer
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 trait PlayWithControllerSpec extends PlayWithMongoSpec{
 

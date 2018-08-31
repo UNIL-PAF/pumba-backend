@@ -1,15 +1,15 @@
 package ch.unil.paf.pumba.dataset.services
 
 import ch.unil.paf.pumba.PlayWithMongoSpec
-import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetCreated, DataSetDone, DataSetId}
+import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.common.helpers.DatabaseException
-
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.{AsyncAssertions, ScalaFutures, Waiters}
 import play.api.test.Helpers._
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 import org.scalatest._
 import Matchers._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -66,6 +66,20 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       ScalaFutures.whenReady(res.failed) { e =>
         e shouldBe a [DatabaseException]
       }
+    }
+
+  }
+
+  "DataSetService with massFitResult" should {
+
+    val massFitRes = MassFitResult("hoho", "hihi", "coucou")
+    val dataSet2 = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", cellLine = "Jurkat", status = DataSetCreated, message = None, massFitResult = Some(massFitRes))
+
+    "insert a DataSet" in {
+
+      val res2: WriteResult = await(dataSetService.insertDataSet(dataSet2))
+      res2.ok mustEqual (true)
+
     }
 
   }

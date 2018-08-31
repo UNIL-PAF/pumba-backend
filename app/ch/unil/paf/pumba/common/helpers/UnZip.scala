@@ -5,7 +5,7 @@ import net.lingala.zip4j.core.ZipFile
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 object Unzip {
 

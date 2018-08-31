@@ -1,12 +1,16 @@
 package ch.unil.paf.pumba.common.rexec
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
 /**
   * @author Roman Mylonas
-  *         copyright 2016-2017, SIB Swiss Institute of Bioinformatics
+  * copyright 2018, Protein Analysis Facility UNIL
   */
 class TestPostprocessingCallback extends PostprocessingCallback {
-  override def startPostProcessing(): Unit = {
+  override def startPostProcessing(): Future[Int] = {
     TestPostprocessingCallback.postProcessingDone = true
+    Future{0}
   }
 
   /**

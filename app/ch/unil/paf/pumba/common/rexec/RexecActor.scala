@@ -6,10 +6,12 @@ import java.nio.file.{Files, Path}
 import akka.actor._
 import ch.unil.paf.pumba.dataset.models._
 import akka.actor.{Actor, ActorLogging}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 
 object RexecActor {
@@ -40,11 +42,11 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
     OneForOneStrategy() {
       case e: RexecException => {
         createError(e.getMessage)
-        Escalate
+        Stop
       }
       case e: Exception => {
         createError(e.getMessage)
-        Escalate
+        Stop
       }
     }
 
@@ -74,14 +76,24 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
     case ScriptFinished() => {
       log.info("called ScriptFinished.")
       changeStatusCallback.newStatus(DataSetRunning, message = Some("R script is done. Start post-processing."))
-      postprocessingCallback.startPostProcessing()
+      val futureNrProts = postprocessingCallback.startPostProcessing()
+
+      futureNrProts.onComplete {
+        case Success(a) => {
+          log.info(s"Finished inserting [$a] proteins.")
+          changeStatusCallback.newStatus(DataSetDone, message = Some("Dataset is added to the database."))
+        }
+        case Failure(e) => createError(e.getMessage)
+      }
+
+
       context.stop(runScriptActor)
       self ! PoisonPill
     }
   }
 
   private def createError(errorMessage: String) = {
-    log.info(errorMessage)
+    log.error(errorMessage)
     changeStatusCallback.newStatus(DataSetError, message = Some(errorMessage))
     self ! PoisonPill
   }

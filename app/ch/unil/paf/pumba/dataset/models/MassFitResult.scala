@@ -2,6 +2,10 @@ package ch.unil.paf.pumba.dataset.models
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
-case class MassFitResult(massFitPicturePath: String, massFitRData: String)
+case class MassFitResult(
+                          massFitPicturePath: String,
+                          massFitRData: String,
+                          proteinGroupsPath: String
+                        )

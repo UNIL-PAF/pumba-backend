@@ -27,7 +27,7 @@ trait DatabaseError {
     res.transform {
       case Success(res) => if (check(res)) Failure(new DatabaseException(error(res))) else Success(res)
       case Failure(t) => {
-        Logger.error("An error occured in DataSetService: " + t.toString)
+        Logger.error("An error occurred in DataSetService: " + t.toString)
         Failure(new DatabaseException(t.getMessage))
       }
     }

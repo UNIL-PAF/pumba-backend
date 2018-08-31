@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL  & Vital-IT Swiss Institute of Bioinformatics
+  *         copyright 2018, Protein Analysis Facility UNIL
   */
 class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with ImplicitSender
   with WordSpecLike with Matchers with BeforeAndAfterAll {

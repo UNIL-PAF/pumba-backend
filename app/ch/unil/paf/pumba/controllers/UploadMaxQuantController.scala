@@ -9,6 +9,7 @@ import ch.unil.paf.pumba.common.rexec.RexecActor
 import ch.unil.paf.pumba.dataset.importer.{DataSetChangeStatus, DataSetPostprocessing, ImportMQData}
 import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.dataset.services.DataSetService
+import ch.unil.paf.pumba.protein.services.ProteinService
 import javax.inject._
 import play.api._
 import play.api.libs.Files.TemporaryFile
@@ -29,6 +30,10 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
 
   // services
   val dataSetService = new DataSetService(reactiveMongoApi)
+  val proteinService = new ProteinService(reactiveMongoApi)
+
+  // root data directory
+  val rootDataDir = config.get[String]("upload.dir")
 
   /**
     * Upload a zip file and start the pre-processing
@@ -36,8 +41,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
   def uploadZipFile(dataSetName: String, cellLine: String) = Action(parse.multipartFormData) { request =>
     // create a new id
     val dataSetId: DataSetId = new DataSetId(Calendar.getInstance().getTime().getTime.toString)
-
-    val uploadDir = new File(config.get[String]("upload.dir") + dataSetId.value)
+    val uploadDir = new File(rootDataDir + dataSetId.value)
     val rScriptData = config.get[String]("rscript.data")
     val rScriptBin = config.get[String]("rscript.bin")
 
@@ -78,9 +82,9 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     val actorSystem = ActorSystem()
 
     val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
-    val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId)
+    val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId, proteinService, rootDataDir)
     val (stdOutFile, stdErrFile) = createRoutputFiles(uploadDir + "/logs")
-    val rserveActor = actorSystem.actorOf(
+    val rexecActor = actorSystem.actorOf(
                         Props(new RexecActor(
                                       changeCallback,
                                       postprocCallback,
@@ -90,7 +94,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
                       "rserve")
 
     import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
-    rserveActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = List(uploadDir.toString + "/txt/proteinGroups.txt", uploadDir.toString + "/mass_fit_res"))
+    rexecActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = List(uploadDir.toString + "/txt/proteinGroups.txt", uploadDir.toString + "/mass_fit_res"))
   }
 
 

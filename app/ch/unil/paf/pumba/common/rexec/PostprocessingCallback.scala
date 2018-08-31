@@ -1,9 +1,11 @@
 package ch.unil.paf.pumba.common.rexec
 
+import scala.concurrent.Future
+
 /**
   * @author Roman Mylonas
-  *         copyright 2016-2017, SIB Swiss Institute of Bioinformatics
+  * copyright 2018, Protein Analysis Facility UNIL
   */
 trait PostprocessingCallback {
-  def startPostProcessing()
+  def startPostProcessing(): Future[Int]
 }
