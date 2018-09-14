@@ -43,7 +43,7 @@ class ImportProteinsSpec extends PlayWithMongoSpec with BeforeAndAfter {
       await( ImportProteins().importProteins(proteins2, proteinService) )
       val proteins: List[Protein] = await( proteinService.findProteins(dataSetId, "A0A024R216") )
       proteins.length mustEqual(1)
-      proteins(0).proteinIDs mustEqual(Seq("A0A024R216"))
+      proteins(0).proteinIDs mustEqual(Seq("A0A024R216", "Q9Y3E1"))
     }
 
   }
