@@ -25,18 +25,18 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val protein = Protein(
     dataSetId = DataSetId("dummy_id"),
-    proteinIDs = List("A0A096LP75", "C4AMC7", "Q6VEQ5", "Q9NQA3", "A8K0Z3"),
-    geneNames = List("WASH3P", "WASH2P", "WASH6P", "WASH1"),
+    proteinIDs = Seq("A0A096LP75", "C4AMC7", "Q6VEQ5", "Q9NQA3", "A8K0Z3"),
+    geneNames = Seq("WASH3P", "WASH2P", "WASH6P", "WASH1"),
     theoMolWeight = 50.073,
-    intensities = List(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31049000, 108350000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31049000, 108350000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   )
 
   val protein_2 = Protein(
     dataSetId = DataSetId("dummy_id"),
-    proteinIDs = List("A0A096LPI6", "P30042", "A0A096LP75"),
-    geneNames = List("C21orf33"),
+    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
+    geneNames = Seq("C21orf33"),
     theoMolWeight = 30.376,
-    intensities = List(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
   )
 
   before {
@@ -56,7 +56,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
     val protein_3 = protein_2.copy(dataSetId = DataSetId("dummy_id_2"))
 
-    "insert second protein" in {
+    "insert a protein" in {
       val res: WriteResult = await(proteinService.insertProtein(protein_3))
       res.ok mustEqual (true)
     }
@@ -73,7 +73,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       res.filter(_.theoMolWeight == 30.376).length mustEqual 1
     }
 
-    "throw exception when not finding" in {
+    "throw exception when not finding protein" in {
       val res: Future[List[Protein]] = proteinService.findProteins(DataSetId("not_existing"), "not_existing")
 
       ScalaFutures.whenReady(res.failed) { e =>

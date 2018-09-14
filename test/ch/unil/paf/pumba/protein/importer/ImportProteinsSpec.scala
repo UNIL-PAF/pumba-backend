@@ -15,7 +15,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
   *         copyright 2018, Protein Analysis Facility UNIL
   */
 class ImportProteinsSpec extends PlayWithMongoSpec with BeforeAndAfter {
-
   val proteinService = new ProteinService(reactiveMongoApi)
 
   before {
@@ -32,20 +31,21 @@ class ImportProteinsSpec extends PlayWithMongoSpec with BeforeAndAfter {
     // prepare the proteinIterator
     val dataSetId = DataSetId("dummy_id")
     val proteinGroupsFile = new File("test/resources/max_quant/tiny_proteinGroups.txt")
-    val proteins: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId)
-    val nrImports = await(ImportProteins().importProteins(proteins, proteinService))
-
 
     "import the correct number of proteins" in {
+      val proteins: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId)
+      val nrImports = await( ImportProteins().importProteins(proteins, proteinService) )
       nrImports mustEqual(99)
     }
 
     "protein [A0A024R216] should be inserted" in {
-      val proteins: List[Protein] = await(proteinService.findProteins(dataSetId, "Q9Y3E1"))
-      proteins.length mustEqual(99)
+      val proteins2: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId)
+      await( ImportProteins().importProteins(proteins2, proteinService) )
+      val proteins: List[Protein] = await( proteinService.findProteins(dataSetId, "A0A024R216") )
+      proteins.length mustEqual(1)
       proteins(0).proteinIDs mustEqual(Seq("A0A024R216"))
-
     }
+
   }
 
 }

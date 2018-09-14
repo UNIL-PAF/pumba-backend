@@ -9,6 +9,7 @@ import java.io.{File, FileOutputStream, PrintWriter}
 
 import akka.actor._
 import ch.unil.paf.pumba.common.rexec.RexecActor.ScriptFinished
+import ch.unil.paf.pumba.dataset.models.DataSetError
 
 object RunRScriptActor {
   def props(rscriptPath: String) = Props(new RunRScriptActor(rscriptPath))

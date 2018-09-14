@@ -1,11 +1,12 @@
 package ch.unil.paf.pumba.common.rexec
 
-import java.io.File
+import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
 
 import akka.actor._
 import ch.unil.paf.pumba.dataset.models._
 import akka.actor.{Actor, ActorLogging}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
@@ -40,10 +41,6 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
 
   override val supervisorStrategy =
     OneForOneStrategy() {
-      case e: RexecException => {
-        createError(e.getMessage)
-        Stop
-      }
       case e: Exception => {
         createError(e.getMessage)
         Stop

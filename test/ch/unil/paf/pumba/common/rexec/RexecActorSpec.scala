@@ -38,8 +38,8 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
 
       rexecActor ! StartScript(filePath = rScriptPath, parameters = List(), mockCall = true)
       expectNoMessage(200 milli)
-      testChangeStatusCallback.getLastStatus().value should equal ("running")
-      testChangeStatusCallback.getLastMessage() should equal ("R script is done. Start post-processing.")
+      testChangeStatusCallback.getLastStatus().value should equal ("done")
+      testChangeStatusCallback.getLastMessage() should equal ("Dataset is added to the database.")
       postprocessingCallback.isPostprocessingDone() should equal (true)
 
       testProbe.expectTerminated(rexecActor)
