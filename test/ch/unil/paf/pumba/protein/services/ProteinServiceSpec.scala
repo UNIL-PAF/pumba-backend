@@ -67,6 +67,12 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       res(0).theoMolWeight mustEqual 30.376
     }
 
+    "find another protein" in {
+      val res: List[Protein] = await(proteinService.findProteins(DataSetId("dummy_id"), "C4AMC7"))
+      res.length mustEqual 1
+      res(0).theoMolWeight mustEqual 50.073
+    }
+
     "find multiple proteins" in {
       val res: List[Protein] = await(proteinService.findProteins(DataSetId("dummy_id"), "A0A096LP75"))
       res.length mustEqual 2
