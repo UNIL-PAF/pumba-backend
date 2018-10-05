@@ -9,5 +9,8 @@ GET     /                           ch.unil.paf.pumba.controllers.HomeController
 # upload MaxQuant data
 POST	/upload/:dataSetName/cell-line/:cellLine        ch.unil.paf.pumba.controllers.UploadMaxQuantController.uploadZipFile(dataSetName: String, cellLine: String)
 
+# get the protein infos
+GET /proteins/:proteinId
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

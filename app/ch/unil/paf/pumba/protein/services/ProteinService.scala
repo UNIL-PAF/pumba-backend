@@ -47,18 +47,33 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
   }
 
   /**
-    * find a DataSet
+    * get a protein from a given DataSet
     * @param dataSetId
+    * @param proteinId
     */
-  def findProteins(dataSetId: DataSetId, proteinAc: String): Future[List[Protein]] = {
-    val query = BSONDocument("dataSetId" -> dataSetId.value, "proteinIDs" -> proteinAc)
+  def getProteinsFromDataSet(dataSetId: DataSetId, proteinId: String): Future[List[Protein]] = {
+    val query = BSONDocument("dataSetId" -> dataSetId.value, "proteinIDs" -> proteinId)
     val findRes:Future[List[Protein]] = collection(collectionName).flatMap(_.find(query).cursor[Protein]().collect[List](-1, Cursor.FailOnError[List[Protein]]()))
 
     // throw exception if the update went wrong
-    val errorMessage = s"Could not find Protein [${proteinAc}] in [${dataSetId.value}]."
-
+    val errorMessage = s"Could not find Protein [${proteinId}] in [${dataSetId.value}]."
     checkOrError[List[Protein]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
   }
+
+
+  /**
+    * get all proteins with a given searchId
+    * @param proteinId
+    * @return
+    */
+  def getProteins(proteinId: String): Future[List[Protein]] = {
+    val query = BSONDocument("proteinIDs" -> proteinId)
+    val findRes:Future[List[Protein]] = collection(collectionName).flatMap(_.find(query).cursor[Protein]().collect[List](-1, Cursor.FailOnError[List[Protein]]()))
+
+    val errorMessage = s"Could not find Protein [${proteinId}]."
+    checkOrError[List[Protein]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
+  }
+
 
 
 }

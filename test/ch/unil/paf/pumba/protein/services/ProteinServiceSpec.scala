@@ -39,11 +39,20 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
   )
 
+  val protein_3 = Protein(
+    dataSetId = DataSetId("dummy_id_2"),
+    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
+    geneNames = Seq("C21orf33"),
+    theoMolWeight = 30.376,
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
+  )
+
   before {
     //Init DB
     await {
       proteinService.insertProtein(protein)
       proteinService.insertProtein(protein_2)
+      proteinService.insertProtein(protein_3)
     }
   }
 
@@ -61,31 +70,38 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       res.ok mustEqual (true)
     }
 
-    "find a protein" in {
-      val res: List[Protein] = await(proteinService.findProteins(DataSetId("dummy_id"), "A0A096LPI6"))
+    "find a protein from a dataset" in {
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), "A0A096LPI6"))
       res.length mustEqual 1
       res(0).theoMolWeight mustEqual 30.376
     }
 
-    "find another protein" in {
-      val res: List[Protein] = await(proteinService.findProteins(DataSetId("dummy_id"), "C4AMC7"))
+    "find another protein from a dataset" in {
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), "C4AMC7"))
       res.length mustEqual 1
       res(0).theoMolWeight mustEqual 50.073
     }
 
-    "find multiple proteins" in {
-      val res: List[Protein] = await(proteinService.findProteins(DataSetId("dummy_id"), "A0A096LP75"))
+    "find multiple proteins from a dataset" in {
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), "A0A096LP75"))
       res.length mustEqual 2
       res.filter(_.theoMolWeight == 30.376).length mustEqual 1
     }
 
     "throw exception when not finding protein" in {
-      val res: Future[List[Protein]] = proteinService.findProteins(DataSetId("not_existing"), "not_existing")
+      val res: Future[List[Protein]] = proteinService.getProteinsFromDataSet(DataSetId("not_existing"), "not_existing")
 
       ScalaFutures.whenReady(res.failed) { e =>
         e shouldBe a [DatabaseException]
       }
     }
+
+    "find protein" in {
+      val res: List[Protein] = await(proteinService.getProteins("A0A096LP75"))
+      res.length mustEqual 3
+      res.filter(_.theoMolWeight == 30.376).length mustEqual 2
+    }
+
 
   }
 

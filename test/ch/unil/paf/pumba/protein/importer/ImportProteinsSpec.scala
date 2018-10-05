@@ -41,7 +41,7 @@ class ImportProteinsSpec extends PlayWithMongoSpec with BeforeAndAfter {
     "protein [A0A024R216] should be inserted" in {
       val proteins2: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId)
       await( ImportProteins().importProteins(proteins2, proteinService) )
-      val proteins: List[Protein] = await( proteinService.findProteins(dataSetId, "A0A024R216") )
+      val proteins: List[Protein] = await( proteinService.getProteinsFromDataSet(dataSetId, "A0A024R216") )
       proteins.length mustEqual(1)
       proteins(0).proteinIDs mustEqual(Seq("A0A024R216", "Q9Y3E1"))
     }
