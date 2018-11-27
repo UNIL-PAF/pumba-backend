@@ -1,10 +1,12 @@
 package ch.unil.paf.pumba.protein.services
 
-import ch.unil.paf.pumba.common.helpers.{DatabaseError, DatabaseException}
+import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseError, DatabaseException}
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId}
 import ch.unil.paf.pumba.dataset.services.DataSetService
 import ch.unil.paf.pumba.protein.models.{Protein, ProteinFactory, ProteinWithDataSet}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
+import play.api.Logger
+import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
 import reactivemongo.api.commands.WriteResult
@@ -13,6 +15,8 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.modules.reactivemongo.json.ImplicitBSONHandlers._
+
+import scala.util.{Failure, Success, Try}
 
 /**
   * @author Roman Mylonas
@@ -89,6 +93,42 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
     // get the original list of proteins
     val protListFuture: Future[List[Protein]] = getProteins(proteinId)
 
+    addDataSet(protListFuture)
+  }
+
+
+  /**
+    * get a list of proteins with their corresponding dataSet information
+    * @param proteinId
+    * @param dataSetIds
+    * @return
+    */
+  def getProteinsWithDataSet(proteinId: String, dataSetIds: Seq[DataSetId]): Future[List[ProteinWithDataSet]] = {
+
+    // get the original list of proteins
+    val protListFuture: Seq[Future[List[Protein]]] = dataSetIds.map( (dataSetId) => {
+      val proteins: Future[List[Protein]] = getProteinsFromDataSet(dataSetId, proteinId)
+
+      val transProts: Future[List[Protein]] = proteins.transform({
+          case Success(proteins) => Success(proteins)
+          case Failure(e) => {
+            e match {
+              case DataNotFoundException(m, c) => {
+                Logger.info(m)
+                Success(List.empty)
+              }
+              case e => Failure(e)
+            }
+          }
+        })
+      transProts
+    })
+
+    val protFutureList: Future[List[Protein]] = Future.sequence(protListFuture).map(_.flatten.toList)
+    addDataSet(protFutureList)
+  }
+
+  private def addDataSet(protListFuture: Future[List[Protein]]): Future[List[ProteinWithDataSet]] = {
     // add the dataSet information to the proteins
     val newProtListFuture: Future[List[ProteinWithDataSet]] = protListFuture.flatMap( protList =>  {
       val newProtList: List[Future[ProteinWithDataSet]] = protList.map(prot => {
@@ -105,6 +145,5 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
 
     newProtListFuture
   }
-
 
 }

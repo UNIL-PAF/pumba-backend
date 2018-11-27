@@ -50,6 +50,15 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
   )
 
+
+  val protein_4 = Protein(
+    dataSetId = DataSetId("dummy_id_3"),
+    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
+    geneNames = Seq("C21orf33"),
+    theoMolWeight = 30.376,
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
+  )
+
   val dataSet_1 = DataSet(
     id = DataSetId("dummy_id"),
     name = "dummy",
@@ -68,14 +77,35 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     massFitResult = None
   )
 
+  val dataSet_3 = DataSet(
+    id = DataSetId("dummy_id_3"),
+    name = "dummy 3",
+    sample = "Blublu",
+    status = DataSetDone,
+    message = None,
+    massFitResult = None
+  )
+
+  val dataSet_4 = DataSet(
+    id = DataSetId("dummy_id_4"),
+    name = "dummy 4",
+    sample = "Blublu",
+    status = DataSetDone,
+    message = None,
+    massFitResult = None
+  )
+
   before {
     //Init DB
     await {
       proteinService.insertProtein(protein)
       proteinService.insertProtein(protein_2)
       proteinService.insertProtein(protein_3)
+      proteinService.insertProtein(protein_4)
       dataSetService.insertDataSet(dataSet_1)
       dataSetService.insertDataSet(dataSet_2)
+      dataSetService.insertDataSet(dataSet_3)
+      dataSetService.insertDataSet(dataSet_4)
     }
   }
 
@@ -121,16 +151,23 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
     "find protein" in {
       val res: List[Protein] = await(proteinService.getProteins("A0A096LP75"))
-      res.length mustEqual 3
-      res.filter(_.theoMolWeight == 30.376).length mustEqual 2
+      res.length mustEqual 4
+      res.filter(_.theoMolWeight == 30.376).length mustEqual 3
     }
 
     "find protein with dataSet" in {
       val res: List[ProteinWithDataSet] = await(proteinService.getProteinsWithDataSet("A0A096LP75"))
-      res.length mustEqual 3
+      res.length mustEqual 4
       res(0).dataSet.sample mustEqual("Jurkat")
     }
 
+    "find protein with dataSet for certain dataSets" in {
+      val dataSets = Seq(DataSetId("dummy_id"), DataSetId("dummy_id_3"), DataSetId("dummy_id_4"))
+      val res: List[ProteinWithDataSet] = await(proteinService.getProteinsWithDataSet("A0A096LP75", dataSetIds = dataSets))
+
+      res.length mustEqual 3
+      res(0).dataSet.sample mustEqual("Jurkat")
+    }
 
   }
 

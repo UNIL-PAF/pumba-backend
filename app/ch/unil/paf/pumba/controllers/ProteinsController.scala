@@ -1,5 +1,6 @@
 package ch.unil.paf.pumba.controllers
 import ch.unil.paf.pumba.common.helpers.DataNotFoundException
+import ch.unil.paf.pumba.dataset.models.DataSetId
 import ch.unil.paf.pumba.protein.services.{ProteinMergeService, ProteinService}
 import javax.inject._
 import play.api._
@@ -49,6 +50,19 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       }
     })
 
+  }
+
+
+  def mergeProteins(proteinId: String, dataSetIdString: String) = Action.async{
+    val SAMPLE_SEP = ","
+
+    val dataSetIds: Seq[DataSetId] = dataSetIdString.split(SAMPLE_SEP).map(DataSetId(_))
+
+    val proteins = proteinService.getProteinsWithDataSet(proteinId, dataSetIds)
+
+    println(proteins)
+
+    Future{ ??? }
   }
 
 
