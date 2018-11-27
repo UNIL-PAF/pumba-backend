@@ -9,9 +9,9 @@ package ch.unil.paf.pumba.protein.models
   * A theoretical protein created from the merge of several proteins
   * @param name
   * @param theoMolWeights
-  * @param normIntensities
+  * @param intensities
   */
-case class TheoMergedProtein(name: String, theoMolWeights: Seq[Double], normIntensities: Seq[Double])
+case class TheoMergedProtein(name: String, theoMolWeights: Seq[Double], intensities: Seq[Double])
 
 /**
   * Contains the merged protein together with all its original proteins

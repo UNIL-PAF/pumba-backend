@@ -1,5 +1,7 @@
 package ch.unil.paf.pumba.protein.services
 
+import java.util.Calendar
+
 import ch.unil.paf.pumba.protein.models.{ProteinWithDataSet, TheoMergedProtein}
 import org.rosuda.REngine._
 import org.rosuda.REngine.Rserve.RConnection
@@ -21,10 +23,14 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
   Logger.info(loadLibRes.toDebugString)
 
   def multiplyThis(d: Int): Int = {
-    val vec: Seq[Double] = Seq(3.4, 5.6)
-    val rVec = new REXPDouble(vec.toArray)
-    //REXPList
-    //val rList:RList = rConnection.assign()
+
+    val name = "list_" + Calendar.getInstance().getTimeInMillis.toString
+
+    val rListBuff = new StringBuilder
+    rListBuff.append(s"$name <- list();\n")
+    rListBuff.append(s"$name <- list();\n")
+
+    println(rListBuff.toString)
 
     val res: Int = rConnection.eval(s"Sys.sleep(5); $d*$multiplier;").asInteger()
     multiplier += 1
@@ -33,6 +39,14 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
   }
 
   def mergeProteins(proteins: Seq[ProteinWithDataSet]): TheoMergedProtein = {
+    // make a new unique name for the list
+    val name = Calendar.getInstance().getTimeInMillis.toString
+
+    val rListBuff = new StringBuilder
+    rListBuff.append(s"$name <- list();\n")
+
+    println(rListBuff.toString)
+
     ???
   }
 
