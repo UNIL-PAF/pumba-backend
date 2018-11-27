@@ -1,6 +1,6 @@
 package ch.unil.paf.pumba.protein.models
 
-import ch.unil.paf.pumba.dataset.models._
+import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.formatDataSet
 import play.api.libs.json._
 import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.formatDataSetId
 
@@ -12,5 +12,7 @@ import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.formatDataSetId
 object ProteinJsonFormats {
 
   implicit val formatProtein = Json.format[Protein]
+
+  implicit val formatProteinWithDataSet = Json.format[ProteinWithDataSet]
 
 }

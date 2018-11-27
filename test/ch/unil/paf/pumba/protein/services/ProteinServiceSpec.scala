@@ -1,18 +1,20 @@
 package ch.unil.paf.pumba.protein.services
 
 import ch.unil.paf.pumba.PlayWithMongoSpec
-import ch.unil.paf.pumba.common.helpers.DatabaseException
-import ch.unil.paf.pumba.dataset.models.DataSetId
-import ch.unil.paf.pumba.protein.models.Protein
-
+import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseException}
+import ch.unil.paf.pumba.dataset.models._
+import ch.unil.paf.pumba.protein.models.{Protein, ProteinWithDataSet}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.Helpers.await
 import reactivemongo.api.commands.WriteResult
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test.Helpers._
 import org.scalatest._
 import Matchers._
+import ch.unil.paf.pumba.dataset.services.DataSetService
+
 import scala.concurrent.Future
 
 /**
@@ -22,6 +24,7 @@ import scala.concurrent.Future
 class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val proteinService = new ProteinService(reactiveMongoApi)
+  val dataSetService = new DataSetService(reactiveMongoApi)
 
   val protein = Protein(
     dataSetId = DataSetId("dummy_id"),
@@ -47,12 +50,32 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
   )
 
+  val dataSet_1 = DataSet(
+    id = DataSetId("dummy_id"),
+    name = "dummy",
+    sample = "Jurkat",
+    status = DataSetDone,
+    message = None,
+    massFitResult = None
+  )
+
+  val dataSet_2 = DataSet(
+    id = DataSetId("dummy_id_2"),
+    name = "dummy 2",
+    sample = "Jurkat",
+    status = DataSetDone,
+    message = None,
+    massFitResult = None
+  )
+
   before {
     //Init DB
     await {
       proteinService.insertProtein(protein)
       proteinService.insertProtein(protein_2)
       proteinService.insertProtein(protein_3)
+      dataSetService.insertDataSet(dataSet_1)
+      dataSetService.insertDataSet(dataSet_2)
     }
   }
 
@@ -92,7 +115,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       val res: Future[List[Protein]] = proteinService.getProteinsFromDataSet(DataSetId("not_existing"), "not_existing")
 
       ScalaFutures.whenReady(res.failed) { e =>
-        e shouldBe a [DatabaseException]
+        e shouldBe a [DataNotFoundException]
       }
     }
 
@@ -100,6 +123,12 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       val res: List[Protein] = await(proteinService.getProteins("A0A096LP75"))
       res.length mustEqual 3
       res.filter(_.theoMolWeight == 30.376).length mustEqual 2
+    }
+
+    "find protein with dataSet" in {
+      val res: List[ProteinWithDataSet] = await(proteinService.getProteinsWithDataSet("A0A096LP75"))
+      res.length mustEqual 3
+      res(0).dataSet.sample mustEqual("Jurkat")
     }
 
 

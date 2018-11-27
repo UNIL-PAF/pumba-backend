@@ -4,13 +4,14 @@
 # ~~~~
 
 # Home page
-GET     /                           ch.unil.paf.pumba.controllers.HomeController.index
+GET     /                                               ch.unil.paf.pumba.controllers.HomeController.index
 
 # upload MaxQuant data
-POST	/upload/:dataSetName/cell-line/:cellLine        ch.unil.paf.pumba.controllers.UploadMaxQuantController.uploadZipFile(dataSetName: String, cellLine: String)
+POST /upload/:dataSetName/sample/:sample                ch.unil.paf.pumba.controllers.UploadMaxQuantController.uploadZipFile(dataSetName: String, sample: String)
 
 # get the protein infos
-GET /proteins/:proteinId
+GET /proteins/:proteinId                                ch.unil.paf.pumba.controllers.ProteinsController.getProteins(proteinId: String)
+GET /multiply/:n                                        ch.unil.paf.pumba.controllers.ProteinsController.multiplyThis(n: Int)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                                   controllers.Assets.versioned(path="/public", file: Asset)

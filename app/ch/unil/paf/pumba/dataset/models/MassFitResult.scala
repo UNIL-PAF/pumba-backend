@@ -7,5 +7,6 @@ package ch.unil.paf.pumba.dataset.models
 case class MassFitResult(
                           massFitPicturePath: String,
                           massFitRData: String,
-                          proteinGroupsPath: String
+                          proteinGroupsPath: String,
+                          massFitCoeffs: Array[Double]
                         )

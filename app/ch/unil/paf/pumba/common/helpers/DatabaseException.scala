@@ -12,26 +12,37 @@ import scala.concurrent.ExecutionContext.Implicits.global
   */
 
 
-final case class DatabaseException(private val message: String = "",
+case class DatabaseException(private val message: String = "",
                                  private val cause: Throwable = None.orNull) extends Exception(message, cause)
+
+case class DataNotFoundException(private val message: String = "",
+                             private val cause: Throwable = None.orNull) extends Exception(message, cause)
+
+
 
 trait DatabaseError {
   /**
-    * generic function which checks if the result is valid and otherwise throws a DataBaseExcpetion
+    * generic function which checks if the result is valid and otherwise throws a DatabaseException
     * @param res
     * @param check
     * @param error
     * @tparam A
     */
-  def checkOrError[A](res: Future[A], check: A => Boolean, error: A => String): Future[A] = {
+  def checkOrError[A](res: Future[A], check: A => Boolean, error: A => String, dataNotFound: Boolean = false): Future[A] = {
     res.transform {
-      case Success(res) => if (check(res)) Failure(new DatabaseException(error(res))) else Success(res)
+      case Success(res) => if (check(res)) Failure(createException(error(res), dataNotFound)) else Success(res)
       case Failure(t) => {
         Logger.error("An error occurred in DataSetService: " + t.toString)
-        Failure(new DatabaseException(t.getMessage))
+        Failure(createException(t.getMessage, dataNotFound))
       }
     }
   }
+
+  def createException(message: String, dataNotFound: Boolean): Exception = {
+    if(dataNotFound) DatabaseException(message)
+    else DataNotFoundException(message)
+  }
+
 }
 
 

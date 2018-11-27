@@ -40,7 +40,8 @@ class DataSetPostprocessing(
     val massFitResult = MassFitResult(
       massFitPicturePath = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.png",
       massFitRData = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.RData",
-      proteinGroupsPath = s"${oldDataSet.id.value}/txt/proteinGroups.txt"
+      proteinGroupsPath = s"${oldDataSet.id.value}/txt/proteinGroups.txt",
+      massFitCoeffs = ParseMassFitCoeffs().parseCsvFile(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fit_coeffs.csv")
     )
 
     val message = Some("Add proteins to database.")

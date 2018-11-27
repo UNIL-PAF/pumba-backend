@@ -29,8 +29,9 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		*/
 	def insertDataSet(dataSet: DataSet): Future[WriteResult] = {
 		val writeRes = collection(collectionName).flatMap(_.insert(dataSet))
+		val errorMessage = "Something went wrong while inserting a new DataSet. "
 
-		checkOrError[WriteResult](writeRes, (res) => (! res.ok), (res) => (res.writeErrors.foldLeft("")((a,b) => a + " ; " + b.errmsg)))
+		checkOrError[WriteResult](writeRes, (res) => (! res.ok), (res) => errorMessage + (res.writeErrors.foldLeft("")((a,b) => a + " ; " + b.errmsg)))
 	}
 
 	/**
@@ -55,9 +56,9 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		val updateRes = collection(collectionName).flatMap(_.update(selector, dataSet, upsert = false))
 
 		// throw exception if the update went wrong
-		val errorMessage = s"Something went wrong while updating DataSet [${dataSet.id.value}]."
+		val errorMessage = s"Something went wrong while updating DataSet [${dataSet.id.value}]. "
 
-		checkOrError[UpdateWriteResult](updateRes, (res) => (! res.ok), (res) => (res.errmsg.getOrElse(errorMessage)))
+		checkOrError[UpdateWriteResult](updateRes, (res) => (! res.ok), (res) => errorMessage + (res.errmsg.getOrElse("Could not recover error message.")))
 	}
 
 	/**
