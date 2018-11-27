@@ -158,7 +158,6 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     "find protein with dataSet" in {
       val res: List[ProteinWithDataSet] = await(proteinService.getProteinsWithDataSet("A0A096LP75"))
       res.length mustEqual 4
-      res(0).dataSet.sample mustEqual("Jurkat")
     }
 
     "find protein with dataSet for certain dataSets" in {
@@ -166,7 +165,6 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       val res: List[ProteinWithDataSet] = await(proteinService.getProteinsWithDataSet("A0A096LP75", dataSetIds = dataSets))
 
       res.length mustEqual 3
-      res(0).dataSet.sample mustEqual("Jurkat")
     }
 
   }
