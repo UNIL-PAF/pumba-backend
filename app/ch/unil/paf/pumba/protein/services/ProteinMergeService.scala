@@ -59,8 +59,13 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
   */
 object ProteinMergeService {
 
+  var proteinMergeService: ProteinMergeService = null
+
   def apply(rServeHost: String, rServePort: Int):ProteinMergeService = {
-    new ProteinMergeService(rServeHost, rServePort)
+    if(proteinMergeService == null){
+      proteinMergeService = new ProteinMergeService(rServeHost, rServePort)
+    }
+    proteinMergeService
   }
 
 }

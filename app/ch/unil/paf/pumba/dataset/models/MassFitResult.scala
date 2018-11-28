@@ -8,5 +8,6 @@ case class MassFitResult(
                           massFitPicturePath: String,
                           massFitRData: String,
                           proteinGroupsPath: String,
-                          massFitCoeffs: Array[Double]
+                          massFitCoeffs: Array[Double],
+                          massFits: Array[Double]
                         )

@@ -28,6 +28,9 @@ save(file = paste0(output_path, "/mass_fit.RData"), mass_fit)
 # write the coefficients to a file (intercept, poly1, poly2, poly3)
 cat(file = paste0(output_path, "/mass_fit_coeffs.csv"), sep=",", as.vector(mass_fit$coefficients))
 
+# write fit predictions to another file
+cat(file = paste0(output_path, "/mass_fits.csv"), sep=",", as.vector(predict(mass_fit, data.frame(variable = seq(1,ncol(pg))))))
+
 # create the image for the mass fit
 print(paste0("create fit plot in [", mass_fit_png, "]."))
 png(file = mass_fit_png, width = 2400, height = 1200, units="px", pointsize = 36)
