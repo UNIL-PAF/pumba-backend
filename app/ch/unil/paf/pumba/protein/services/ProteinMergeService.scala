@@ -2,7 +2,7 @@ package ch.unil.paf.pumba.protein.services
 
 import java.util.Calendar
 
-import ch.unil.paf.pumba.protein.models.{ProteinWithDataSet, TheoMergedProtein}
+import ch.unil.paf.pumba.protein.models.{ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
 import org.rosuda.REngine._
 import org.rosuda.REngine.Rserve.RConnection
 import play.api.Logger
@@ -16,38 +16,40 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
   // make the RConnection
   val rConnection = new RConnection(rServeHost, rServePort)
 
+  // load pumbaR
   val loadLibRes: REXP = rConnection.eval("library(pumbaR)")
-
-  var multiplier = 2
-
   Logger.info(loadLibRes.toDebugString)
 
-  def multiplyThis(d: Int): Int = {
 
-    val name = "list_" + Calendar.getInstance().getTimeInMillis.toString
-
-    val rListBuff = new StringBuilder
-    rListBuff.append(s"$name <- list();\n")
-    rListBuff.append(s"$name <- list();\n")
-
-    println(rListBuff.toString)
-
-    val res: Int = rConnection.eval(s"Sys.sleep(5); $d*$multiplier;").asInteger()
-    multiplier += 1
-    Logger.info(res.toString)
-    res
-  }
-
-  def mergeProteins(proteins: Seq[ProteinWithDataSet]): TheoMergedProtein = {
+  def mergeProteins(proteins: Seq[ProteinWithDataSet]): ProteinMerge = {
     // make a new unique name for the list
-    val name = Calendar.getInstance().getTimeInMillis.toString
+    val uniqTag = Calendar.getInstance().getTimeInMillis.toString
+    val listName = "list_" + uniqTag
 
-    val rListBuff = new StringBuilder
-    rListBuff.append(s"$name <- list();\n")
+    val rCommandBuff = new StringBuilder
+    rCommandBuff.append(s"$listName <- list();\n")
 
-    println(rListBuff.toString)
+    // build up the list with data for the merge
+    for((prot, i) <- proteins.zip(Stream from 1)){
+      val mass_fit_params = prot.dataSet.massFitResult.get.massFitCoeffs.mkString(",")
+      val ints = prot.intensities.mkString(",")
+      rCommandBuff.append(s"$listName[[$i]] <- list();\n")
+      rCommandBuff.append(s"$listName[[$i]][['mass_fit_params']] <- c($mass_fit_params);\n")
+      rCommandBuff.append(s"$listName[[$i]][['ints']] <- c($ints);\n")
+    }
 
-    ???
+    // the merge function
+    rCommandBuff.append(s"merge_proteins($listName, cut_size=100, loess_span=0.05);\n")
+    val rCommand = rCommandBuff.toString
+    val resObj = rConnection.eval(rCommand)
+    val res:RList = resObj.asList
+
+    // create the result
+    val mainProtId = proteins(0).proteinIDs(0)
+    val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
+    val mergedProtein: TheoMergedProtein = new TheoMergedProtein(mergeName, res.at("x").asDoubles, res.at("y").asDoubles)
+    val proteinMerge: ProteinMerge = new ProteinMerge(mainProtId, mergedProtein, proteins)
+    proteinMerge
   }
 
 }

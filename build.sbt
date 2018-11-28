@@ -19,8 +19,8 @@ libraryDependencies ++= Seq(
 	"net.lingala.zip4j" % "zip4j" % "1.3.2",
 	specs2 % Test,
   "com.typesafe.akka" %% "akka-testkit" % "2.5.11",
-	"org.nuiton.thirdparty" % "REngine" % "1.8-5",
-	"org.nuiton.thirdparty" % "Rserve" % "1.8-5"
+	"org.nuiton.thirdparty" % "REngine" % "1.7-3",
+	"org.nuiton.thirdparty" % "Rserve" % "1.7-3"
 )
 
 // Adds additional packages into Twirl

@@ -15,4 +15,8 @@ object ProteinJsonFormats {
 
   implicit val formatProteinWithDataSet = Json.format[ProteinWithDataSet]
 
+  implicit val formatTheoMergedProtein = Json.format[TheoMergedProtein]
+
+  implicit val formatProteinMerge = Json.format[ProteinMerge]
+
 }

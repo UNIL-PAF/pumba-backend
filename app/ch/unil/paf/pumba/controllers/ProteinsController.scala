@@ -9,7 +9,7 @@ import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMo
 
 import scala.concurrent.{ExecutionContext, Future}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
-import ch.unil.paf.pumba.protein.models.ProteinWithDataSet
+import ch.unil.paf.pumba.protein.models.{ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
 import play.api.libs.json._
 
 import scala.util.{Failure, Success}
@@ -27,6 +27,11 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
 
   // services
   val proteinService = new ProteinService(reactiveMongoApi)
+
+  // environment variables
+  val rServeHost: String = config.get[String]("Rserve.host")
+  val rServePort: Int = config.get[Int]("Rserve.port")
+
 
   /**
     * get the proteins from the backend
@@ -53,26 +58,24 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
   }
 
 
-  def mergeProteins(proteinId: String, dataSetIdString: String) = Action.async{
+  /**
+    * Merge proteins from different datasets and create a theoretical merge.
+    * @param proteinId
+    * @param dataSetsString
+    * @return
+    */
+  def mergeProteins(proteinId: String, dataSetsString: String) = Action.async{
     val SAMPLE_SEP = ","
 
-    val dataSetIds: Seq[DataSetId] = dataSetIdString.split(SAMPLE_SEP).map(DataSetId(_))
+    val dataSetIds: Seq[DataSetId] = dataSetsString.split(SAMPLE_SEP).map(DataSetId(_))
 
-    val proteins = proteinService.getProteinsWithDataSet(proteinId, dataSetIds)
+    val proteins: Future[List[ProteinWithDataSet]] = proteinService.getProteinsWithDataSet(proteinId, dataSetIds)
 
-    println(proteins)
+    proteins.map({ prots =>
+      Ok(Json.toJson(ProteinMergeService(rServeHost, rServePort).mergeProteins(prots)))
+    })
 
-    Future{ ??? }
-  }
 
-
-  def multiplyThis(n: Int) = Action.async {
-    val rServeHost: String = config.get[String]("Rserve.host")
-    val rServePort: Int = config.get[Int]("Rserve.port")
-
-    Future{
-      Ok(ProteinMergeService(rServeHost, rServePort).multiplyThis(n).toString)
-    }
   }
 
 }
