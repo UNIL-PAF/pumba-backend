@@ -24,8 +24,9 @@ class ParseMassFitSpec extends Specification{
     val csvFile ="test/resources/dataset/mass_fit_res/mass_fits.csv"
     val coeffs: Array[Double] = ParseMassFit().parseCsvFits(csvFile)
 
-    coeffs.length mustEqual 4
-    coeffs mustEqual Array(3.001,-0.1028208,0.003104945,-3.993684e-05)
+    coeffs.length mustEqual 57
+    coeffs(0) mustEqual 2.901244
+    coeffs.last mustEqual -0.1678443
   }
 
 }
