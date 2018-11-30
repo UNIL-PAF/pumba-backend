@@ -11,7 +11,8 @@ POST /upload/:dataSetName/sample/:sample                    ch.unil.paf.pumba.co
 
 # get the protein infos
 GET /proteins/:proteinId                                    ch.unil.paf.pumba.controllers.ProteinsController.getProteins(proteinId: String)
-GET /merge-proteins/:proteinId/data-sets/:dataSetsString    ch.unil.paf.pumba.controllers.ProteinsController.mergeProteins(proteinId: String, dataSetsString: String)
+GET /merge-protein/:proteinId/data-sets/:dataSetsString    ch.unil.paf.pumba.controllers.ProteinsController.mergeSelProteins(proteinId: String, dataSetsString: String)
+GET /merge-protein/:proteinId                              ch.unil.paf.pumba.controllers.ProteinsController.mergeProteins(proteinId: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                       controllers.Assets.versioned(path="/public", file: Asset)

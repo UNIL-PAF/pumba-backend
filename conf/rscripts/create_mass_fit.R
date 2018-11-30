@@ -29,7 +29,15 @@ save(file = paste0(output_path, "/mass_fit.RData"), mass_fit)
 cat(file = paste0(output_path, "/mass_fit_coeffs.csv"), sep=",", as.vector(mass_fit$coefficients))
 
 # write fit predictions to another file
-cat(file = paste0(output_path, "/mass_fits.csv"), sep=",", as.vector(predict(mass_fit, data.frame(variable = seq(1,ncol(pg))))))
+cat(file = paste0(output_path, "/mass_fits.csv"), sep=",", as.vector(predict(mass_fit, data.frame(variable = get_slice_numbers(pg)))))
+
+# normalize intensities and write them to a new file
+norm_pg <- get_normalized_table(pg)
+write.table(norm_pg, file=paste0(output_path, "/normalizedProteinGroups.txt"), sep="\t", quote=FALSE, row.names=FALSE)
+
+# write max normalized intensity to a file
+max_norm_int <- get_max_norm_int(norm_pg)
+cat(file = paste0(output_path, "/max_norm_intensity.csv"), sep=",", max_norm_int)
 
 # create the image for the mass fit
 print(paste0("create fit plot in [", mass_fit_png, "]."))

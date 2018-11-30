@@ -64,7 +64,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
     * @param dataSetsString
     * @return
     */
-  def mergeProteins(proteinId: String, dataSetsString: String) = Action.async{
+  def mergeSelProteins(proteinId: String, dataSetsString: String) = Action.async{
     val SAMPLE_SEP = ","
 
     val dataSetIds: Seq[DataSetId] = dataSetsString.split(SAMPLE_SEP).map(DataSetId(_))
@@ -75,7 +75,23 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       Ok(Json.toJson(ProteinMergeService(rServeHost, rServePort).mergeProteins(prots)))
     })
 
+  }
+
+  /**
+    * Merge proteins from all datasets and create a theoretical merge.
+    * @param proteinId
+    * @return
+    */
+  def mergeProteins(proteinId: String) = Action.async{
+
+    val proteins: Future[List[ProteinWithDataSet]] = proteinService.getProteinsWithDataSet(proteinId)
+
+    proteins.map({ prots =>
+      Ok(Json.toJson(ProteinMergeService(rServeHost, rServePort).mergeProteins(prots)))
+    })
+
 
   }
+
 
 }

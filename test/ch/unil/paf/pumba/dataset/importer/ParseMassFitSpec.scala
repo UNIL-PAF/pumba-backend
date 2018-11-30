@@ -29,4 +29,12 @@ class ParseMassFitSpec extends Specification{
     coeffs.last mustEqual -0.1678443
   }
 
+  "parse max_norm_intensity file" in {
+
+    val csvFile ="test/resources/dataset/mass_fit_res/max_norm_intensity.csv"
+    val maxInt = ParseMassFit().parseMaxInt(csvFile)
+
+    maxInt mustEqual 0.02408451
+  }
+
 }

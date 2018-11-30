@@ -14,7 +14,7 @@ import scala.io.Source
   */
 class ParseProteinGroupsSpec extends Specification{
 
-  val proteinGroupsFile = new File("test/resources/max_quant/tiny_proteinGroups.txt")
+  val proteinGroupsFile = new File("test/resources/dataset/mass_fit_res/normalizedProteinGroups.txt")
 
   "parseHeaders" should {
 
@@ -23,18 +23,18 @@ class ParseProteinGroupsSpec extends Specification{
     "give back correct HashMap" in {
 
       val headers: Map[String, Int] = ParseProteinGroups().parseHeaders(headerLine)
-      headers.size mustEqual(717)
-      headers("majority.protein.ids") mustEqual(1)
+      headers.size mustEqual(49)
+      headers("majority.protein.ids") mustEqual(0)
 
     }
 
     "get correct intensity positions" in {
       val headers: Map[String, Int] = ParseProteinGroups().parseHeaders(headerLine)
-      val intPos = ParseProteinGroups().getIntensityPositions(headers, "intensity.h.")
+      val intPos = ParseProteinGroups().getIntensityPositions(headers, "intensity.norm.")
 
-      intPos.length mustEqual(45)
-      intPos(0) mustEqual(572)
-      intPos.last mustEqual(704)
+      intPos.length mustEqual(46)
+      intPos(0) mustEqual(3)
+      intPos.last mustEqual(48)
     }
 
   }
@@ -44,19 +44,19 @@ class ParseProteinGroupsSpec extends Specification{
     val proteinsList: Seq[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, DataSetId("dummy_id")).toList
 
     "get correct number of proteins" in {
-      proteinsList.length mustEqual(99)
+      proteinsList.length mustEqual(5015)
     }
 
     "get correct protein content" in {
       val protein = proteinsList(0)
       protein.intensities(0) mustEqual(0)
-      protein.intensities(34) mustEqual(6.981777776366068E-5)
+      protein.intensities(45) mustEqual(2.414164990019852E-7)
       protein.proteinIDs.length mustEqual(2)
-      protein.proteinIDs(1) mustEqual("Q9Y3E1")
-      protein.geneNames.length mustEqual(1)
-      protein.geneNames(0) mustEqual("HDGFRP3")
+      protein.proteinIDs(1) mustEqual("P50151")
+      protein.geneNames.length mustEqual(2)
+      protein.geneNames(0) mustEqual("hCG_1994888")
       protein.dataSetId.value mustEqual("dummy_id")
-      protein.theoMolWeight mustEqual(22.619)
+      protein.theoMolWeight mustEqual(16.499)
     }
 
   }

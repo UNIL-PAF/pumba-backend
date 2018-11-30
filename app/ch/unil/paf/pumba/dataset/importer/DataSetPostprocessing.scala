@@ -40,7 +40,7 @@ class DataSetPostprocessing(
     val massFitResult = MassFitResult(
       massFitPicturePath = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.png",
       massFitRData = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.RData",
-      proteinGroupsPath = s"${oldDataSet.id.value}/txt/proteinGroups.txt",
+      proteinGroupsPath = s"${oldDataSet.id.value}/mass_fit_res/normalizedProteinGroups.txt",
       massFitCoeffs = ParseMassFit().parseCsvCoeffs(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fit_coeffs.csv"),
       massFits = ParseMassFit().parseCsvFits(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fits.csv")
     )

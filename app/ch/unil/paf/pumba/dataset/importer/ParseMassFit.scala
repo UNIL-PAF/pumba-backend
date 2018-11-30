@@ -12,14 +12,18 @@ class ParseMassFit {
 
   val SEPERATOR = ","
 
-  def parseCsvCoeffs(csvFile: String): Array[Double] ={
+  def parseCsvCoeffs(csvFile: String): Array[Double] = {
     val fileContent: String = Source.fromFile(csvFile).getLines().mkString
     fileContent.split(SEPERATOR).map(_.toDouble)
   }
 
-  def parseCsvFits(csvFile: String): Array[Double] ={
+  def parseCsvFits(csvFile: String): Array[Double] = {
     val fileContent: String = Source.fromFile(csvFile).getLines().mkString
     fileContent.split(SEPERATOR).map(_.toDouble)
+  }
+
+  def parseMaxInt(csvFile: String): Double = {
+    Source.fromFile(csvFile).getLines().mkString.toDouble
   }
 
 }

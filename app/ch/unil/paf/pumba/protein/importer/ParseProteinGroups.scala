@@ -23,7 +23,7 @@ class ParseProteinGroups {
 
     val proteinGroupsLines = Source.fromFile(proteinGroupsFile).getLines()
     val headers = parseHeaders(proteinGroupsLines.next)
-    val intPos = getIntensityPositions(headers, "intensity.h.")
+    val intPos = getIntensityPositions(headers, "intensity.norm.")
     val totInt = totalIntensity(proteinGroupsFile, intPos)
 
     for {
@@ -50,7 +50,7 @@ class ParseProteinGroups {
       dataSetId = dataSetId,
       proteinIDs = parseNameField(values, headers, fieldName = "majority.protein.ids"),
       geneNames = parseNameField(values, headers, fieldName = "gene.names"),
-      theoMolWeight = values(headers("mol..weight.[kda]")).toDouble,
+      theoMolWeight = values(headers("mol..weight..kda.")).toDouble,
       intensities = intPos.map(values(_).toDouble / totInt)
     )
   }
@@ -72,7 +72,6 @@ class ParseProteinGroups {
   }
 
 }
-
 
 object ParseProteinGroups {
   def apply() = new ParseProteinGroups()
