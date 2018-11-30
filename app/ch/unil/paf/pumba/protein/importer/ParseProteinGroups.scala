@@ -24,34 +24,23 @@ class ParseProteinGroups {
     val proteinGroupsLines = Source.fromFile(proteinGroupsFile).getLines()
     val headers = parseHeaders(proteinGroupsLines.next)
     val intPos = getIntensityPositions(headers, "intensity.norm.")
-    val totInt = totalIntensity(proteinGroupsFile, intPos)
 
     for {
       line <- proteinGroupsLines
     } yield {
-      lineToProtein(line, dataSetId, headers, intPos, totInt)
+      lineToProtein(line, dataSetId, headers, intPos)
     }
 
   }
 
-  def totalIntensity(proteinGroupsFile: File, intPos: Seq[Int], sep: String = SEPARATOR): Double = {
-    val proteinGroupsLines = Source.fromFile(proteinGroupsFile).getLines()
-    // remove first line (headers)
-    proteinGroupsLines.next
-    proteinGroupsLines.foldLeft(0d)((res, line) => {
-      val data = line.split(sep)
-      intPos.map(pos => data(pos).toDouble).sum + res
-    })
-  }
-
-  def lineToProtein(line:String, dataSetId: DataSetId, headers: Map[String, Int], intPos: Seq[Int], totInt: Double, sep: String = SEPARATOR) : Protein = {
+  def lineToProtein(line:String, dataSetId: DataSetId, headers: Map[String, Int], intPos: Seq[Int], sep: String = SEPARATOR) : Protein = {
     val values: Array[String] = line.split(sep)
     Protein(
       dataSetId = dataSetId,
       proteinIDs = parseNameField(values, headers, fieldName = "majority.protein.ids"),
       geneNames = parseNameField(values, headers, fieldName = "gene.names"),
       theoMolWeight = values(headers("mol..weight..kda.")).toDouble,
-      intensities = intPos.map(values(_).toDouble / totInt)
+      intensities = intPos.map(values(_).toDouble)
     )
   }
 

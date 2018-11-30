@@ -50,7 +50,7 @@ class ParseProteinGroupsSpec extends Specification{
     "get correct protein content" in {
       val protein = proteinsList(0)
       protein.intensities(0) mustEqual(0)
-      protein.intensities(45) mustEqual(2.414164990019852E-7)
+      protein.intensities(45) mustEqual(2.41416499001986E-7)
       protein.proteinIDs.length mustEqual(2)
       protein.proteinIDs(1) mustEqual("P50151")
       protein.geneNames.length mustEqual(2)
