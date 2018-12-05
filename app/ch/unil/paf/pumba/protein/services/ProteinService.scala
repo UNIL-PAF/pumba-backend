@@ -83,13 +83,15 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
 //      val sampleResFuture: Future[Sample] =
 //    }
 
+    val sampleFuture:Future[List[Sample]] = dataSetsFuture.flatMap(dataSetService.findSamplesFromDataSets(_))
 
-    dataSetsFuture.onComplete({
+
+    sampleFuture.onComplete({
       case Success(a) => println("success: " + a)
       case Failure(e) => println("exception: " + e.getMessage)
     })
 
-    Future{List()}
+    sampleFuture
   }
 
 

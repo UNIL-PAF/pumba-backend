@@ -169,7 +169,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
     "find samples from given protein" in {
       val res: List[Sample] = await(proteinService.getSamplesFromProtein("A0A096LPI6"))
-      res.length mustEqual 2
+      res.length mustEqual 3
+      res.contains(Sample("Jurkat II")) mustEqual true
     }
 
   }
