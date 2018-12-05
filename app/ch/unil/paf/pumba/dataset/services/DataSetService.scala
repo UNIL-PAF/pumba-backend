@@ -5,11 +5,14 @@ import ch.unil.paf.pumba.common.helpers.{DatabaseError, DatabaseException}
 import scala.concurrent.{ExecutionContext, Future}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.play.json.collection.JSONCollection
-import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId}
+import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId, Sample}
 import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats._
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
-import reactivemongo.bson.BSONDocument
+import reactivemongo.bson._
 import play.modules.reactivemongo.json._
+import reactivemongo.api.Cursor
+
+import scala.util.{Failure, Success}
 
 
 /**
@@ -73,6 +76,27 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		val errorMessage = s"Could not find DataSet [${dataSetId.value}]."
 
 		checkOrError[Option[DataSet]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
+	}
+
+	/**
+		* return the samples corresponding to the given DataSets
+		* @param dataSetIds
+		* @return
+		*/
+	def findSamplesFromDataSets(dataSetIds: List[DataSetId]): Future[List[Sample]] = {
+
+		// find the objects
+		val stringifiedIds = dataSetIds.map(_.value)
+		val query = BSONDocument("id" -> BSONDocument("$in" -> stringifiedIds))
+		val projection = BSONDocument("sample" -> 1)
+		val findResFuture: Future[List[BSONDocument]] = collection(collectionName).flatMap(_.find(query, projection).cursor[BSONDocument]().collect[List](-1, Cursor.FailOnError[List[BSONDocument]]()))
+
+		// extract the unique samples
+		findResFuture.map({ _.map({ oneRes =>
+				Sample(oneRes.getAs[String]("sample").get)
+			}).distinct
+		})
+
 	}
 
 }

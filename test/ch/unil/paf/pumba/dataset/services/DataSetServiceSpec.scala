@@ -27,6 +27,8 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     await {
       val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None)
       dataSetService.insertDataSet(dataSet)
+      val dataSet_3 = DataSet(id = DataSetId("dummy_id_3"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None)
+      dataSetService.insertDataSet(dataSet_3)
     }
   }
 
@@ -37,7 +39,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   "DataSetService" should {
 
-    val dataSet = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None)
+    val dataSet = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat_2"), status = DataSetCreated, message = None, massFitResult = None)
 
     "insert a DataSet" in {
       val res: WriteResult = await(dataSetService.insertDataSet(dataSet))
@@ -68,12 +70,19 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       }
     }
 
+    "find sample for given DataSets" in {
+      val res: List[Sample] = await(dataSetService.findSamplesFromDataSets(List(DataSetId("dummy_id"), DataSetId("dummy_id_3"))))
+      res.length mustEqual (2)
+      res.contains(Sample("Jurkat_3")) mustEqual true
+    }
+
+
   }
 
   "DataSetService with massFitResult" should {
 
     val massFitRes = MassFitResult("hoho", "hihi", "coucou", Array(3.001,-0.1028208,0.003104945,-3.993684e-05), Array(3.001,-0.1028208,0.003104945,-3.993684e-05), maxInt = 10.9)
-    val dataSet2 = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = Some(massFitRes))
+    val dataSet2 = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat_2"), status = DataSetCreated, message = None, massFitResult = Some(massFitRes))
 
     "insert a DataSet" in {
 
