@@ -42,7 +42,8 @@ class DataSetPostprocessing(
       massFitRData = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.RData",
       proteinGroupsPath = s"${oldDataSet.id.value}/mass_fit_res/normalizedProteinGroups.txt",
       massFitCoeffs = ParseMassFit().parseCsvCoeffs(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fit_coeffs.csv"),
-      massFits = ParseMassFit().parseCsvFits(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fits.csv")
+      massFits = ParseMassFit().parseCsvFits(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fits.csv"),
+      maxInt = ParseMassFit().parseMaxInt(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/max_norm_intensity.csv")
     )
 
     val message = Some("Add proteins to database.")

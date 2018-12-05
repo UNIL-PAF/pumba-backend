@@ -9,5 +9,6 @@ case class MassFitResult(
                           massFitRData: String,
                           proteinGroupsPath: String,
                           massFitCoeffs: Array[Double],
-                          massFits: Array[Double]
+                          massFits: Array[Double],
+                          maxInt: Double
                         )
