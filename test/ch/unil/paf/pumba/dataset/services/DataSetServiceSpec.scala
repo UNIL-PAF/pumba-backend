@@ -25,7 +25,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
   before {
     //Init DB
     await {
-      val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = "Jurkat", status = DataSetCreated, message = None, massFitResult = None)
+      val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None)
       dataSetService.insertDataSet(dataSet)
     }
   }
@@ -37,7 +37,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   "DataSetService" should {
 
-    val dataSet = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = "Jurkat", status = DataSetCreated, message = None, massFitResult = None)
+    val dataSet = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None)
 
     "insert a DataSet" in {
       val res: WriteResult = await(dataSetService.insertDataSet(dataSet))
@@ -51,7 +51,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "update a DataSet" in {
-      val updatedDataset = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = "Jurkat", status = DataSetDone, message = Some("a new message"), massFitResult = None)
+      val updatedDataset = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetDone, message = Some("a new message"), massFitResult = None)
       val res: UpdateWriteResult = await(dataSetService.updateDataSet(updatedDataset))
       res.ok mustEqual (true)
 
@@ -72,8 +72,8 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   "DataSetService with massFitResult" should {
 
-    val massFitRes = MassFitResult("hoho", "hihi", "coucou", Array(3.001,-0.1028208,0.003104945,-3.993684e-05), Array(3.001,-0.1028208,0.003104945,-3.993684e-05))
-    val dataSet2 = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = "Jurkat", status = DataSetCreated, message = None, massFitResult = Some(massFitRes))
+    val massFitRes = MassFitResult("hoho", "hihi", "coucou", Array(3.001,-0.1028208,0.003104945,-3.993684e-05), Array(3.001,-0.1028208,0.003104945,-3.993684e-05), maxInt = 10.9)
+    val dataSet2 = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = Some(massFitRes))
 
     "insert a DataSet" in {
 

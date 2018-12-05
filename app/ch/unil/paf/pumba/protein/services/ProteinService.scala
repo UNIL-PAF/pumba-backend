@@ -69,6 +69,11 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
   }
 
 
+//  def getSamplesFromProtein(proteinId: String): Future[List[String]] = {
+//
+//  }
+
+
   /**
     * get all proteins with a given searchId
     * @param proteinId

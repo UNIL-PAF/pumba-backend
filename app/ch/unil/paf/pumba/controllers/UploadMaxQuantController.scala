@@ -51,7 +51,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
       val dataDir = copyZipFile(zipFile, uploadDir)
 
       // set a creation status in the database
-      val dataSet: DataSet = DataSet(id = dataSetId, name = dataSetName, sample = sample, status = DataSetCreated, message = None, massFitResult = None)
+      val dataSet: DataSet = DataSet(id = dataSetId, name = dataSetName, sample = Sample(sample), status = DataSetCreated, message = None, massFitResult = None)
       dataSetService.insertDataSet(dataSet)
 
       // unzip the file

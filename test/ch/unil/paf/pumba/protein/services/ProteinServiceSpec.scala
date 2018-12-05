@@ -62,7 +62,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
   val dataSet_1 = DataSet(
     id = DataSetId("dummy_id"),
     name = "dummy",
-    sample = "Jurkat",
+    sample = Sample("Jurkat"),
     status = DataSetDone,
     message = None,
     massFitResult = None
@@ -71,7 +71,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
   val dataSet_2 = DataSet(
     id = DataSetId("dummy_id_2"),
     name = "dummy 2",
-    sample = "Jurkat",
+    sample = Sample("Jurkat"),
     status = DataSetDone,
     message = None,
     massFitResult = None
@@ -80,7 +80,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
   val dataSet_3 = DataSet(
     id = DataSetId("dummy_id_3"),
     name = "dummy 3",
-    sample = "Blublu",
+    sample = Sample("Blublu"),
     status = DataSetDone,
     message = None,
     massFitResult = None
@@ -89,7 +89,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
   val dataSet_4 = DataSet(
     id = DataSetId("dummy_id_4"),
     name = "dummy 4",
-    sample = "Blublu",
+    sample = Sample("Blublu"),
     status = DataSetDone,
     message = None,
     massFitResult = None

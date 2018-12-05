@@ -15,6 +15,12 @@ object DataSetJsonFormats {
     def writes(o: DataSetId) = JsString(o.value)
   }
 
+  implicit val formatSample = new Format[Sample] {
+    override def reads(json: JsValue): JsResult[Sample] = JsSuccess(Sample(json.as[String]))
+
+    def writes(o: Sample) = JsString(o.value)
+  }
+
   implicit val formatDataSetStatus = new Format[DataSetStatus] {
     override def reads(json: JsValue): JsResult[DataSetStatus] = {
       JsSuccess(json.as[String] match {
