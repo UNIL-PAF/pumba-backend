@@ -142,11 +142,13 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "throw exception when not finding protein" in {
-      val res: Future[List[Protein]] = proteinService.getProteinsFromDataSet(DataSetId("not_existing"), "not_existing")
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("not_existing"), "not_existing"))
+      res.length mustEqual 0
 
-      ScalaFutures.whenReady(res.failed) { e =>
-        e shouldBe a [DataNotFoundException]
-      }
+
+//      ScalaFutures.whenReady(res.failed) { e =>
+//        e shouldBe a [DataNotFoundException]
+//      }
     }
 
     "find protein" in {
@@ -156,21 +158,41 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "find protein with dataSet" in {
-      val res: List[ProteinWithDataSet] = await(proteinService.getProteinsWithDataSet("A0A096LP75"))
-      res.length mustEqual 4
+      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample("A0A096LP75", None))
+      res.keys.toSeq.length mustEqual 3
+      res.contains(Sample("Jurkat II")) mustEqual true
+      res(Sample("Jurkat II")).length mustEqual 7
     }
 
     "find protein with dataSet for certain dataSets" in {
       val dataSets = Seq(DataSetId("dummy_id"), DataSetId("dummy_id_3"), DataSetId("dummy_id_4"))
-      val res: List[ProteinWithDataSet] = await(proteinService.getProteinsWithDataSet("A0A096LP75", dataSetIds = dataSets))
+      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample("A0A096LP75", dataSetIds = Some(dataSets)))
 
-      res.length mustEqual 3
+      res.keys.toSeq.length mustEqual 3
     }
 
     "find samples from given protein" in {
-      val res: List[Sample] = await(proteinService.getSamplesFromProtein("A0A096LPI6"))
-      res.length mustEqual 3
+      val res:Map[Sample, Seq[DataSetId]] = await(proteinService.getSamplesFromProtein("A0A096LP75"))
+      res.keys.toSeq.length mustEqual 3
       res.contains(Sample("Jurkat II")) mustEqual true
+      res(Sample("Jurkat II")).length mustEqual 9
+    }
+
+  }
+
+  "filterSampleDataSetMap" should {
+
+    val sampleDataSetMap = Future { Map(Sample("sample 1") -> List(DataSetId("set 1_1"), DataSetId("set 1_2")), Sample("sample 2") -> List(DataSetId("set 2_1"), DataSetId("set 2_2"), DataSetId("set 2_3"))) }
+
+    "filter the map" in {
+      val dataSetIds = Some(List(DataSetId("set 1_1"), DataSetId("set 1_3"), DataSetId("set 2_2")))
+      val fltRes = await(proteinService.filterSampleDataSetMap(sampleDataSetMap, dataSetIds))
+      fltRes.keySet mustEqual(Set(Sample("sample 1"), Sample("sample 2")))
+    }
+
+    "filter the map with empty dataSetIds" in {
+      val fltRes = await(proteinService.filterSampleDataSetMap(sampleDataSetMap, None))
+      fltRes mustEqual await(sampleDataSetMap)
     }
 
   }

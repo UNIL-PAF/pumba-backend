@@ -1,6 +1,6 @@
 package ch.unil.paf.pumba.controllers
 import ch.unil.paf.pumba.common.helpers.DataNotFoundException
-import ch.unil.paf.pumba.dataset.models.DataSetId
+import ch.unil.paf.pumba.dataset.models.{DataSetId, Sample}
 import ch.unil.paf.pumba.protein.services.{ProteinMergeService, ProteinService}
 import javax.inject._
 import play.api._
@@ -32,64 +32,29 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
   val rServeHost: String = config.get[String]("Rserve.host")
   val rServePort: Int = config.get[Int]("Rserve.port")
 
-
-  /**
-    * get the proteins from the backend
-    * @param proteinId
-    * @return
-    */
-  def getProteins(proteinId: String) = Action.async {
-
-    val futureProteins: Future[List[ProteinWithDataSet]] = proteinService.getProteinsWithDataSet(proteinId)
-
-    futureProteins.transform({
-      case Success(proteins) => Success(Ok(Json.toJson(proteins)))
-      case Failure(e) => { e match {
-        case DataNotFoundException(m, c) => {
-          Logger.error(m)
-          Success(BadRequest(m))
-        }
-        case e => Failure(e)
-      }
-
-      }
-    })
-
-  }
-
-
-  /**
-    * Merge proteins from different datasets and create a theoretical merge.
-    * @param proteinId
-    * @param dataSetsString
-    * @return
-    */
-  def mergeSelProteins(proteinId: String, dataSetsString: String) = Action.async{
-    val SAMPLE_SEP = ","
-
-    val dataSetIds: Seq[DataSetId] = dataSetsString.split(SAMPLE_SEP).map(DataSetId(_))
-
-    val proteins: Future[List[ProteinWithDataSet]] = proteinService.getProteinsWithDataSet(proteinId, dataSetIds)
-
-    proteins.map({ prots =>
-      Ok(Json.toJson(ProteinMergeService(rServeHost, rServePort).mergeProteins(prots)))
-    })
-
-  }
-
   /**
     * Merge proteins from all datasets and create a theoretical merge.
     * @param proteinId
     * @return
     */
-  def mergeProteins(proteinId: String) = Action.async{
+  def mergeProteins(proteinId: String, dataSetString: Option[String]) = Action.async{
 
-    val proteins: Future[List[ProteinWithDataSet]] = proteinService.getProteinsWithDataSet(proteinId)
-
-    proteins.map({ prots =>
-      Ok(Json.toJson(ProteinMergeService(rServeHost, rServePort).mergeProteins(prots)))
+    val dataSetIds: Option[Seq[DataSetId]] = dataSetString.map( s => {
+      val SAMPLE_SEP = ","
+      s.split(SAMPLE_SEP).map(DataSetId(_))
     })
 
+    val sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(proteinId, dataSetIds)
+
+    val proteinMerges: Future[Seq[ProteinMerge]] = sampleProteinsMap.map {
+      _.map { case (sample, protList) =>
+        ProteinMergeService(rServeHost, rServePort).mergeProteins(protList, sample)
+      }.toSeq
+    }
+
+    proteinMerges.map({ merges =>
+      Ok(Json.toJson(merges))
+    })
 
   }
 

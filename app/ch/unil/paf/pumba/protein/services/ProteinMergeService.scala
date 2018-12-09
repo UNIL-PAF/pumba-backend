@@ -2,6 +2,7 @@ package ch.unil.paf.pumba.protein.services
 
 import java.util.Calendar
 
+import ch.unil.paf.pumba.dataset.models.Sample
 import ch.unil.paf.pumba.protein.models.{ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
 import org.rosuda.REngine._
 import org.rosuda.REngine.Rserve.RConnection
@@ -21,7 +22,7 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
   Logger.info(loadLibRes.toDebugString)
 
 
-  def mergeProteins(proteins: Seq[ProteinWithDataSet]): ProteinMerge = {
+  def mergeProteins(proteins: Seq[ProteinWithDataSet], sample: Sample): ProteinMerge = {
     // make a new unique name for the list
     val uniqTag = Calendar.getInstance().getTimeInMillis.toString
     val listName = "list_" + uniqTag
@@ -48,7 +49,7 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
     val mainProtId = proteins(0).proteinIDs(0)
     val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
     val mergedProtein: TheoMergedProtein = new TheoMergedProtein(mergeName, res.at("x").asDoubles, res.at("y").asDoubles)
-    val proteinMerge: ProteinMerge = new ProteinMerge(mainProtId, mergedProtein, proteins)
+    val proteinMerge: ProteinMerge = new ProteinMerge(mainProtId, sample, mergedProtein, proteins)
     proteinMerge
   }
 

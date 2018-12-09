@@ -79,22 +79,28 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 	}
 
 	/**
-		* return the samples corresponding to the given DataSets
+		* return a map with samples and a list of dataSetIds corresponding to the given DataSets
 		* @param dataSetIds
 		* @return
 		*/
-	def findSamplesFromDataSets(dataSetIds: List[DataSetId]): Future[List[Sample]] = {
+	def findSamplesDataSetsMap(dataSetIds: List[DataSetId]): Future[Map[Sample, Seq[DataSetId]]] = {
 
 		// find the objects
 		val stringifiedIds = dataSetIds.map(_.value)
 		val query = BSONDocument("id" -> BSONDocument("$in" -> stringifiedIds))
-		val projection = BSONDocument("sample" -> 1)
+		val projection = BSONDocument("sample" -> 1, "id" -> 1)
 		val findResFuture: Future[List[BSONDocument]] = collection(collectionName).flatMap(_.find(query, projection).cursor[BSONDocument]().collect[List](-1, Cursor.FailOnError[List[BSONDocument]]()))
 
 		// extract the unique samples
-		findResFuture.map({ _.map({ oneRes =>
-				Sample(oneRes.getAs[String]("sample").get)
-			}).distinct
+		findResFuture.map({ findRes =>
+			val extrRes = findRes.map({ oneRes =>
+				val sample = Sample(oneRes.getAs[String]("sample").get)
+				val dataSetId = DataSetId(oneRes.getAs[String]("id").get)
+				(sample, dataSetId)
+			})
+			extrRes.foldLeft(Map.empty[Sample, Seq[DataSetId]]){ case (acc,(k,v)) =>
+				acc.updated(k, acc.getOrElse(k, Seq.empty[DataSetId]) ++ Seq(v))
+			}
 		})
 
 	}

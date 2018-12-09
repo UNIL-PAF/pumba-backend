@@ -1,5 +1,7 @@
 package ch.unil.paf.pumba.protein.models
 
+import ch.unil.paf.pumba.dataset.models.Sample
+
 /**
   * @author Roman Mylonas
   *         copyright 2018, Protein Analysis Facility UNIL
@@ -16,10 +18,11 @@ case class TheoMergedProtein(name: String, theoMolWeights: Seq[Double], intensit
 /**
   * Contains the merged protein together with all its original proteins
   * @param mainProteinId The proteinId from the user request
+  * @param sample
   * @param theoMergedProtein
   * @param proteins
   */
-case class ProteinMerge(mainProteinId: String, theoMergedProtein: TheoMergedProtein, proteins: Seq[ProteinWithDataSet])
+case class ProteinMerge(mainProteinId: String, sample: Sample, theoMergedProtein: TheoMergedProtein, proteins: Seq[ProteinWithDataSet])
 
 
 
