@@ -56,7 +56,7 @@ class ParseProteinGroups {
 
   def parseHeaders(line: String, sep: String = SEPARATOR): Map[String, Int] = {
     val headers = line.split(sep)
-    val cleanHeaders = headers.map(_.replaceAll("\\s", ".").toLowerCase)
+    val cleanHeaders = headers.map(_.replaceAll("[^a-z|0-9|A-Z]", ".").toLowerCase)
     cleanHeaders.zipWithIndex.toMap
   }
 
