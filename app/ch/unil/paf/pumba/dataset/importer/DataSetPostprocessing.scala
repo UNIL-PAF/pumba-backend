@@ -5,9 +5,10 @@ import java.io.File
 import ch.unil.paf.pumba.common.rexec.PostprocessingCallback
 import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.dataset.services.DataSetService
-import ch.unil.paf.pumba.protein.importer.{ImportProteins, ParseProteinGroups}
+import ch.unil.paf.pumba.protein.importer.{ImportProteins, ParsePeptides, ParseProteinGroups}
 import ch.unil.paf.pumba.protein.services.ProteinService
 import play.api.Logger
+
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -41,6 +42,7 @@ class DataSetPostprocessing(
       massFitPicturePath = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.png",
       massFitRData = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.RData",
       proteinGroupsPath = s"${oldDataSet.id.value}/mass_fit_res/normalizedProteinGroups.txt",
+      peptidesPath = s"${oldDataSet.id.value}/txt/peptides.txt",
       massFitCoeffs = ParseMassFit().parseCsvCoeffs(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fit_coeffs.csv"),
       massFits = ParseMassFit().parseCsvFits(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fits.csv"),
       maxInt = ParseMassFit().parseMaxInt(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/max_norm_intensity.csv")
@@ -56,8 +58,8 @@ class DataSetPostprocessing(
 
   private def addProteinsToDb(dataSet: DataSet): Future[Int] = {
     Logger.info("add proteins to db")
-    val proteins = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile = new File(dataRootPath + dataSet.massFitResult.get.proteinGroupsPath), dataSetId)
-    //let's add the peptides
+    val peptides = ParsePeptides().parsePeptidesTable(peptidesFile = new File(dataRootPath + dataSet.massFitResult.get.peptidesPath))
+    val proteins = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile = new File(dataRootPath + dataSet.massFitResult.get.proteinGroupsPath), dataSetId, peptides)
     val res = ImportProteins().importProteins(proteins, proteinService)
     res
   }

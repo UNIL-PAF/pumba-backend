@@ -3,7 +3,7 @@ package ch.unil.paf.pumba.protein.importer
 import java.io.File
 
 import ch.unil.paf.pumba.dataset.models.DataSetId
-import ch.unil.paf.pumba.protein.models.Protein
+import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, Protein}
 import org.specs2.mutable.Specification
 
 import scala.io.Source
@@ -41,7 +41,7 @@ class ParseProteinGroupsSpec extends Specification{
 
   "parseProteinGroupsTable" should {
 
-    val proteinsList: Seq[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, DataSetId("dummy_id")).toList
+    val proteinsList: Seq[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, DataSetId("dummy_id"), Map.empty[MaxQuantPepId, Seq[Peptide]]).toList
 
     "get correct number of proteins" in {
       proteinsList.length mustEqual(5015)
@@ -66,10 +66,30 @@ class ParseProteinGroupsSpec extends Specification{
     val pepProteinGroupsFile = new File("test/resources/max_quant/parse_peptides/normalizedProteinGroups.txt")
     val peptideFile = new File("test/resources/max_quant/parse_peptides/peptides.txt")
     val pepMap = ParsePeptides().parsePeptidesTable(peptideFile)
-    val proteins = ParseProteinGroups().parseProteinGroupsTable(pepProteinGroupsFile, DataSetId("pep_parsed"), Some(pepMap))
+    val proteins = ParseProteinGroups().parseProteinGroupsTable(pepProteinGroupsFile, DataSetId("pep_parsed"), pepMap).toSeq
 
     "get correct number of proteins" in {
       proteins.length mustEqual(72)
+    }
+
+    "A0A024R216 should have 13 proteins" in {
+      val prots: Seq[Protein] = proteins.filter(_.proteinIDs.contains("A0A024R216"))
+      prots.length mustEqual(1)
+      val prot = prots(0)
+      prot.peptides.length mustEqual(13)
+    }
+
+    "one peptide should have correct data" in {
+      val prots: Seq[Protein] = proteins.filter(_.proteinIDs.contains("A0A024R216"))
+      prots.length mustEqual(1)
+      val peptide1 = prots(0).peptides(0)
+      val peptide2 = prots(0).peptides(1)
+
+      peptide1.sequence mustEqual("ALLAEGVILR")
+      peptide2.sequence mustEqual("ALLAEGVILR")
+
+      peptide1.sliceNr mustEqual(38)
+      peptide2.sliceNr mustEqual(39)
     }
 
   }

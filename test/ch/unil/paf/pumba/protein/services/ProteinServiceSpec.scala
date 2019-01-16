@@ -8,6 +8,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.Helpers.await
 import reactivemongo.api.commands.WriteResult
+import org.scalatest.time.{Millis, Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test.Helpers._
@@ -101,21 +102,19 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   before {
     //Init DB
-    await {
-      proteinService.insertProtein(protein)
-      proteinService.insertProtein(protein_2)
-      proteinService.insertProtein(protein_3)
-      proteinService.insertProtein(protein_4)
-      dataSetService.insertDataSet(dataSet_1)
-      dataSetService.insertDataSet(dataSet_2)
-      dataSetService.insertDataSet(dataSet_3)
-      dataSetService.insertDataSet(dataSet_4)
-    }
+    await(proteinService.insertProtein(protein))
+    await(proteinService.insertProtein(protein_2))
+    await(proteinService.insertProtein(protein_3))
+    await(proteinService.insertProtein(protein_4))
+    await(dataSetService.insertDataSet(dataSet_1))
+    await(dataSetService.insertDataSet(dataSet_2))
+    await(dataSetService.insertDataSet(dataSet_3))
+    await(dataSetService.insertDataSet(dataSet_4))
   }
 
   after {
     //clean DB
-    proteinService.dropAll()
+    await(proteinService.dropAll())
   }
 
   "ProteinService" should {

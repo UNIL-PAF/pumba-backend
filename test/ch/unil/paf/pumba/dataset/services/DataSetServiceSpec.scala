@@ -82,7 +82,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   "DataSetService with massFitResult" should {
 
-    val massFitRes = MassFitResult("hoho", "hihi", "coucou", Array(3.001,-0.1028208,0.003104945,-3.993684e-05), Array(3.001,-0.1028208,0.003104945,-3.993684e-05), maxInt = 10.9)
+    val massFitRes = MassFitResult("hoho", "hihi", "coucou", "bliba", Array(3.001,-0.1028208,0.003104945,-3.993684e-05), Array(3.001,-0.1028208,0.003104945,-3.993684e-05), maxInt = 10.9)
     val dataSet2 = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat_2"), status = DataSetCreated, message = None, massFitResult = Some(massFitRes))
 
     "insert a DataSet" in {

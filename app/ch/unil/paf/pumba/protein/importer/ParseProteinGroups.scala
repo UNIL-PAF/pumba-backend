@@ -16,7 +16,7 @@ class ParseProteinGroups {
 
   final val SEPARATOR = "\\t"
 
-  def parseProteinGroupsTable(proteinGroupsFile: File, dataSetId: DataSetId, peptideMap: Option[Map[MaxQuantPepId, Seq[Peptide]]] = None): Iterator[Protein] = {
+  def parseProteinGroupsTable(proteinGroupsFile: File, dataSetId: DataSetId, peptideMap: Map[MaxQuantPepId, Seq[Peptide]]): Iterator[Protein] = {
     if(! proteinGroupsFile.exists()){
       Logger.error("File does not exist")
       throw new Exception(s"File does not exist [${proteinGroupsFile.getName}].")
@@ -34,13 +34,13 @@ class ParseProteinGroups {
 
   }
 
-  def lineToProtein(line:String, dataSetId: DataSetId, headers: Map[String, Int], intPos: Seq[Int], peptideMap: Option[Map[MaxQuantPepId, Seq[Peptide]]], sep: String = SEPARATOR) : Protein = {
+  def lineToProtein(line:String, dataSetId: DataSetId, headers: Map[String, Int], intPos: Seq[Int], peptideMap: Map[MaxQuantPepId, Seq[Peptide]], sep: String = SEPARATOR) : Protein = {
     val values: Array[String] = line.split(sep)
 
     // extract peptides
     val peptideIds: Seq[MaxQuantPepId] = parseNameField(values, headers, fieldName = "peptide.ids").map( v => MaxQuantPepId(v.toInt))
     val peptideIsRazor: Seq[Boolean] = parseNameField(values, headers, fieldName = "peptide.is.razor").map( v => v == "True")
-    val peptides = if(peptideMap.isDefined) parsePeptide(peptideMap.get, peptideIds, peptideIsRazor) else Seq.empty[Peptide]
+    val peptides = if(peptideMap.nonEmpty) parsePeptide(peptideMap, peptideIds, peptideIsRazor) else Seq.empty[Peptide]
 
     Protein(
       dataSetId = dataSetId,

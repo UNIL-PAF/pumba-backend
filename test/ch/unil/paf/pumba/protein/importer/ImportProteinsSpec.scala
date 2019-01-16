@@ -4,10 +4,11 @@ import java.io.File
 
 import ch.unil.paf.pumba.PlayWithMongoSpec
 import ch.unil.paf.pumba.dataset.models.DataSetId
-import ch.unil.paf.pumba.protein.models.Protein
+import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, Protein}
 import ch.unil.paf.pumba.protein.services.ProteinService
 import org.scalatest.BeforeAndAfter
 import play.api.test.Helpers._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -33,13 +34,13 @@ class ImportProteinsSpec extends PlayWithMongoSpec with BeforeAndAfter {
     val proteinGroupsFile = new File("test/resources/max_quant/tiny_proteinGroups.txt")
 
     "import the correct number of proteins" in {
-      val proteins: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId)
+      val proteins: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId, Map.empty[MaxQuantPepId, Seq[Peptide]])
       val nrImports = await( ImportProteins().importProteins(proteins, proteinService) )
       nrImports mustEqual(99)
     }
 
     "protein [A0A024R216] should be inserted" in {
-      val proteins2: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId)
+      val proteins2: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId, Map.empty[MaxQuantPepId, Seq[Peptide]])
       await( ImportProteins().importProteins(proteins2, proteinService) )
       val proteins: List[Protein] = await( proteinService.getProteinsFromDataSet(dataSetId, "A0A024R216") )
       proteins.length mustEqual(1)
