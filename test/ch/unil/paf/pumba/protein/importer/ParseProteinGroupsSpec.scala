@@ -61,4 +61,17 @@ class ParseProteinGroupsSpec extends Specification{
 
   }
 
+  "parse proteinGroupsTable using a peptideMap" should {
+
+    val pepProteinGroupsFile = new File("test/resources/max_quant/parse_peptides/normalizedProteinGroups.txt")
+    val peptideFile = new File("test/resources/max_quant/parse_peptides/peptides.txt")
+    val pepMap = ParsePeptides().parsePeptidesTable(peptideFile)
+    val proteins = ParseProteinGroups().parseProteinGroupsTable(pepProteinGroupsFile, DataSetId("pep_parsed"), Some(pepMap))
+
+    "get correct number of proteins" in {
+      proteins.length mustEqual(72)
+    }
+
+  }
+
 }

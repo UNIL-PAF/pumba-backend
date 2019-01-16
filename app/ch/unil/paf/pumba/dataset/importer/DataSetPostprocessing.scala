@@ -57,6 +57,7 @@ class DataSetPostprocessing(
   private def addProteinsToDb(dataSet: DataSet): Future[Int] = {
     Logger.info("add proteins to db")
     val proteins = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile = new File(dataRootPath + dataSet.massFitResult.get.proteinGroupsPath), dataSetId)
+    //let's add the peptides
     val res = ImportProteins().importProteins(proteins, proteinService)
     res
   }

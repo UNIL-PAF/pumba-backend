@@ -38,26 +38,49 @@ class ParsePeptidesSpec extends Specification{
 
   "parsePeptidesTable" should {
 
-    val pepMap: Map[MaxQuantPepId, Peptide] = ParsePeptides().parsePeptidesTable(peptidesFile)
+    val pepMap: Map[MaxQuantPepId, Seq[Peptide]] = ParsePeptides().parsePeptidesTable(peptidesFile)
 
     "should contain all peptides containing intensities" in {
       pepMap.keys.size mustEqual(314)
     }
 
-    "every key should have a peptide" in {
+    "every key should have a peptide list" in {
       pepMap.values.size mustEqual(314)
     }
 
-    "contain the correct data" in {
-      val pep: Peptide = pepMap(MaxQuantPepId(2))
+    "we should have more peptides than keys" in {
+      val pepListOfList: Seq[Seq[Peptide]] = pepMap.values.toSeq
+      pepListOfList.flatten.length mustEqual(966)
+    }
 
-      pep.startPos mustEqual(2)
-      pep.endPos mustEqual(26)
-      pep.aminoAcidBefore mustEqual("M")
-      pep.aminoAcidAfter mustEqual("K")
-      pep.sequence mustEqual("AAAAAAAGDSDSWDADAFSVEDPVR")
-      pep.theoMass.toInt mustEqual(2464)
-      pep.isRazor mustEqual(None)
+    "first entry should have 3 peptides" in {
+      pepMap(MaxQuantPepId(2)).length mustEqual(3)
+    }
+
+    "first peptide contain the correct data" in {
+      val pep1: Peptide = pepMap(MaxQuantPepId(2))(0)
+
+      pep1.startPos mustEqual(2)
+      pep1.endPos mustEqual(26)
+      pep1.aminoAcidBefore mustEqual("M")
+      pep1.aminoAcidAfter mustEqual("K")
+      pep1.sequence mustEqual("AAAAAAAGDSDSWDADAFSVEDPVR")
+      pep1.theoMass.toInt mustEqual(2464)
+      pep1.isRazor mustEqual(None)
+      pep1.sliceNr mustEqual(32)
+    }
+
+    "second peptide contain the correct data" in {
+      val pep2: Peptide = pepMap(MaxQuantPepId(2))(1)
+
+      pep2.startPos mustEqual(2)
+      pep2.endPos mustEqual(26)
+      pep2.aminoAcidBefore mustEqual("M")
+      pep2.aminoAcidAfter mustEqual("K")
+      pep2.sequence mustEqual("AAAAAAAGDSDSWDADAFSVEDPVR")
+      pep2.theoMass.toInt mustEqual(2464)
+      pep2.isRazor mustEqual(None)
+      pep2.sliceNr mustEqual(33)
     }
 
   }

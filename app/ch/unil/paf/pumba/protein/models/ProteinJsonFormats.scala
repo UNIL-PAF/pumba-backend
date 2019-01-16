@@ -12,6 +12,14 @@ import play.api.libs.json._
 
 object ProteinJsonFormats {
 
+  implicit val formatMaxQuantPepId = new Format[MaxQuantPepId] {
+    override def reads(json: JsValue): JsResult[MaxQuantPepId] = JsSuccess(MaxQuantPepId(json.as[Int]))
+
+    def writes(o: MaxQuantPepId) = JsString(o.value.toString)
+  }
+
+  implicit val formatPeptide = Json.format[Peptide]
+
   implicit val formatProtein = Json.format[Protein]
 
   implicit val formatProteinWithDataSet = Json.format[ProteinWithDataSet]

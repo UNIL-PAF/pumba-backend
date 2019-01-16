@@ -19,7 +19,8 @@ case class Protein (
                      proteinIDs: Seq[String],
                      geneNames: Seq[String],
                      theoMolWeight: Double,
-                     intensities: Seq[Double]
+                     intensities: Seq[Double],
+                     peptides: Seq[Peptide]
                    ) extends BaseProtein
 
 

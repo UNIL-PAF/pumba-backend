@@ -3,7 +3,7 @@ package ch.unil.paf.pumba.protein.services
 import ch.unil.paf.pumba.PlayWithMongoSpec
 import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseException}
 import ch.unil.paf.pumba.dataset.models._
-import ch.unil.paf.pumba.protein.models.{Protein, ProteinWithDataSet}
+import ch.unil.paf.pumba.protein.models.{Peptide, Protein, ProteinWithDataSet}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.Helpers.await
@@ -31,7 +31,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     proteinIDs = Seq("A0A096LP75", "C4AMC7", "Q6VEQ5", "Q9NQA3", "A8K0Z3"),
     geneNames = Seq("WASH3P", "WASH2P", "WASH6P", "WASH1"),
     theoMolWeight = 50.073,
-    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31049000, 108350000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31049000, 108350000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+    peptides = Seq.empty[Peptide]
   )
 
   val protein_2 = Protein(
@@ -39,7 +40,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
     geneNames = Seq("C21orf33"),
     theoMolWeight = 30.376,
-    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0),
+    peptides = Seq.empty[Peptide]
   )
 
   val protein_3 = Protein(
@@ -47,7 +49,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
     geneNames = Seq("C21orf33"),
     theoMolWeight = 30.376,
-    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0),
+    peptides = Seq.empty[Peptide]
   )
 
 
@@ -56,7 +59,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
     geneNames = Seq("C21orf33"),
     theoMolWeight = 30.376,
-    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0)
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0),
+    peptides = Seq.empty[Peptide]
   )
 
   val dataSet_1 = DataSet(
