@@ -42,21 +42,23 @@ class ParsePeptides {
   def lineToPeptides(line:String, headers: Map[String, Int], intPos: Seq[Int], sep: String = SEPARATOR) : Seq[Peptide] = {
     val values: Array[String] = line.split(sep)
 
+    // remove reverse entries
+    if((values(headers("reverse")) == "+")) return Seq.empty[Peptide]
+
     // get actual intensities
     val ints: Seq[(Double, Int)] = intPos.zipWithIndex.map(p => (values(p._1).toDouble, p._2)).filter(_._1 > 0)
 
+    val maxQuantId = MaxQuantPepId(values(headers("id")).toInt)
+    val sequence = values(headers("sequence"))
+    val aminoAcidBefore = values(headers("amino.acid.before"))
+    val aminoAcidAfter = values(headers("amino.acid.after"))
+    val startPos = values(headers("start.position")).toInt
+    val endPos = values(headers("end.position")).toInt
+    val isRazor = None
+    val theoMass = values(headers("mass")).toDouble
+
     ints.map{ i =>
-      Peptide(
-        maxQuantId = MaxQuantPepId(values(headers("id")).toInt),
-        sequence = values(headers("sequence")),
-        aminoAcidBefore = values(headers("amino.acid.before")),
-        aminoAcidAfter = values(headers("amino.acid.after")),
-        startPos = values(headers("start.position")).toInt,
-        endPos = values(headers("end.position")).toInt,
-        isRazor = None,
-        sliceNr = i._2 + 1,
-        theoMass = values(headers("mass")).toDouble
-      )
+      Peptide(maxQuantId, sequence, aminoAcidBefore, aminoAcidAfter, startPos, endPos, isRazor, sliceNr = i._2 + 1, theoMass)
     }
   }
 

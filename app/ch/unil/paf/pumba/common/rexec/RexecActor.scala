@@ -1,6 +1,6 @@
 package ch.unil.paf.pumba.common.rexec
 
-import java.io.{File, IOException}
+import java.io.{File, IOException, PrintWriter}
 import java.nio.file.{Files, Path}
 
 import akka.actor._
@@ -42,7 +42,7 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
   override val supervisorStrategy =
     OneForOneStrategy() {
       case e: Exception => {
-        createError(e.getMessage)
+        createError(e.getStackTrace.map(_.toString).mkString("\n"))
         Stop
       }
     }
@@ -80,7 +80,9 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
           log.info(s"Finished inserting [$a] proteins.")
           changeStatusCallback.newStatus(DataSetDone, message = Some("Dataset is added to the database."))
         }
-        case Failure(e) => createError(e.getMessage)
+        case Failure(e) => {
+          createError(e.getStackTrace.map(_.toString).mkString("\n"))
+        }
       }
 
 

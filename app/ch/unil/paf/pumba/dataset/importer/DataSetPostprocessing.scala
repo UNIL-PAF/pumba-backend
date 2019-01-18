@@ -6,6 +6,7 @@ import ch.unil.paf.pumba.common.rexec.PostprocessingCallback
 import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.dataset.services.DataSetService
 import ch.unil.paf.pumba.protein.importer.{ImportProteins, ParsePeptides, ParseProteinGroups}
+import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide}
 import ch.unil.paf.pumba.protein.services.ProteinService
 import play.api.Logger
 
@@ -61,6 +62,7 @@ class DataSetPostprocessing(
     val peptides = ParsePeptides().parsePeptidesTable(peptidesFile = new File(dataRootPath + dataSet.massFitResult.get.peptidesPath))
     val proteins = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile = new File(dataRootPath + dataSet.massFitResult.get.proteinGroupsPath), dataSetId, peptides)
     val res = ImportProteins().importProteins(proteins, proteinService)
+    println(res)
     res
   }
 
