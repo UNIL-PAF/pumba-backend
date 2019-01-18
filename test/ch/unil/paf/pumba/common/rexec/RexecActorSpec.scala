@@ -68,7 +68,7 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
       rexecActor ! StartScript(filePath = Paths.get("test/resources/common/r/sayHello.R"), parameters = List())
       expectNoMessage(50 milli)
       testChangeStatusCallback.getLastStatus().value should equal ("error")
-      testChangeStatusCallback.getLastMessage() should equal ("Path to Rscript is not defined.")
+      testChangeStatusCallback.getLastMessage().contains("Path to Rscript is not defined") should equal (true)
       postprocessingCallback.isPostprocessingDone() should equal (false)
     }
 
@@ -78,7 +78,7 @@ class RexecActorSpec extends TestKit(ActorSystem("RserveActorSpec")) with Implic
       rexecActor ! StartScript(filePath = Paths.get("test/resources/common/r/sayHello.R"), parameters = List())
       expectNoMessage(50 milli)
       testChangeStatusCallback.getLastStatus().value should equal ("error")
-      testChangeStatusCallback.getLastMessage() should equal ("Cannot run program \"/invalid/path/Rscript\": error=2, No such file or directory")
+      testChangeStatusCallback.getLastMessage().contains("No such file or directory") should equal (true)
       postprocessingCallback.isPostprocessingDone() should equal (false)
     }
 

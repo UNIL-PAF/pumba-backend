@@ -42,7 +42,7 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
   override val supervisorStrategy =
     OneForOneStrategy() {
       case e: Exception => {
-        createError(e.getStackTrace.map(_.toString).mkString("\n"))
+        createError(e.getMessage + ":\n" + e.getStackTrace.map(_.toString).mkString("\n"))
         Stop
       }
     }
@@ -81,7 +81,7 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
           changeStatusCallback.newStatus(DataSetDone, message = Some("Dataset is added to the database."))
         }
         case Failure(e) => {
-          createError(e.getStackTrace.map(_.toString).mkString("\n"))
+          createError(e.getMessage + ":\n" + e.getStackTrace.map(_.toString).mkString("\n"))
         }
       }
 
