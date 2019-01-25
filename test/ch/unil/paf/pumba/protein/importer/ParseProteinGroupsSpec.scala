@@ -54,7 +54,7 @@ class ParseProteinGroupsSpec extends Specification{
       protein.proteinIDs.length mustEqual(2)
       protein.proteinIDs(1).value mustEqual("P50151")
       protein.geneNames.length mustEqual(2)
-      protein.geneNames(0) mustEqual("hCG_1994888")
+      protein.geneNames(0).value mustEqual("hCG_1994888")
       protein.dataSetId.value mustEqual("dummy_id")
       protein.theoMolWeight mustEqual(16.499)
     }

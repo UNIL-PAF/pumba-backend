@@ -3,7 +3,7 @@ package ch.unil.paf.pumba.protein.importer
 import java.io.File
 
 import ch.unil.paf.pumba.dataset.models.DataSetId
-import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, Protein, ProteinId}
+import ch.unil.paf.pumba.protein.models._
 
 import scala.io.Source
 import play.api.Logger
@@ -45,7 +45,7 @@ class ParseProteinGroups {
     Protein(
       dataSetId = dataSetId,
       proteinIDs = parseNameField(values, headers, fieldName = "majority.protein.ids").map(ProteinId(_)),
-      geneNames = parseNameField(values, headers, fieldName = "gene.names"),
+      geneNames = parseNameField(values, headers, fieldName = "gene.names").map(GeneName(_)),
       theoMolWeight = values(headers("mol..weight..kda.")).toDouble,
       intensities = intPos.map(values(_).toDouble),
       peptides = peptides
