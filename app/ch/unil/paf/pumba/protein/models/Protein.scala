@@ -9,6 +9,7 @@ import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId}
 
 case class ProteinId(value: String) extends AnyVal
 case class GeneName(value: String) extends AnyVal
+case class ProteinEntryName(value: String) extends AnyVal
 
 sealed trait BaseProtein {
   def proteinIDs: Seq[ProteinId]

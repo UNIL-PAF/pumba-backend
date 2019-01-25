@@ -72,12 +72,9 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
     "find sample for given DataSets" in {
       val res: Map[Sample, Seq[DataSetId]] = await(dataSetService.findSamplesDataSetsMap(List(DataSetId("dummy_id"), DataSetId("dummy_id_3"))))
-      println(res)
       res.keys.toSeq.length mustEqual (2)
       res.contains(Sample("Jurkat_3")) mustEqual true
     }
-
-
   }
 
   "DataSetService with massFitResult" should {
