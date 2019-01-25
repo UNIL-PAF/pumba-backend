@@ -3,7 +3,7 @@ package ch.unil.paf.pumba.protein.importer
 import java.io.File
 
 import ch.unil.paf.pumba.dataset.models.DataSetId
-import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, Protein}
+import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, Protein, ProteinId}
 import org.specs2.mutable.Specification
 
 import scala.io.Source
@@ -52,7 +52,7 @@ class ParseProteinGroupsSpec extends Specification{
       protein.intensities(0) mustEqual(0)
       protein.intensities(45) mustEqual(2.41416499001986E-7)
       protein.proteinIDs.length mustEqual(2)
-      protein.proteinIDs(1) mustEqual("P50151")
+      protein.proteinIDs(1).value mustEqual("P50151")
       protein.geneNames.length mustEqual(2)
       protein.geneNames(0) mustEqual("hCG_1994888")
       protein.dataSetId.value mustEqual("dummy_id")
@@ -73,14 +73,14 @@ class ParseProteinGroupsSpec extends Specification{
     }
 
     "A0A024R216 should have 13 proteins" in {
-      val prots: Seq[Protein] = proteins.filter(_.proteinIDs.contains("A0A024R216"))
+      val prots: Seq[Protein] = proteins.filter(_.proteinIDs.contains(ProteinId("A0A024R216")))
       prots.length mustEqual(1)
       val prot = prots(0)
       prot.peptides.length mustEqual(13)
     }
 
     "one peptide should have correct data" in {
-      val prots: Seq[Protein] = proteins.filter(_.proteinIDs.contains("A0A024R216"))
+      val prots: Seq[Protein] = proteins.filter(_.proteinIDs.contains(ProteinId("A0A024R216")))
       prots.length mustEqual(1)
       val peptide1 = prots(0).peptides(0)
       val peptide2 = prots(0).peptides(1)

@@ -22,7 +22,7 @@ case class TheoMergedProtein(name: String, theoMolWeights: Seq[Double], intensit
   * @param theoMergedProtein
   * @param proteins
   */
-case class ProteinMerge(mainProteinId: String, sample: Sample, theoMergedProtein: TheoMergedProtein, proteins: Seq[ProteinWithDataSet])
+case class ProteinMerge(mainProteinId: ProteinId, sample: Sample, theoMergedProtein: TheoMergedProtein, proteins: Seq[ProteinWithDataSet])
 
 
 

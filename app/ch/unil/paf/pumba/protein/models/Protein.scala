@@ -6,8 +6,11 @@ import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId}
   * @author Roman Mylonas
   * copyright 2018, Protein Analysis Facility UNIL
   */
+
+case class ProteinId(value: String) extends AnyVal
+
 sealed trait BaseProtein {
-  def proteinIDs: Seq[String]
+  def proteinIDs: Seq[ProteinId]
   def geneNames: Seq[String]
   def theoMolWeight: Double
   def intensities: Seq[Double]
@@ -17,7 +20,7 @@ sealed trait BaseProtein {
 
 case class Protein (
                      dataSetId: DataSetId,
-                     proteinIDs: Seq[String],
+                     proteinIDs: Seq[ProteinId],
                      geneNames: Seq[String],
                      theoMolWeight: Double,
                      intensities: Seq[Double],
@@ -26,7 +29,7 @@ case class Protein (
 
 
 case class ProteinWithDataSet (
-                                proteinIDs: Seq[String],
+                                proteinIDs: Seq[ProteinId],
                                 geneNames: Seq[String],
                                 theoMolWeight: Double,
                                 intensities: Seq[Double],

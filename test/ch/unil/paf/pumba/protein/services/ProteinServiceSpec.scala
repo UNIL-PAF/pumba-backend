@@ -3,7 +3,7 @@ package ch.unil.paf.pumba.protein.services
 import ch.unil.paf.pumba.PlayWithMongoSpec
 import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseException}
 import ch.unil.paf.pumba.dataset.models._
-import ch.unil.paf.pumba.protein.models.{Peptide, Protein, ProteinWithDataSet}
+import ch.unil.paf.pumba.protein.models.{Peptide, Protein, ProteinId, ProteinWithDataSet}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.Helpers.await
@@ -29,7 +29,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val protein = Protein(
     dataSetId = DataSetId("dummy_id"),
-    proteinIDs = Seq("A0A096LP75", "C4AMC7", "Q6VEQ5", "Q9NQA3", "A8K0Z3"),
+    proteinIDs = Seq("A0A096LP75", "C4AMC7", "Q6VEQ5", "Q9NQA3", "A8K0Z3").map(ProteinId(_)),
     geneNames = Seq("WASH3P", "WASH2P", "WASH6P", "WASH1"),
     theoMolWeight = 50.073,
     intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31049000, 108350000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -38,7 +38,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val protein_2 = Protein(
     dataSetId = DataSetId("dummy_id"),
-    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
+    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75").map(ProteinId(_)),
     geneNames = Seq("C21orf33"),
     theoMolWeight = 30.376,
     intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -47,7 +47,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val protein_3 = Protein(
     dataSetId = DataSetId("dummy_id_2"),
-    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
+    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75").map(ProteinId(_)),
     geneNames = Seq("C21orf33"),
     theoMolWeight = 30.376,
     intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -57,7 +57,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val protein_4 = Protein(
     dataSetId = DataSetId("dummy_id_3"),
-    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75"),
+    proteinIDs = Seq("A0A096LPI6", "P30042", "A0A096LP75").map(ProteinId(_)),
     geneNames = Seq("C21orf33"),
     theoMolWeight = 30.376,
     intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -127,25 +127,25 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "find a protein from a dataset" in {
-      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), "A0A096LPI6"))
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinId("A0A096LPI6")))
       res.length mustEqual 1
       res(0).theoMolWeight mustEqual 30.376
     }
 
     "find another protein from a dataset" in {
-      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), "C4AMC7"))
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinId("C4AMC7")))
       res.length mustEqual 1
       res(0).theoMolWeight mustEqual 50.073
     }
 
     "find multiple proteins from a dataset" in {
-      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), "A0A096LP75"))
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinId("A0A096LP75")))
       res.length mustEqual 2
       res.filter(_.theoMolWeight == 30.376).length mustEqual 1
     }
 
     "throw exception when not finding protein" in {
-      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("not_existing"), "not_existing"))
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("not_existing"), ProteinId("not_existing")))
       res.length mustEqual 0
 
 
@@ -155,13 +155,13 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "find protein" in {
-      val res: List[Protein] = await(proteinService.getProteins("A0A096LP75"))
+      val res: List[Protein] = await(proteinService.getProteins(ProteinId("A0A096LP75")))
       res.length mustEqual 4
       res.filter(_.theoMolWeight == 30.376).length mustEqual 3
     }
 
     "find protein with dataSet" in {
-      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample("A0A096LP75", None))
+      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample(ProteinId("A0A096LP75"), None))
       res.keys.toSeq.length mustEqual 3
       res.contains(Sample("Jurkat II")) mustEqual true
       res(Sample("Jurkat II")).length mustEqual 7
@@ -169,13 +169,13 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
     "find protein with dataSet for certain dataSets" in {
       val dataSets = Seq(DataSetId("dummy_id"), DataSetId("dummy_id_3"), DataSetId("dummy_id_4"))
-      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample("A0A096LP75", dataSetIds = Some(dataSets)))
+      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample(ProteinId("A0A096LP75"), dataSetIds = Some(dataSets)))
 
       res.keys.toSeq.length mustEqual 3
     }
 
     "find samples from given protein" in {
-      val res:Map[Sample, Seq[DataSetId]] = await(proteinService.getSamplesFromProtein("A0A096LP75"))
+      val res:Map[Sample, Seq[DataSetId]] = await(proteinService.getSamplesFromProtein(ProteinId("A0A096LP75")))
       res.keys.toSeq.length mustEqual 3
       res.contains(Sample("Jurkat II")) mustEqual true
       res(Sample("Jurkat II")).length mustEqual 9

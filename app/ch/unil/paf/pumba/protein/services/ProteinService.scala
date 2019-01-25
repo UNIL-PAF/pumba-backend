@@ -3,7 +3,7 @@ package ch.unil.paf.pumba.protein.services
 import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseError}
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId, Sample}
 import ch.unil.paf.pumba.dataset.services.DataSetService
-import ch.unil.paf.pumba.protein.models.{Protein, ProteinFactory, ProteinWithDataSet}
+import ch.unil.paf.pumba.protein.models.{Protein, ProteinFactory, ProteinId, ProteinWithDataSet}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
 import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats._
 import play.api.Logger
@@ -62,12 +62,12 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
     * @param dataSetId
     * @param proteinId
     */
-  def getProteinsFromDataSet(dataSetId: DataSetId, proteinId: String): Future[List[Protein]] = {
-    val query = BSONDocument("dataSetId" -> dataSetId.value, "proteinIDs" -> proteinId)
+  def getProteinsFromDataSet(dataSetId: DataSetId, proteinId: ProteinId): Future[List[Protein]] = {
+    val query = BSONDocument("dataSetId" -> dataSetId.value, "proteinIDs" -> proteinId.value)
     val findRes: Future[List[Protein]] = collection(collectionName).flatMap(_.find(query).cursor[Protein]().collect[List](-1, Cursor.FailOnError[List[Protein]]()))
 
     // throw exception if the update went wrong
-    val errorMessage = s"Could not find Protein [${proteinId}] in [${dataSetId.value}]."
+    val errorMessage = s"Could not find Protein [${proteinId.value}] in [${dataSetId.value}]."
     val proteins = checkOrError[List[Protein]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
 
     // give back an empty list if no protein is found for the given DataSet
@@ -93,8 +93,8 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
     * @param proteinId
     * @return
     */
-  def getSamplesFromProtein(proteinId: String): Future[Map[Sample, Seq[DataSetId]]] = {
-    val query = BSONDocument("proteinIDs" -> proteinId)
+  def getSamplesFromProtein(proteinId: ProteinId): Future[Map[Sample, Seq[DataSetId]]] = {
+    val query = BSONDocument("proteinIDs" -> proteinId.value)
     val projection = BSONDocument("dataSetId" -> 1)
     val findResFuture: Future[List[BSONDocument]] = collection(collectionName).flatMap(_.find(query, projection).cursor[BSONDocument]().collect[List](-1, Cursor.FailOnError[List[BSONDocument]]()))
 
@@ -114,8 +114,8 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
     * @param proteinId
     * @return
     */
-  def getProteins(proteinId: String): Future[List[Protein]] = {
-    val query = BSONDocument("proteinIDs" -> proteinId)
+  def getProteins(proteinId: ProteinId): Future[List[Protein]] = {
+    val query = BSONDocument("proteinIDs" -> proteinId.value)
     val findRes: Future[List[Protein]] = collection(collectionName).flatMap(_.find(query).cursor[Protein]().collect[List](-1, Cursor.FailOnError[List[Protein]]()))
 
     val errorMessage = s"Could not find Protein [${proteinId}]."
@@ -149,7 +149,7 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
     * @param dataSetIds
     * @return
     */
-  def getProteinsBySample(proteinId: String, dataSetIds: Option[Seq[DataSetId]]): Future[Map[Sample, Seq[ProteinWithDataSet]]] = {
+  def getProteinsBySample(proteinId: ProteinId, dataSetIds: Option[Seq[DataSetId]]): Future[Map[Sample, Seq[ProteinWithDataSet]]] = {
     // get the map of samples with corresponding dataSets
     val fSampleDataSetMap = getSamplesFromProtein(proteinId)
 
