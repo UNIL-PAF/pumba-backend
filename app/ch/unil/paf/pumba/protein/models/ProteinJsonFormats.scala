@@ -15,7 +15,7 @@ object ProteinJsonFormats {
   implicit val formatMaxQuantPepId = new Format[MaxQuantPepId] {
     override def reads(json: JsValue): JsResult[MaxQuantPepId] = JsSuccess(MaxQuantPepId(json.as[Int]))
 
-    def writes(o: MaxQuantPepId) = JsString(o.value.toString)
+    def writes(o: MaxQuantPepId) = JsNumber(o.value)
   }
 
   implicit val formatPeptide = Json.format[Peptide]

@@ -62,7 +62,6 @@ class DataSetPostprocessing(
     val peptides = ParsePeptides().parsePeptidesTable(peptidesFile = new File(dataRootPath + dataSet.massFitResult.get.peptidesPath))
     val proteins = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile = new File(dataRootPath + dataSet.massFitResult.get.proteinGroupsPath), dataSetId, peptides)
     val res = ImportProteins().importProteins(proteins, proteinService)
-    println(res)
     res
   }
 

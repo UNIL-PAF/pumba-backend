@@ -11,6 +11,7 @@ sealed trait BaseProtein {
   def geneNames: Seq[String]
   def theoMolWeight: Double
   def intensities: Seq[Double]
+  def peptides: Seq[Peptide]
 }
 
 
@@ -29,13 +30,14 @@ case class ProteinWithDataSet (
                                 geneNames: Seq[String],
                                 theoMolWeight: Double,
                                 intensities: Seq[Double],
-                                dataSet: DataSet
+                                dataSet: DataSet,
+                                peptides: Seq[Peptide]
                               )extends BaseProtein
 
 
 object ProteinFactory {
 
   def apply(protein: Protein, dataSet: DataSet) : ProteinWithDataSet = ProteinWithDataSet(protein.proteinIDs,
-    protein.geneNames, protein.theoMolWeight, protein.intensities, dataSet)
+    protein.geneNames, protein.theoMolWeight, protein.intensities, dataSet, protein.peptides)
 
 }
