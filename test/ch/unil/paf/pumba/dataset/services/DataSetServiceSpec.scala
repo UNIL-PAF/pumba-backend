@@ -22,14 +22,13 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val dataSetService = new DataSetService(reactiveMongoApi)
 
+  val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None)
+  val dataSet_3 = DataSet(id = DataSetId("dummy_id_3"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None)
+
   before {
     //Init DB
-    await {
-      val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None)
-      dataSetService.insertDataSet(dataSet)
-      val dataSet_3 = DataSet(id = DataSetId("dummy_id_3"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None)
-      dataSetService.insertDataSet(dataSet_3)
-    }
+    await(dataSetService.insertDataSet(dataSet))
+    await(dataSetService.insertDataSet(dataSet_3))
   }
 
   after {
