@@ -46,9 +46,17 @@ class ParseFastaSpec extends Specification{
 
   "parse" should {
 
-    "give back correct HashMap" in {
-      val peptideSequences: Seq[ProteinSequence]  = ParseFasta().parse(fastaFile).toSeq
+    val peptideSequences: Seq[ProteinSequence]  = ParseFasta().parse(fastaFile).toSeq
+
+    "give correct number of ProteinSequences" in {
       peptideSequences.length mustEqual(142)
+    }
+
+    "contain correct ProteinSequences" in {
+      val pepSeq = peptideSequences(0)
+      pepSeq.sequence mustEqual("MGAPLLSPGWGAGAAGRRWWMLLAPLLPALLLVRPAGALVEGLYCGTRDCYEVLGVSRSAGKAEIARAYRQLARRYHPDRYRPQPGDEGPGRTPQSAEEAFLLVATAYETLKVSQAAAELQQYCMQNACKDALLVGVPAGSNPFREPRSCALL")
+      pepSeq.length mustEqual(153)
+      pepSeq.entryName.value mustEqual("A0A024R161_HUMAN")
     }
 
   }
