@@ -3,7 +3,7 @@ package ch.unil.paf.pumba.sequences.importer
 import java.io.File
 
 import ch.unil.paf.pumba.protein.importer.ParsePeptides
-import ch.unil.paf.pumba.sequences.models.ProteinSequence
+import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
 import org.specs2.mutable.Specification
 
 import scala.io.Source
@@ -46,7 +46,7 @@ class ParseFastaSpec extends Specification{
 
   "parse" should {
 
-    val peptideSequences: Seq[ProteinSequence]  = ParseFasta().parse(fastaFile).toSeq
+    val peptideSequences: Seq[ProteinSequence]  = ParseFasta().parse(fastaFile, DataBaseName("test_db")).toSeq
 
     "give correct number of ProteinSequences" in {
       peptideSequences.length mustEqual(142)

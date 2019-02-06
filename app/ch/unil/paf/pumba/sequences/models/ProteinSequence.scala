@@ -12,6 +12,10 @@ case class ProteinSequence(
                             proteinName: ProteinName,
                             organismName: OrganismName,
                             geneName: Option[GeneName],
+                            dataBaseName: DataBaseName,
                             sequence: String,
                             length: Int
                           )
+
+
+case class DataBaseName(value: String) extends AnyVal

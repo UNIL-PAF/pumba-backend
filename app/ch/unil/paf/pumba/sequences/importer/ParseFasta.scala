@@ -4,7 +4,7 @@ import java.io.File
 import java.util.Scanner
 
 import ch.unil.paf.pumba.protein.models._
-import ch.unil.paf.pumba.sequences.models.ProteinSequence
+import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
 
 /**
   * @author Roman Mylonas
@@ -16,7 +16,7 @@ class ParseFasta {
     * parse the given source and produce an iterator of FastaEntry
     * @return
     */
-  def parse(file: File): Iterator[ProteinSequence] = {
+  def parse(file: File, dataBaseName: DataBaseName): Iterator[ProteinSequence] = {
 
     val scanner = new Scanner(file).useDelimiter( """\n>""")
 
@@ -27,7 +27,7 @@ class ParseFasta {
       override def next(): String = scanner.next()
     }
 
-    it.map(parseOneProtBlock)
+    it.map(parseOneProtBlock(_, dataBaseName))
 
   }
 
@@ -47,7 +47,7 @@ class ParseFasta {
   }
 
 
-  def parseOneProtBlock(protLines: String): ProteinSequence = {
+  def parseOneProtBlock(protLines: String, dataBaseName: DataBaseName): ProteinSequence = {
     val firstNewLineIndex = protLines.indexOf("\n")
     // give back next entry and remove heading '>' and any special characters
     val headline = protLines.substring(0, firstNewLineIndex).replaceAll("^>|[^\\x00-\\x7F]", "")
@@ -57,7 +57,7 @@ class ParseFasta {
     val (proteinId, entryName, geneName, organismName, proteinName) = parseHeader(headline)
     val seq = seqLines.replaceAll( """\s+""", "")
 
-    ProteinSequence(proteinId, entryName, proteinName, organismName, geneName, seq, seq.length)
+    ProteinSequence(proteinId, entryName, proteinName, organismName, geneName, dataBaseName, seq, seq.length)
   }
 
 }
