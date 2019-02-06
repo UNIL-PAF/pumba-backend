@@ -1,6 +1,7 @@
 package ch.unil.paf.pumba.protein.models
 
 import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats._
+import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
 import play.api.libs.json._
 
 
@@ -11,6 +12,16 @@ import play.api.libs.json._
   */
 
 object ProteinJsonFormats {
+
+  implicit val formatOrganismName = new Format[OrganismName] {
+    override def reads(json: JsValue): JsResult[OrganismName] = JsSuccess(OrganismName(json.as[String]))
+    def writes(o: OrganismName) = JsString(o.value)
+  }
+
+  implicit val formatDataBaseName = new Format[DataBaseName] {
+    override def reads(json: JsValue): JsResult[DataBaseName] = JsSuccess(DataBaseName(json.as[String]))
+    def writes(o: DataBaseName) = JsString(o.value)
+  }
 
   implicit val formatMaxQuantPepId = new Format[MaxQuantPepId] {
     override def reads(json: JsValue): JsResult[MaxQuantPepId] = JsSuccess(MaxQuantPepId(json.as[Int]))
@@ -46,5 +57,7 @@ object ProteinJsonFormats {
   implicit val formatTheoMergedProtein = Json.format[TheoMergedProtein]
 
   implicit val formatProteinMerge = Json.format[ProteinMerge]
+
+  implicit val formatProteinSequence = Json.format[ProteinSequence]
 
 }

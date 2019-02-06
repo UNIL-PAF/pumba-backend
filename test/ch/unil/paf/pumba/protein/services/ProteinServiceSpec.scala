@@ -70,7 +70,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     sample = Sample("Jurkat"),
     status = DataSetDone,
     message = None,
-    massFitResult = None
+    massFitResult = None,
+    dataBaseName = None
   )
 
   val dataSet_2 = DataSet(
@@ -79,7 +80,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     sample = Sample("Jurkat II"),
     status = DataSetDone,
     message = None,
-    massFitResult = None
+    massFitResult = None,
+    dataBaseName = None
   )
 
   val dataSet_3 = DataSet(
@@ -88,7 +90,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     sample = Sample("Blublu"),
     status = DataSetDone,
     message = None,
-    massFitResult = None
+    massFitResult = None,
+    dataBaseName = None
   )
 
   val dataSet_4 = DataSet(
@@ -97,7 +100,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     sample = Sample("Blublu"),
     status = DataSetDone,
     message = None,
-    massFitResult = None
+    massFitResult = None,
+    dataBaseName = None
   )
 
   before {

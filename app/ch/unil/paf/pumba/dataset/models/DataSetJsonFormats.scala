@@ -1,6 +1,7 @@
 package ch.unil.paf.pumba.dataset.models
 
 import play.api.libs.json._
+import ch.unil.paf.pumba.protein.models.ProteinJsonFormats.formatDataBaseName
 
 /**
   * @author Roman Mylonas

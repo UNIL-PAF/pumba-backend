@@ -4,7 +4,7 @@ import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseError}
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId, Sample}
 import ch.unil.paf.pumba.dataset.services.DataSetService
 import ch.unil.paf.pumba.protein.models.{Protein, ProteinFactory, ProteinId, ProteinWithDataSet}
-import ch.unil.paf.pumba.sequences.models.SequenceJsonFormats._
+import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
 import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
 import play.api.Logger
 import play.modules.reactivemongo.ReactiveMongoApi
