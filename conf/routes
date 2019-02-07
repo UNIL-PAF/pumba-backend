@@ -12,5 +12,8 @@ POST /upload/:dataSetName/sample/:sample                    ch.unil.paf.pumba.co
 # get the protein infos
 GET /merge-protein/:proteinId                               ch.unil.paf.pumba.controllers.ProteinsController.mergeProteins(proteinId: String, dataSetsString: Option[String])
 
+# upload sequence data from FASTA file
+POST /sequence/:dbName
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                       controllers.Assets.versioned(path="/public", file: Asset)

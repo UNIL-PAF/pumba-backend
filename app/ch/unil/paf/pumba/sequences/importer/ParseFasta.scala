@@ -43,6 +43,8 @@ class ParseFasta {
 
         (ProteinId(proteinId), ProteinEntryName(proteinEntry), geneName, OrganismName(restMap("OS")), ProteinName(proteinName))
       }
+
+      case _ => throw new Exception(s"Failed to parse header: [$headline].")
     }
   }
 

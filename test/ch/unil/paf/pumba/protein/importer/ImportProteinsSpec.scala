@@ -5,7 +5,7 @@ import java.io.File
 import ch.unil.paf.pumba.PlayWithMongoSpec
 import ch.unil.paf.pumba.dataset.models.DataSetId
 import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, Protein, ProteinId}
-import ch.unil.paf.pumba.protein.services.ProteinService
+import ch.unil.paf.pumba.protein.services.{ImportProteins, ProteinService}
 import org.scalatest.BeforeAndAfter
 import play.api.test.Helpers._
 

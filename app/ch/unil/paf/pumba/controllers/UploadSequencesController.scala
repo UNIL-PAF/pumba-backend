@@ -22,10 +22,10 @@ import scala.concurrent.ExecutionContext
  * Upload MaxQuant data
  */
 @Singleton
-class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
-                                         cc: ControllerComponents,
-                                         config: Configuration,
-                                         val reactiveMongoApi: ReactiveMongoApi)
+class UploadSequencesController @Inject()(implicit ec: ExecutionContext,
+                                          cc: ControllerComponents,
+                                          config: Configuration,
+                                          val reactiveMongoApi: ReactiveMongoApi)
   extends AbstractController(cc) with MongoController with ReactiveMongoComponents{
 
   // services

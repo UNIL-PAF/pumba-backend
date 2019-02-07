@@ -5,10 +5,12 @@ import java.io.File
 import ch.unil.paf.pumba.common.rexec.PostprocessingCallback
 import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.dataset.services.DataSetService
-import ch.unil.paf.pumba.protein.importer.{ImportProteins, ParseParameters, ParsePeptides, ParseProteinGroups}
-import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide}
-import ch.unil.paf.pumba.protein.services.ProteinService
+import ch.unil.paf.pumba.protein.importer.{ParseParameters, ParsePeptides, ParseProteinGroups}
+import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
+import ch.unil.paf.pumba.protein.services.{ImportProteins, ProteinService, SequenceService}
+import ch.unil.paf.pumba.sequences.importer.ParseFasta
 import ch.unil.paf.pumba.sequences.models.DataBaseName
+import ch.unil.paf.pumba.sequences.services.ImportSequences
 import play.api.Logger
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,6 +23,7 @@ class DataSetPostprocessing(
                              dataSetService: DataSetService,
                              dataSetId: DataSetId,
                              proteinService: ProteinService,
+                             sequenceService: SequenceService,
                              dataRootPath: String
                            )(implicit ec: ExecutionContext) extends PostprocessingCallback{
 
@@ -31,8 +34,8 @@ class DataSetPostprocessing(
     for {
       oldData <- oldDataFuture
       newDataSet = addMassFitResult(oldData)
-      ok <- addProteinsToDb(newDataSet)
-    } yield (ok)
+      ok_prots <- addProteinsToDb(newDataSet)
+    } yield (ok_prots)
 
   }
 
@@ -50,7 +53,7 @@ class DataSetPostprocessing(
       maxInt = ParseMassFit().parseMaxInt(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/max_norm_intensity.csv")
     )
 
-    val dataBaseName: DataBaseName = ParseParameters().parseTable(new File(s"${oldDataSet.id.value}/txt/parameters.txt"))
+    val dataBaseName: DataBaseName = ParseParameters().parseTable(new File(s"${dataRootPath}/${oldDataSet.id.value}/txt/parameters.txt"))
 
     val message = Some("Add proteins to database.")
     val newDataSet = oldDataSet.copy(massFitResult = Some(massFitResult), status = DataSetRunning, message = message, dataBaseName = Some(dataBaseName))

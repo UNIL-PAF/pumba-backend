@@ -1,9 +1,8 @@
-package ch.unil.paf.pumba.protein.importer
+package ch.unil.paf.pumba.protein.services
 
 import ch.unil.paf.pumba.protein.models.Protein
-import ch.unil.paf.pumba.protein.services.ProteinService
-
 import reactivemongo.api.commands.WriteResult
+
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
