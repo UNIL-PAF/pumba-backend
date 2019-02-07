@@ -3,23 +3,19 @@ package ch.unil.paf.pumba.controllers
 import java.io.File
 import java.nio.file.{Path, Paths}
 import java.util.Calendar
-
-import akka.actor.{ActorSystem, Props}
-import ch.unil.paf.pumba.common.rexec.RexecActor
-import ch.unil.paf.pumba.dataset.importer.{DataSetChangeStatus, DataSetPostprocessing, ImportMQData}
-import ch.unil.paf.pumba.dataset.models._
-import ch.unil.paf.pumba.dataset.services.DataSetService
 import ch.unil.paf.pumba.protein.services.{ProteinService, SequenceService}
+import ch.unil.paf.pumba.sequences.importer.ParseFasta
+import ch.unil.paf.pumba.sequences.models.DataBaseName
+import ch.unil.paf.pumba.sequences.services.ImportSequences
 import javax.inject._
 import play.api._
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc._
 import play.modules.reactivemongo._
-
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
- * Upload MaxQuant data
+ * Upload FASTA sequences data
  */
 @Singleton
 class UploadSequencesController @Inject()(implicit ec: ExecutionContext,
@@ -29,107 +25,52 @@ class UploadSequencesController @Inject()(implicit ec: ExecutionContext,
   extends AbstractController(cc) with MongoController with ReactiveMongoComponents{
 
   // services
-  val dataSetService = new DataSetService(reactiveMongoApi)
-  val proteinService = new ProteinService(reactiveMongoApi)
   val sequenceService = new SequenceService(reactiveMongoApi)
 
   // root data directory
   val rootDataDir = config.get[String]("upload.dir")
 
   /**
-    * Upload a zip file and start the pre-processing
+    * Upload a fasta file and start the pre-processing
     */
-  def uploadZipFile(dataSetName: String, sample: String) = Action(parse.multipartFormData) { request =>
-    // create a new id
-    val dataSetId: DataSetId = new DataSetId(Calendar.getInstance().getTime().getTime.toString)
-    val uploadDir = new File(rootDataDir + dataSetId.value)
-    val rScriptData = config.get[String]("rscript.data")
-    val rScriptBin = config.get[String]("rscript.bin")
-
+  def uploadFastaFile(dataBaseName: String) = Action(parse.multipartFormData) { request =>
     // process the ZIP file
-    request.body.file("zipFile").map { zipFile =>
+    request.body.file("fastaFile").map { fastaFile =>
+      val timeStamp: String = Calendar.getInstance().getTime().getTime.toString
+      val uploadDir = new File(rootDataDir + timeStamp + "_fasta")
+
       // copy file to it's new location
-      val dataDir = copyZipFile(zipFile, uploadDir)
+      val localFile = copyFile(fastaFile, uploadDir)
 
-      // set a creation status in the database
-      val dataSet: DataSet = DataSet(id = dataSetId, name = dataSetName, sample = Sample(sample), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
-      dataSetService.insertDataSet(dataSet)
-
-      // unzip the file
-      ImportMQData().unpackZip(dataDir.toFile, uploadDir, removeZip = false)
-
-      // create results directory
-      createDir(new File(uploadDir.toString + "/mass_fit_res"))
-
-      // start Rserve for preprocessing
-      startScriptToFitMasses(dataSetId, uploadDir, rScriptData, rScriptBin)
+      // parse and insert data
+      Logger.info("Upload FASTA: start inserting.")
+      val sequenceIt = ParseFasta().parse(localFile, DataBaseName(dataBaseName))
+      val res: Future[Int] = ImportSequences().importSequences(sequenceIt, sequenceService)
+      res.map(nr => Logger.info(s"Upload FASTA: finished inserting [$nr] sequences."))
     }
 
-    Ok(dataSetId.value)
-  }
+    Ok("started FASTA parsing")
 
-  /**
-    * Start the R script which computes the fit to the masses
-    *
-    * @param dataSetId
-    * @param uploadDir
-    * @param rScriptDir
-    * @param rScriptBin
-    */
-  def startScriptToFitMasses(dataSetId: DataSetId,
-                             uploadDir: File,
-                             rScriptDir: String,
-                             rScriptBin: String) = {
-    val actorSystem = ActorSystem()
-
-    val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
-    val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId, proteinService, sequenceService, rootDataDir)
-    val (stdOutFile, stdErrFile) = createRoutputFiles(uploadDir + "/logs")
-    val rexecActor = actorSystem.actorOf(
-                        Props(new RexecActor(
-                                      changeCallback,
-                                      postprocCallback,
-                                      rScriptBin,
-                                      Some(stdOutFile),
-                                      Some(stdErrFile))),
-                      "rserve")
-
-    import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
-    rexecActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = List(uploadDir.toString + "/txt/proteinGroups.txt", uploadDir.toString + "/mass_fit_res"))
   }
 
 
   /**
-    * Copy the ZIP file into the data directory
+    * Copy the file into the data directory
     *
-    * @param zipFile
+    * @param file
     * @param newDir
     * @return
     */
-  private def copyZipFile(zipFile: MultipartFormData.FilePart[TemporaryFile], newDir: File): Path = {
+  private def copyFile(file: MultipartFormData.FilePart[TemporaryFile], newDir: File): File = {
     // create a new directory and put the zip file in there
     createDir(newDir)
 
-    val filename = Paths.get(zipFile.filename).getFileName
+    val filename = Paths.get(file.filename).getFileName
     val fileDest: Path = Paths.get(newDir + "/" + filename.toString)
 
-    zipFile.ref.moveTo(fileDest, replace = true)
+    file.ref.moveTo(fileDest, replace = true)
 
-    fileDest
-  }
-
-  /**
-    * create log files for R
-    * @param logDir
-    * @return
-    */
-  private def createRoutputFiles(logDir: String): (File, File) = {
-
-    createDir(new File(logDir))
-
-    val stdOutFile = new File(logDir + "/r_stdout.log")
-    val stdErrFile = new File(logDir + "/r_stderr.log")
-    (stdOutFile, stdErrFile)
+    fileDest.toFile
   }
 
 

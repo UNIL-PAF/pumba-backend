@@ -63,6 +63,13 @@ class DataSetPostprocessing(
     newDataSet
   }
 
+  private def addSequencesToDb(dataSet: DataSet): Future[Int] = {
+    Logger.info("add sequences to db")
+    val sequenceIt = ParseFasta().parse(new File(s"${dataRootPath}/${dataSet.id.value}/txt/parameters.txt"), dataSet.dataBaseName.get)
+    ImportSequences().importSequences(sequenceIt, sequenceService)
+
+  }
+
   private def addProteinsToDb(dataSet: DataSet): Future[Int] = {
     Logger.info("add proteins to db")
     val peptides = ParsePeptides().parsePeptidesTable(peptidesFile = new File(dataRootPath + dataSet.massFitResult.get.peptidesPath))
