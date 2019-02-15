@@ -26,6 +26,7 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
     // make a new unique name for the list
     val uniqTag = Calendar.getInstance().getTimeInMillis.toString
     val listName = "list_" + uniqTag
+    val resName = "res_" + uniqTag
 
     val rCommandBuff = new StringBuilder
     rCommandBuff.append(s"$listName <- list();\n")
@@ -40,10 +41,15 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
     }
 
     // the merge function
-    rCommandBuff.append(s"merge_proteins($listName, cut_size=100, loess_span=0.05);\n")
+    rCommandBuff.append(s"$resName <- merge_proteins($listName, cut_size=100, loess_span=0.05);\n")
+    rCommandBuff.append(s"$resName")
     val rCommand = rCommandBuff.toString
+
     val resObj = rConnection.eval(rCommand)
     val res:RList = resObj.asList
+
+    // remove all R objects
+    rConnection.eval(s"rm($listName, $resName)")
 
     // create the result
     val mainProtId = proteins(0).proteinIDs(0)
@@ -60,13 +66,14 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
   */
 object ProteinMergeService {
 
-  var proteinMergeService: ProteinMergeService = null
+  //var proteinMergeService: ProteinMergeService = null
 
   def apply(rServeHost: String, rServePort: Int):ProteinMergeService = {
-    if(proteinMergeService == null){
-      proteinMergeService = new ProteinMergeService(rServeHost, rServePort)
-    }
-    proteinMergeService
+//    if(proteinMergeService == null){
+//      proteinMergeService = new ProteinMergeService(rServeHost, rServePort)
+//    }
+//    proteinMergeService
+    new ProteinMergeService(rServeHost, rServePort)
   }
 
 }

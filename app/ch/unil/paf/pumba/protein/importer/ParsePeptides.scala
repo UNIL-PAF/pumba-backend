@@ -55,7 +55,7 @@ class ParsePeptides {
     val startPos = values(headers("start.position")).toInt
     val endPos = values(headers("end.position")).toInt
     val isRazor = None
-    val theoMass = values(headers("mass")).toDouble
+    val theoMass = Math.log10(values(headers("mass")).toDouble)
 
     ints.map{ i =>
       Peptide(maxQuantId, sequence, aminoAcidBefore, aminoAcidAfter, startPos, endPos, isRazor, sliceNr = i._2 + 1, theoMass)
