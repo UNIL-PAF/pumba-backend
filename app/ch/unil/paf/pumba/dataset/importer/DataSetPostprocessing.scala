@@ -8,11 +8,9 @@ import ch.unil.paf.pumba.dataset.services.DataSetService
 import ch.unil.paf.pumba.protein.importer.{ParseParameters, ParsePeptides, ParseProteinGroups}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
 import ch.unil.paf.pumba.protein.services.{ImportProteins, ProteinService, SequenceService}
-import ch.unil.paf.pumba.sequences.importer.ParseFasta
 import ch.unil.paf.pumba.sequences.models.DataBaseName
-import ch.unil.paf.pumba.sequences.services.ImportSequences
 import play.api.Logger
-
+import reactivemongo.api.commands.UpdateWriteResult
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -33,14 +31,15 @@ class DataSetPostprocessing(
 
     for {
       oldData <- oldDataFuture
-      newDataSet = addMassFitResult(oldData)
+      newDataSet <- addMassFitResult(oldData)
       ok_prots <- addProteinsToDb(newDataSet)
-    } yield (ok_prots)
+      writeRes <- setStatusToDone(newDataSet)
+    } yield (writeRes.n)
 
   }
 
-  private def addMassFitResult(oldDataSetOption: Option[DataSet]): DataSet = {
-    Logger.info("add mass fit results to dataset")
+  private def addMassFitResult(oldDataSetOption: Option[DataSet]): Future[DataSet] = {
+    Logger.info("Add mass fit results to dataset.")
 
     val oldDataSet = oldDataSetOption.get
     val massFitResult = MassFitResult(
@@ -55,27 +54,29 @@ class DataSetPostprocessing(
 
     val dataBaseName: DataBaseName = ParseParameters().parseTable(new File(s"${dataRootPath}/${oldDataSet.id.value}/txt/parameters.txt"))
 
-    val message = Some("Add proteins to database.")
+    val message = Some("Add proteins and peptides to db.")
     val newDataSet = oldDataSet.copy(massFitResult = Some(massFitResult), status = DataSetRunning, message = message, dataBaseName = Some(dataBaseName))
 
-    dataSetService.updateDataSet(newDataSet)
+    val futRes: Future[UpdateWriteResult] = dataSetService.updateDataSet(newDataSet)
 
-    newDataSet
-  }
+    val futDataSet: Future[DataSet] = futRes.flatMap { x =>
+      dataSetService.findDataSet(newDataSet.id).map(_.get)
+    }
 
-  private def addSequencesToDb(dataSet: DataSet): Future[Int] = {
-    Logger.info("add sequences to db")
-    val sequenceIt = ParseFasta().parse(new File(s"${dataRootPath}/${dataSet.id.value}/txt/parameters.txt"), dataSet.dataBaseName.get)
-    ImportSequences().importSequences(sequenceIt, sequenceService)
-
+    futDataSet
   }
 
   private def addProteinsToDb(dataSet: DataSet): Future[Int] = {
-    Logger.info("add proteins to db")
+    Logger.info("Add proteins and peptides to db")
     val peptides = ParsePeptides().parsePeptidesTable(peptidesFile = new File(dataRootPath + dataSet.massFitResult.get.peptidesPath))
     val proteins = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile = new File(dataRootPath + dataSet.massFitResult.get.proteinGroupsPath), dataSetId, peptides)
     val res = ImportProteins().importProteins(proteins, proteinService)
     res
+  }
+
+  private def setStatusToDone(newDataSet: DataSet): Future[UpdateWriteResult] = {
+    val finalDataSet = newDataSet.copy(status = DataSetDone, message = Some("Dataset is added to the database."))
+    dataSetService.updateDataSet(finalDataSet)
   }
 
 }

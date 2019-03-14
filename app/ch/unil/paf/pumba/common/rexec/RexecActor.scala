@@ -1,6 +1,6 @@
 package ch.unil.paf.pumba.common.rexec
 
-import java.io.{File, IOException, PrintWriter}
+import java.io.File
 import java.nio.file.{Files, Path}
 
 import akka.actor._
@@ -78,7 +78,6 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
       futureNrProts.onComplete {
         case Success(a) => {
           log.info(s"Finished inserting [$a] proteins.")
-          changeStatusCallback.newStatus(DataSetDone, message = Some("Dataset is added to the database."))
         }
         case Failure(e) => {
           createError(e.getMessage + ":\n" + e.getStackTrace.map(_.toString).mkString("\n"))

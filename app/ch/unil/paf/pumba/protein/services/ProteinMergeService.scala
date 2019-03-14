@@ -56,6 +56,7 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
     val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
     val mergedProtein: TheoMergedProtein = new TheoMergedProtein(mergeName, res.at("x").asDoubles, res.at("y").asDoubles)
     val proteinMerge: ProteinMerge = new ProteinMerge(mainProtId, sample, mergedProtein, proteins)
+
     proteinMerge
   }
 
