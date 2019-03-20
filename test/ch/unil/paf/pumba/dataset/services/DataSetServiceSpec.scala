@@ -24,11 +24,13 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
   val dataSet_3 = DataSet(id = DataSetId("dummy_id_3"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
+  val dataSet_delete_me = DataSet(id = DataSetId("delete_me"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
 
   before {
     //Init DB
     await(dataSetService.insertDataSet(dataSet))
     await(dataSetService.insertDataSet(dataSet_3))
+    await(dataSetService.insertDataSet(dataSet_delete_me))
   }
 
   after {
@@ -88,6 +90,23 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
     }
 
+  }
+
+  "deleteDataSet" should {
+    "delete all dataSet with dataSetId delete_me" in {
+      val beforeDelete: Option[DataSet] = await(dataSetService.findDataSet(DataSetId("delete_me")))
+      beforeDelete.isDefined mustEqual true
+
+      val deleteRes: WriteResult = await(dataSetService.removeDataSet(DataSetId("delete_me")))
+      deleteRes.ok mustEqual true
+
+      val afterDelete = dataSetService.findDataSet(DataSetId("delete_me"))
+
+      ScalaFutures.whenReady(afterDelete.failed) { e =>
+        e shouldBe a [DataNotFoundException]
+      }
+
+    }
   }
 
 }

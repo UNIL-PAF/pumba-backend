@@ -103,4 +103,14 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		})
 	}
 
+	/**
+		* Remove all proteins with a given dataSetId
+		* @param dataSetId
+		* @return
+		*/
+	def removeDataSet(dataSetId: DataSetId): Future[WriteResult] = {
+		val query = BSONDocument("id" -> dataSetId.value)
+		collection(collectionName).flatMap(_.remove(query))
+	}
+
 }
