@@ -84,7 +84,6 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 		* @return
 		*/
 	def findSamplesDataSetsMap(dataSetIds: List[DataSetId]): Future[Map[Sample, Seq[DataSetId]]] = {
-
 		// find the objects
 		val stringifiedIds = dataSetIds.map(_.value)
 		val query = BSONDocument("id" -> BSONDocument("$in" -> stringifiedIds))
@@ -102,7 +101,6 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 				acc.updated(k, acc.getOrElse(k, Seq.empty[DataSetId]) ++ Seq(v))
 			}
 		})
-
 	}
 
 }

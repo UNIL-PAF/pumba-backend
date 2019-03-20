@@ -64,6 +64,15 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     peptides = Seq.empty[Peptide]
   )
 
+  val protein_delete_me = Protein(
+    dataSetId = DataSetId("delete_me"),
+    proteinIDs = Seq("P02786").map(ProteinId(_)),
+    geneNames = Seq("TFRC").map(GeneName(_)),
+    theoMolWeight = 30.376,
+    intensities = Seq(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111630000, 32980000, 0, 0, 0, 0, 0, 0, 0, 0),
+    peptides = Seq.empty[Peptide]
+  )
+
   val dataSet_1 = DataSet(
     id = DataSetId("dummy_id"),
     name = "dummy",
@@ -110,6 +119,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     await(proteinService.insertProtein(protein_2))
     await(proteinService.insertProtein(protein_3))
     await(proteinService.insertProtein(protein_4))
+    await(proteinService.insertProtein(protein_delete_me))
+
     await(dataSetService.insertDataSet(dataSet_1))
     await(dataSetService.insertDataSet(dataSet_2))
     await(dataSetService.insertDataSet(dataSet_3))
@@ -202,6 +213,20 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       fltRes mustEqual await(sampleDataSetMap)
     }
 
+  }
+
+
+  "deleteProtein" should {
+    "delete all proteins with dataSetId delete_me" in {
+      val beforeDelete: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("delete_me"), ProteinId("P02786")))
+      beforeDelete.length mustEqual 1
+
+      val deleteRes: WriteResult = await(proteinService.removeProteins(DataSetId("delete_me")))
+      deleteRes.ok mustEqual true
+
+      val afterDelete: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("delete_me"), ProteinId("P02786")))
+      afterDelete.length mustEqual 0
+    }
   }
 
 }
