@@ -23,7 +23,10 @@ class ParsePeptides {
 
     val peptidesLines = Source.fromFile(peptidesFile).getLines()
     val headers = parseHeaders(peptidesLines.next)
-    val intPos = getIntensityPositions(headers, "intensity.h.")
+
+    // depending on whether we have silac data or not we have the "h." or not.
+    val intPosTmp = getIntensityPositions(headers, "intensity.h.")
+    val intPos = if (intPosTmp.length > 10) intPosTmp else getIntensityPositions(headers, "intensity.")
 
     val pepMap: Iterator[(MaxQuantPepId, Seq[Peptide])] = peptidesLines.map{ line: String =>
       val peptides: Seq[Peptide] = lineToPeptides(line, headers, intPos)
