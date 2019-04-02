@@ -169,7 +169,13 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
       }
       Future.sequence(sampleDataSetIter).map(_.toMap)
     }
-    sampleProteinMapFutures.flatten
+
+    val finalMapFuture = sampleProteinMapFutures.flatten
+
+    // filter samples with no proteins
+    finalMapFuture.map{ finalMap =>
+      finalMap.filter(_._2.length > 0)
+    }
   }
 
   /**
