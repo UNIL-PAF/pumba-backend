@@ -15,6 +15,7 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.modules.reactivemongo.json.ImplicitBSONHandlers._
+import reactivemongo.play.json.BSONFormats.BSONDocumentFormat
 
 import scala.util.{Failure, Success}
 

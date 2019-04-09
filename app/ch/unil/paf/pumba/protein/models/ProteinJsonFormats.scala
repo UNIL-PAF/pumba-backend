@@ -1,6 +1,6 @@
 package ch.unil.paf.pumba.protein.models
 
-import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats._
+import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataSet, formatDataSetId, formatSample}
 import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
 import play.api.libs.json._
 

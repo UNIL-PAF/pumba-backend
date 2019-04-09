@@ -76,6 +76,12 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
       res.keys.toSeq.length mustEqual (2)
       res.contains(Sample("Jurkat_3")) mustEqual true
     }
+
+    "list all datasets" in {
+      val res: List[DataSet] = await(dataSetService.list)
+      res.length mustEqual(3)
+    }
+
   }
 
   "DataSetService with massFitResult" should {

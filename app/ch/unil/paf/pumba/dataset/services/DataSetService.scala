@@ -11,6 +11,8 @@ import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 import reactivemongo.bson._
 import play.modules.reactivemongo.json._
 import reactivemongo.api.Cursor
+import play.api.libs.json._
+import reactivemongo.play.json.BSONFormats.BSONDocumentFormat
 
 import scala.util.{Failure, Success}
 
@@ -24,6 +26,14 @@ class DataSetService(val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execut
 	val collectionName = "dataset"
 
 	def collection(name: String): Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection](name))
+
+
+	/**
+		* list all datasets
+		*/
+	def list: Future[List[DataSet]] = {
+		collection(collectionName).flatMap(_.find(Json.obj()).cursor[DataSet]().collect[List](-1, Cursor.FailOnError[List[DataSet]]()))
+	}
 
 	/**
 		* create a new DataSet

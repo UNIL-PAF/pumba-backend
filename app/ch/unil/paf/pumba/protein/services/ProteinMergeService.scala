@@ -19,8 +19,6 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
 
   // load pumbaR
   val loadLibRes: REXP = rConnection.eval("library(pumbaR)")
-  Logger.info(loadLibRes.toDebugString)
-
 
   def mergeProteins(proteins: Seq[ProteinWithDataSet], sample: Sample): ProteinMerge = {
     // make a new unique name for the list
@@ -44,7 +42,6 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
     rCommandBuff.append(s"$resName <- merge_proteins($listName, cut_size=100, loess_span=0.05);\n")
     rCommandBuff.append(s"$resName")
     val rCommand = rCommandBuff.toString
-
     val resObj = rConnection.eval(rCommand)
     val res:RList = resObj.asList
 

@@ -4,6 +4,7 @@ import ch.unil.paf.pumba.dataset.models.DataSetId
 import ch.unil.paf.pumba.dataset.services.DataSetService
 import ch.unil.paf.pumba.protein.models.ProteinId
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
+import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats._
 import ch.unil.paf.pumba.protein.services.ProteinService
 import javax.inject._
 import play.api._
@@ -41,6 +42,15 @@ class DataSetController @Inject()(implicit ec: ExecutionContext,
       Ok(Json.toJson((dataSetRes.ok & proteinRes.ok)))
     }
 
+  }
+
+  def listDataSets = Action.async {
+
+    for {
+      dataSets <- dataSetService.list
+    } yield {
+      Ok(Json.toJson(dataSets))
+    }
   }
 
 
