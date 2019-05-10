@@ -1,7 +1,7 @@
 package ch.unil.paf.pumba.dataset.models
 
 import play.api.libs.json._
-import ch.unil.paf.pumba.protein.models.ProteinJsonFormats.formatDataBaseName
+import ch.unil.paf.pumba.sequences.models.DataBaseName
 
 /**
   * @author Roman Mylonas
@@ -33,6 +33,11 @@ object DataSetJsonFormats {
     }
 
     def writes(o: DataSetStatus) = JsString(o.value)
+  }
+
+  implicit val formatDataBaseName = new Format[DataBaseName] {
+    override def reads(json: JsValue): JsResult[DataBaseName] = JsSuccess(DataBaseName(json.as[String]))
+    def writes(o: DataBaseName) = JsString(o.value)
   }
 
   implicit val formatMassFitResult = Json.format[MassFitResult]
