@@ -8,12 +8,12 @@ import play.api.mvc._
 import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
 
 import scala.concurrent.{ExecutionContext, Future}
-import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataSet, formatDataSetId, formatSample, formatDataBaseName}
+import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataBaseName, formatDataSet, formatDataSetId, formatSample}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
 import ch.unil.paf.pumba.protein.models.{ProteinId, ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
 import play.api.libs.json._
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /**
   * @author Roman Mylonas
@@ -47,10 +47,12 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
 
     val sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(ProteinId(proteinId), dataSetIds)
 
-    val proteinMerges: Future[Seq[ProteinMerge]] = sampleProteinsMap.map {
-      _.map { case (sample, protList) =>
-        ProteinMergeService(rServeHost, rServePort).mergeProteins(protList, sample)
-      }.toSeq
+    val proteinMerges: Future[Seq[ProteinMerge]] = sampleProteinsMap.flatMap { a =>
+      Future.sequence{
+        a.map { case (sample, protList) =>
+          Future.fromTry(ProteinMergeService(rServeHost, rServePort).mergeProteins(protList, sample))
+        }.toSeq
+      }
     }
 
     proteinMerges.map({ merges =>

@@ -2,11 +2,14 @@ package ch.unil.paf.pumba.protein.services
 
 import java.util.Calendar
 
+import ch.unil.paf.pumba.common.rexec.RexecException
 import ch.unil.paf.pumba.dataset.models.Sample
 import ch.unil.paf.pumba.protein.models.{ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
 import org.rosuda.REngine._
-import org.rosuda.REngine.Rserve.RConnection
+import org.rosuda.REngine.Rserve.{RConnection, RserveException}
 import play.api.Logger
+
+import scala.util.{Failure, Success, Try}
 
 /**
   * @author Roman Mylonas
@@ -20,7 +23,7 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
   // load pumbaR
   val loadLibRes: REXP = rConnection.eval("library(pumbaR)")
 
-  def mergeProteins(proteins: Seq[ProteinWithDataSet], sample: Sample): ProteinMerge = {
+  def mergeProteins(proteins: Seq[ProteinWithDataSet], sample: Sample): Try[ProteinMerge] = {
     // make a new unique name for the list
     val uniqTag = Calendar.getInstance().getTimeInMillis.toString
     val listName = "list_" + uniqTag
@@ -42,19 +45,31 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
     rCommandBuff.append(s"$resName <- merge_proteins($listName, cut_size=100, loess_span=0.05);\n")
     rCommandBuff.append(s"$resName")
     val rCommand = rCommandBuff.toString
-    val resObj = rConnection.eval(rCommand)
-    val res:RList = resObj.asList
 
-    // remove all R objects
-    rConnection.eval(s"rm($listName, $resName)")
+    val resObj: Try[REXP] = Try(rConnection.eval(rCommand))
+    val resTry: Try[RList] = resObj.map(_.asList)
 
-    // create the result
-    val mainProtId = proteins(0).proteinIDs(0)
-    val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
-    val mergedProtein: TheoMergedProtein = new TheoMergedProtein(mergeName, res.at("x").asDoubles, res.at("y").asDoubles)
-    val proteinMerge: ProteinMerge = new ProteinMerge(mainProtId, sample, mergedProtein, proteins)
+    val protMerge: Try[ProteinMerge] = resTry.flatMap { res =>
+      // remove all R objects
+      val removeTry: Try[REXP] = Try(rConnection.eval(s"rm($listName, $resName)"))
 
-    proteinMerge
+      removeTry.map( remove => {
+        // create the result
+        val mainProtId = proteins(0).proteinIDs(0)
+        val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
+        val mergedProtein: TheoMergedProtein = new TheoMergedProtein(mergeName, res.at("x").asDoubles, res.at("y").asDoubles)
+        new ProteinMerge(mainProtId, sample, mergedProtein, proteins)
+      })
+
+    }
+
+    // we want the command in case it was an RserveException
+    protMerge match {
+      case Failure(e: RserveException) => Failure(RexecException(s"Failed to execute command: [$rCommand]", e))
+      case Failure(e) => Failure(e)
+      case Success(s) => Success(s)
+    }
+
   }
 
 }
