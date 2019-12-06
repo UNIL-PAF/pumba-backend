@@ -10,7 +10,7 @@ library(pumbaR)
 # parse parameters from command line
 args <- commandArgs(trailingOnly=TRUE)
 if(length(args) < 2){
-    stop("usage: create_mass_fit.R [proteinGroups.txt path] [output path] [low_density_threshold (OPTIONAL)]")
+    stop("usage: create_mass_fit.R [proteinGroups.txt path] [output path] [low_density_threshold (OPTIONAL)] [ignore_slices (OPTIONAL)]")
 }
 
 # "/Users/admin/Work/PAF/projects/SliceSILAC/latest/data/Conde_9508/proteinGroups.txt"
@@ -21,7 +21,8 @@ mass_fit_png_2 <- paste0(output_path, "/mass_fit_2.png")
 mass_fit_png_3 <- paste0(output_path, "/mass_fit_3.png")
 mass_fit_png_4 <- paste0(output_path, "/mass_fit_4.png")
 
-low_density_threshold <- if(length(args) == 3) as.numeric(args[3]) else 10
+low_density_threshold <- if(length(args) >= 3) as.numeric(args[3]) else 10
+ignore_slices <- if(length(args) == 4) as.numeric(strsplit(args[4], ",")[[1]]) else NULL
 
 png_width <- 1200
 png_height <- 600
@@ -29,7 +30,7 @@ png_pointsize <- 36
 
 # load and fit the data
 print(paste0("load data from [", proteingroups_path, "]."))
-pg <- load_MQ(proteingroups_path)
+pg <- load_MQ(proteingroups_path, ignore_slices)
 print(paste0("dimensions: ", dim(pg)))
 
 # filter and fit

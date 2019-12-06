@@ -39,7 +39,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
   /**
     * Upload a zip file and start the pre-processing
     */
-  def uploadZipFile(dataSetName: String, sample: String, lowDensityThreshold: Option[Int]) = Action(parse.multipartFormData) { request =>
+  def uploadZipFile(dataSetName: String, sample: String, lowDensityThreshold: Option[Int], ignoreSlices: Option[String]) = Action(parse.multipartFormData) { request =>
     // create a new id
     val dataSetId: DataSetId = new DataSetId(Calendar.getInstance().getTime().getTime.toString)
     val uploadDir = new File(rootDataDir + dataSetId.value)
@@ -62,7 +62,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
       createDir(new File(uploadDir.toString + "/mass_fit_res"))
 
       // start Rserve for preprocessing
-      startScriptToFitMasses(dataSetId, uploadDir, rScriptData, rScriptBin, lowDensityThreshold)
+      startScriptToFitMasses(dataSetId, uploadDir, rScriptData, rScriptBin, lowDensityThreshold, ignoreSlices)
     }
 
     Ok(dataSetId.value)
@@ -80,7 +80,8 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
                              uploadDir: File,
                              rScriptDir: String,
                              rScriptBin: String,
-                             lowDensityThreshold: Option[Int]) = {
+                             lowDensityThreshold: Option[Int],
+                             ignoreSlices: Option[String]) = {
     val actorSystem = ActorSystem()
 
     val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
@@ -96,7 +97,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
                       "rserve")
 
     import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
-    val scriptParams = List(uploadDir.toString + "/txt/proteinGroups.txt", uploadDir.toString + "/mass_fit_res") ++ lowDensityThreshold.map(_.toString)
+    var scriptParams: List[String] = List(uploadDir.toString + "/txt/proteinGroups.txt", uploadDir.toString + "/mass_fit_res") ++ lowDensityThreshold.map(_.toString) ++ ignoreSlices
     rexecActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = scriptParams)
   }
 

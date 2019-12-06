@@ -63,6 +63,7 @@ class RexecActor(changeStatusCallback: ChangeStatusCallback,
       } else {
         // create a new actor that runs the given script
         val command = filePath.toString + " " + parameters.mkString(" ")
+        log.info(s"call [$command]")
         runScriptActor = context.actorOf(RunRScriptActor.props(rScriptBin), "rscript")
         runScriptActor ! RunScript(command, stdOutFile, stdErrFile, mockCall)
         log.info("finished StartScript in RserveActor.")

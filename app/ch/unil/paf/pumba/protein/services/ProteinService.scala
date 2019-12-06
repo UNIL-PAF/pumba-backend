@@ -117,7 +117,9 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
     */
   def getProteins(proteinId: ProteinId): Future[List[Protein]] = {
     val query = BSONDocument("proteinIDs" -> proteinId.value)
-    val findRes: Future[List[Protein]] = collection(collectionName).flatMap(_.find(query).cursor[Protein]().collect[List](-1, Cursor.FailOnError[List[Protein]]()))
+    val findRes: Future[List[Protein]] = collection(collectionName).flatMap{
+      _.find(query).cursor[Protein]().collect[List](-1, Cursor.FailOnError[List[Protein]]())
+    }
 
     val errorMessage = s"Could not find Protein [${proteinId}]."
     checkOrError[List[Protein]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
