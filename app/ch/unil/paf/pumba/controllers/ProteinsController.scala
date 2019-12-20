@@ -10,7 +10,7 @@ import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMo
 import scala.concurrent.{ExecutionContext, Future}
 import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataBaseName, formatDataSet, formatDataSetId, formatSample}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
-import ch.unil.paf.pumba.protein.models.{ProteinId, ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
+import ch.unil.paf.pumba.protein.models.{ProteinId, ProteinMerge, ProteinOrGene, ProteinWithDataSet, TheoMergedProtein}
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
@@ -45,7 +45,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       s.split(SAMPLE_SEP).map(DataSetId(_))
     })
 
-    val sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(ProteinId(proteinId), dataSetIds)
+    val sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(ProteinOrGene(proteinId), dataSetIds)
 
     val proteinMerges: Future[Seq[ProteinMerge]] = sampleProteinsMap.flatMap { a =>
       Future.sequence{

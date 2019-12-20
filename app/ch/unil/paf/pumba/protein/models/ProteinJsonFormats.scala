@@ -33,6 +33,11 @@ object ProteinJsonFormats {
     def writes(o: GeneName) = JsString(o.value)
   }
 
+  implicit val formatProteinOrGene= new Format[ProteinOrGene] {
+    override def reads(json: JsValue): JsResult[ProteinOrGene] = JsSuccess(ProteinOrGene(json.as[String]))
+    def writes(o: ProteinOrGene) = JsString(o.value)
+  }
+
   implicit val formatProteinEntryName= new Format[ProteinEntryName] {
     override def reads(json: JsValue): JsResult[ProteinEntryName] = JsSuccess(ProteinEntryName(json.as[String]))
     def writes(o: ProteinEntryName) = JsString(o.value)
