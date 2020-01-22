@@ -2,9 +2,9 @@ package ch.unil.paf.pumba.dataset.services
 
 import ch.unil.paf.pumba.PlayWithMongoSpec
 import ch.unil.paf.pumba.dataset.models._
-import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseException}
+import ch.unil.paf.pumba.common.helpers.{DataNotFoundException}
 import org.scalatest.BeforeAndAfter
-import org.scalatest.concurrent.{AsyncAssertions, ScalaFutures, Waiters}
+import org.scalatest.concurrent.{ScalaFutures}
 import play.api.test.Helpers._
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 import org.scalatest._
@@ -22,9 +22,9 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   val dataSetService = new DataSetService(reactiveMongoApi)
 
-  val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
-  val dataSet_3 = DataSet(id = DataSetId("dummy_id_3"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
-  val dataSet_delete_me = DataSet(id = DataSetId("delete_me"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
+  val dataSet = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None, colorGroup = 1)
+  val dataSet_3 = DataSet(id = DataSetId("dummy_id_3"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None, colorGroup = 1)
+  val dataSet_delete_me = DataSet(id = DataSetId("delete_me"), name = "dummy_3", sample = Sample("Jurkat_3"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None, colorGroup = 1)
 
   before {
     //Init DB
@@ -40,7 +40,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   "DataSetService" should {
 
-    val dataSet = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat_2"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
+    val dataSet = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat_2"), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None, colorGroup = 1)
 
     "insert a DataSet" in {
       val res: WriteResult = await(dataSetService.insertDataSet(dataSet))
@@ -54,7 +54,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "update a DataSet" in {
-      val updatedDataset = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetDone, message = Some("a new message"), massFitResult = None, dataBaseName = None)
+      val updatedDataset = DataSet(id = DataSetId("dummy_id"), name = "dummy", sample = Sample("Jurkat"), status = DataSetDone, message = Some("a new message"), massFitResult = None, dataBaseName = None, colorGroup = 1)
       val res: UpdateWriteResult = await(dataSetService.updateDataSet(updatedDataset))
       res.ok mustEqual (true)
 
@@ -87,7 +87,7 @@ class DataSetServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
   "DataSetService with massFitResult" should {
 
     val massFitRes = MassFitResult("hoho", "hihi", "coucou", "bliba", Array(3.001,-0.1028208,0.003104945,-3.993684e-05), Array(3.001,-0.1028208,0.003104945,-3.993684e-05), maxInt = 10.9)
-    val dataSet2 = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat_2"), status = DataSetCreated, message = None, massFitResult = Some(massFitRes), dataBaseName = None)
+    val dataSet2 = DataSet(id = DataSetId("dummy_id_2"), name = "dummy 2", sample = Sample("Jurkat_2"), status = DataSetCreated, message = None, massFitResult = Some(massFitRes), dataBaseName = None, colorGroup = 1)
 
     "insert a DataSet" in {
 

@@ -39,7 +39,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
   /**
     * Upload a zip file and start the pre-processing
     */
-  def uploadZipFile(dataSetName: String, sample: String, lowDensityThreshold: Option[Int], ignoreSlices: Option[String]) = Action(parse.multipartFormData) { request =>
+  def uploadZipFile(dataSetName: String, sample: String, colorGroup: Int, lowDensityThreshold: Option[Int], ignoreSlices: Option[String]) = Action(parse.multipartFormData) { request =>
     // create a new id
     val dataSetId: DataSetId = new DataSetId(Calendar.getInstance().getTime().getTime.toString)
     val uploadDir = new File(rootDataDir + dataSetId.value)
@@ -52,7 +52,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
       val dataDir = copyZipFile(zipFile, uploadDir)
 
       // set a creation status in the database
-      val dataSet: DataSet = DataSet(id = dataSetId, name = dataSetName, sample = Sample(sample), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None)
+      val dataSet: DataSet = DataSet(id = dataSetId, name = dataSetName, sample = Sample(sample), status = DataSetCreated, message = None, massFitResult = None, dataBaseName = None, colorGroup = colorGroup)
       dataSetService.insertDataSet(dataSet)
 
       // unzip the file

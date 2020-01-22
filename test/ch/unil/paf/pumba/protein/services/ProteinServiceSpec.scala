@@ -80,7 +80,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     status = DataSetDone,
     message = None,
     massFitResult = None,
-    dataBaseName = None
+    dataBaseName = None,
+    colorGroup = 1
   )
 
   val dataSet_2 = DataSet(
@@ -90,7 +91,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     status = DataSetDone,
     message = None,
     massFitResult = None,
-    dataBaseName = None
+    dataBaseName = None,
+    colorGroup = 1
   )
 
   val dataSet_3 = DataSet(
@@ -100,7 +102,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     status = DataSetDone,
     message = None,
     massFitResult = None,
-    dataBaseName = None
+    dataBaseName = None,
+    colorGroup = 1
   )
 
   val dataSet_4 = DataSet(
@@ -110,7 +113,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     status = DataSetDone,
     message = None,
     massFitResult = None,
-    dataBaseName = None
+    dataBaseName = None,
+    colorGroup = 1
   )
 
   before {
@@ -142,25 +146,25 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "find a protein from a dataset" in {
-      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinId("A0A096LPI6")))
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinOrGene("A0A096LPI6")))
       res.length mustEqual 1
       res(0).theoMolWeight mustEqual 30.376
     }
 
     "find another protein from a dataset" in {
-      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinId("C4AMC7")))
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinOrGene("C4AMC7")))
       res.length mustEqual 1
       res(0).theoMolWeight mustEqual 50.073
     }
 
     "find multiple proteins from a dataset" in {
-      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinId("A0A096LP75")))
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("dummy_id"), ProteinOrGene("A0A096LP75")))
       res.length mustEqual 2
       res.filter(_.theoMolWeight == 30.376).length mustEqual 1
     }
 
     "throw exception when not finding protein" in {
-      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("not_existing"), ProteinId("not_existing")))
+      val res: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("not_existing"), ProteinOrGene("not_existing")))
       res.length mustEqual 0
 
 
@@ -176,7 +180,7 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     }
 
     "find protein with dataSet" in {
-      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample(ProteinId("A0A096LP75"), None))
+      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample(ProteinOrGene("A0A096LP75"), None))
       res.keys.toSeq.length mustEqual 3
       res.contains(Sample("Jurkat II")) mustEqual true
       res(Sample("Jurkat II")).length mustEqual 7
@@ -184,13 +188,13 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
     "find protein with dataSet for certain dataSets" in {
       val dataSets = Seq(DataSetId("dummy_id"), DataSetId("dummy_id_3"), DataSetId("dummy_id_4"))
-      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample(ProteinId("A0A096LP75"), dataSetIds = Some(dataSets)))
+      val res: Map[Sample, Seq[ProteinWithDataSet]] = await(proteinService.getProteinsBySample(ProteinOrGene("A0A096LP75"), dataSetIds = Some(dataSets)))
 
       res.keys.toSeq.length mustEqual 3
     }
 
     "find samples from given protein" in {
-      val res:Map[Sample, Seq[DataSetId]] = await(proteinService.getSamplesFromProtein(ProteinId("A0A096LP75")))
+      val res:Map[Sample, Seq[DataSetId]] = await(proteinService.getSamplesFromProtein(ProteinOrGene("A0A096LP75")))
       res.keys.toSeq.length mustEqual 3
       res.contains(Sample("Jurkat II")) mustEqual true
       res(Sample("Jurkat II")).length mustEqual 9
@@ -218,13 +222,13 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
 
   "deleteProtein" should {
     "delete all proteins with dataSetId delete_me" in {
-      val beforeDelete: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("delete_me"), ProteinId("P02786")))
+      val beforeDelete: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("delete_me"), ProteinOrGene("P02786")))
       beforeDelete.length mustEqual 1
 
       val deleteRes: WriteResult = await(proteinService.removeProteins(DataSetId("delete_me")))
       deleteRes.ok mustEqual true
 
-      val afterDelete: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("delete_me"), ProteinId("P02786")))
+      val afterDelete: List[Protein] = await(proteinService.getProteinsFromDataSet(DataSetId("delete_me"), ProteinOrGene("P02786")))
       afterDelete.length mustEqual 0
     }
   }

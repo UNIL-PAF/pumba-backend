@@ -4,7 +4,7 @@ import java.io.File
 
 import ch.unil.paf.pumba.PlayWithMongoSpec
 import ch.unil.paf.pumba.dataset.models.DataSetId
-import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, Protein, ProteinId}
+import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, Protein, ProteinId, ProteinOrGene}
 import ch.unil.paf.pumba.protein.services.{ImportProteins, ProteinService}
 import org.scalatest.BeforeAndAfter
 import play.api.test.Helpers._
@@ -42,7 +42,7 @@ class ImportProteinsSpec extends PlayWithMongoSpec with BeforeAndAfter {
     "protein [A0A024R216] should be inserted" in {
       val proteins2: Iterator[Protein] = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile, dataSetId, Map.empty[MaxQuantPepId, Seq[Peptide]])
       await( ImportProteins().importProteins(proteins2, proteinService) )
-      val proteins: List[Protein] = await( proteinService.getProteinsFromDataSet(dataSetId, ProteinId("A0A024R216") ))
+      val proteins: List[Protein] = await( proteinService.getProteinsFromDataSet(dataSetId, ProteinOrGene("A0A024R216") ))
       proteins.length mustEqual(1)
       proteins(0).proteinIDs.map(_.value) mustEqual(Seq("A0A024R216", "Q9Y3E1"))
     }
