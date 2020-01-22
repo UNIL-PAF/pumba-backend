@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 class ImportProteinsSpec extends PlayWithMongoSpec with BeforeAndAfter {
   val proteinService = new ProteinService(reactiveMongoApi)

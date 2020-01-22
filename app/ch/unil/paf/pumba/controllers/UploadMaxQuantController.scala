@@ -18,9 +18,12 @@ import play.modules.reactivemongo._
 
 import scala.concurrent.ExecutionContext
 
-/**
- * Upload MaxQuant data
- */
+  /**
+  * @author Roman Mylonas
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
+  *
+  * Upload MaxQuant data
+  */
 @Singleton
 class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
                                          cc: ControllerComponents,

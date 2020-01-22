@@ -9,7 +9,7 @@ import scala.io.Source
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018-2019, Protein Analysis Facility UNIL
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 class ParsePeptides {
 
@@ -57,11 +57,14 @@ class ParsePeptides {
     val aminoAcidAfter = values(headers("amino.acid.after"))
     val startPos = values(headers("start.position")).toInt
     val endPos = values(headers("end.position")).toInt
+    // we have to parse the razor information from the proteinGroups.txt table.
     val isRazor = None
     val theoMass = Math.log10(values(headers("mass")).toDouble)
+    val score = values(headers("score")).toDouble
+    val uniqueByGroup = if(values(headers("unique..groups.")) == "yes") true else false
 
     ints.map{ i =>
-      Peptide(maxQuantId, sequence, aminoAcidBefore, aminoAcidAfter, startPos, endPos, isRazor, sliceNr = i._2 + 1, theoMass)
+      Peptide(maxQuantId, sequence, aminoAcidBefore, aminoAcidAfter, startPos, endPos, isRazor, sliceNr = i._2 + 1, theoMass, score, uniqueByGroup)
     }
   }
 

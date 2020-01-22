@@ -9,14 +9,13 @@ import scala.io.Source
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018-2019, Protein Analysis Facility UNIL
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 class ParsePeptidesSpec extends Specification{
 
-  val peptidesFile = new File("test/resources/max_quant/parse_peptides/peptides.txt")
-
   "parseHeaders" should {
 
+    val peptidesFile = new File("test/resources/max_quant/parse_peptides/peptides.txt")
     val headerLine:String = Source.fromFile(peptidesFile).getLines().next
 
     "give back correct HashMap" in {
@@ -38,6 +37,7 @@ class ParsePeptidesSpec extends Specification{
 
   "parsePeptidesTable" should {
 
+    val peptidesFile = new File("test/resources/max_quant/parse_peptides/peptides.txt")
     val pepMap: Map[MaxQuantPepId, Seq[Peptide]] = ParsePeptides().parsePeptidesTable(peptidesFile)
 
     "should contain all peptides containing intensities" in {
@@ -65,9 +65,11 @@ class ParsePeptidesSpec extends Specification{
       pep1.aminoAcidBefore mustEqual("M")
       pep1.aminoAcidAfter mustEqual("K")
       pep1.sequence mustEqual("AAAAAAAGDSDSWDADAFSVEDPVR")
-      pep1.theoMass.toInt mustEqual(2464)
+      pep1.theoMass.toInt mustEqual(3)
       pep1.isRazor mustEqual(None)
       pep1.sliceNr mustEqual(32)
+      pep1.score mustEqual(156.87)
+      pep1.uniqueByGroup mustEqual(true)
     }
 
     "second peptide contain the correct data" in {
@@ -78,9 +80,11 @@ class ParsePeptidesSpec extends Specification{
       pep2.aminoAcidBefore mustEqual("M")
       pep2.aminoAcidAfter mustEqual("K")
       pep2.sequence mustEqual("AAAAAAAGDSDSWDADAFSVEDPVR")
-      pep2.theoMass.toInt mustEqual(2464)
+      pep2.theoMass.toInt mustEqual(3)
       pep2.isRazor mustEqual(None)
       pep2.sliceNr mustEqual(33)
+      pep2.score mustEqual(156.87)
+      pep2.uniqueByGroup mustEqual(true)
     }
 
   }
