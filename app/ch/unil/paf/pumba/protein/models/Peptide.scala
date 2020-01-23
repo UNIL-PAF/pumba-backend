@@ -15,7 +15,8 @@ case class Peptide(
                     sliceNr: Int,
                     theoMass: Double,
                     score: Double,
-                    uniqueByGroup: Boolean
+                    uniqueByGroup: Boolean,
+                    intensity: Double
                   )
 
 case class MaxQuantPepId(value: Int) extends AnyVal

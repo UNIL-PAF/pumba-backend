@@ -64,7 +64,7 @@ class ParsePeptides {
     val uniqueByGroup = if(values(headers("unique..groups.")) == "yes") true else false
 
     ints.map{ i =>
-      Peptide(maxQuantId, sequence, aminoAcidBefore, aminoAcidAfter, startPos, endPos, isRazor, sliceNr = i._2 + 1, theoMass, score, uniqueByGroup)
+      Peptide(maxQuantId, sequence, aminoAcidBefore, aminoAcidAfter, startPos, endPos, isRazor, sliceNr = i._2 + 1, theoMass, score, uniqueByGroup, i._1)
     }
   }
 
