@@ -55,6 +55,10 @@ class ParsePeptides {
     val sequence = values(headers("sequence"))
     val aminoAcidBefore = values(headers("amino.acid.before"))
     val aminoAcidAfter = values(headers("amino.acid.after"))
+
+    // TODO make startPos optional
+    if(values(headers("start.position")) == "") return Seq.empty[Peptide]
+
     val startPos = values(headers("start.position")).toInt
     val endPos = values(headers("end.position")).toInt
     // we have to parse the razor information from the proteinGroups.txt table.
