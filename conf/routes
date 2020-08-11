@@ -4,27 +4,27 @@
 # ~~~~
 
 # Home page
-GET     /                                                                           ch.unil.paf.pumba.controllers.HomeController.index
+GET     /                                                                               ch.unil.paf.pumba.controllers.HomeController.index
 
 # upload MaxQuant data
-POST /upload/:dataSetName/sample/:sample/color-group/:colorGroup                    ch.unil.paf.pumba.controllers.UploadMaxQuantController.uploadZipFile(dataSetName: String, sample: String, colorGroup: Int, lowDensityThreshold: Option[Int], ignoreSlices: Option[String])
+POST /upload/:dataSetName/sample/:sample/color-group/:colorGroup/organism/:organism     ch.unil.paf.pumba.controllers.UploadMaxQuantController.uploadZipFile(dataSetName: String, sample: String, colorGroup: Int, organism: String, lowDensityThreshold: Option[Int], ignoreSlices: Option[String])
 
 # get the protein infos
-GET /merge-protein/:proteinId                                                       ch.unil.paf.pumba.controllers.ProteinsController.mergeProteins(proteinId: String, dataSetsString: Option[String])
+GET /merge-protein/:proteinId                                                           ch.unil.paf.pumba.controllers.ProteinsController.mergeProteins(proteinId: String, dataSetsString: Option[String])
 
 # upload sequence data from FASTA file
-POST /sequence/:dataBaseName                                                        ch.unil.paf.pumba.controllers.UploadSequencesController.uploadFastaFile(dataBaseName: String)
+POST /sequence/:dataBaseName                                                            ch.unil.paf.pumba.controllers.UploadSequencesController.uploadFastaFile(dataBaseName: String)
 
 # get a sequence
-GET /sequence/:proteinId/database/:dataBaseName                                     ch.unil.paf.pumba.controllers.SequenceController.getSequence(proteinId: String, dataBaseName: String)
+GET /sequence/:proteinId/database/:dataBaseName                                         ch.unil.paf.pumba.controllers.SequenceController.getSequence(proteinId: String, dataBaseName: String)
 
 # delete whole dataset including protein data
-DELETE /dataset/:dataSetId                                                          ch.unil.paf.pumba.controllers.DataSetController.deleteDataSet(dataSetId: String)
+DELETE /dataset/:dataSetId                                                              ch.unil.paf.pumba.controllers.DataSetController.deleteDataSet(dataSetId: String)
 
 # list all available datasets
-GET /dataset                                                                        ch.unil.paf.pumba.controllers.DataSetController.listDataSets
+GET /dataset                                                                            ch.unil.paf.pumba.controllers.DataSetController.listDataSets
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                                                               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                                                                   controllers.Assets.versioned(path="/public", file: Asset)
 
 

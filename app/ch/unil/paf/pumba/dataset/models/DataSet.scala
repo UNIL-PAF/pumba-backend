@@ -10,7 +10,8 @@ case class DataSet(
                     message: Option[String],
                     massFitResult: Option[MassFitResult],
                     dataBaseName: Option[DataBaseName],
-                    colorGroup: Int
+                    colorGroup: Int,
+                    organism: String
                   )
 
 
