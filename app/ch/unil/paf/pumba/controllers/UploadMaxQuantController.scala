@@ -100,7 +100,9 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
                       "rserve")
 
     import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
-    var scriptParams: List[String] = List(uploadDir.toString + "/txt/proteinGroups.txt", uploadDir.toString + "/mass_fit_res") ++ lowDensityThreshold.map(_.toString) ++ ignoreSlices
+    val scriptParams: List[String] = List("-i " + uploadDir.toString + "/txt/proteinGroups.txt", "-o " + uploadDir.toString + "/mass_fit_res") ++
+      lowDensityThreshold.map("--low-density-threshold " + _.toString) ++
+      ignoreSlices.map("--ignore-slice " + _)
     rexecActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = scriptParams)
   }
 
