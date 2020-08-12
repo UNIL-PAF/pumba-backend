@@ -45,7 +45,7 @@ class UploadMaxQuantControllerSpec extends PlayWithControllerSpec with BeforeAnd
 
       // make a fake call to the controller
       val controller = app.injector.instanceOf[UploadMaxQuantController]
-      val upload = controller.uploadZipFile("dummy", "Jurkat", 1, None, None).apply(FakeRequest(POST, "/upload").withBody(formData))
+      val upload = controller.uploadZipFile("dummy", "Jurkat", 1, "human", None, None).apply(FakeRequest(POST, "/upload").withBody(formData))
 
       // check the results
       status(upload) mustBe OK

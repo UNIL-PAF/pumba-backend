@@ -79,8 +79,8 @@ class ParsePeptides {
     cleanHeaders.zipWithIndex.toMap
   }
 
-  def getIntensityPositions(headers: Map[String, Int], intensityPatter: String): Seq[Int] = {
-    val matchingKeys = headers.keys.filter(_.contains(intensityPatter))
+  def getIntensityPositions(headers: Map[String, Int], intensityPatter: String, sampleName: Option[String] = None): Seq[Int] = {
+    val matchingKeys = headers.keys.filter(h => h.contains(intensityPatter) && (sampleName.isEmpty || h.contains(sampleName.get)))
     matchingKeys.map(headers(_)).toSeq.sorted
   }
 }

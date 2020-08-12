@@ -81,7 +81,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     message = None,
     massFitResult = None,
     dataBaseName = None,
-    colorGroup = 1
+    colorGroup = 1,
+    organism = "human"
   )
 
   val dataSet_2 = DataSet(
@@ -92,7 +93,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     message = None,
     massFitResult = None,
     dataBaseName = None,
-    colorGroup = 1
+    colorGroup = 1,
+    organism = "human"
   )
 
   val dataSet_3 = DataSet(
@@ -103,7 +105,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     message = None,
     massFitResult = None,
     dataBaseName = None,
-    colorGroup = 1
+    colorGroup = 1,
+    organism = "human"
   )
 
   val dataSet_4 = DataSet(
@@ -114,7 +117,8 @@ class ProteinServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     message = None,
     massFitResult = None,
     dataBaseName = None,
-    colorGroup = 1
+    colorGroup = 1,
+    organism = "human"
   )
 
   before {
