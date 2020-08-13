@@ -15,7 +15,7 @@ class ParsePeptides {
 
   final val SEPARATOR = "\\t"
 
-  def parsePeptidesTable(peptidesFile: File): Map[MaxQuantPepId, Seq[Peptide]] = {
+  def parsePeptidesTable(peptidesFile: File, sampleName: Option[String] = None): Map[MaxQuantPepId, Seq[Peptide]] = {
     if(! peptidesFile.exists()){
       Logger.error("File does not exist")
       throw new Exception(s"File does not exist [${peptidesFile.getName}].")
@@ -25,8 +25,8 @@ class ParsePeptides {
     val headers = parseHeaders(peptidesLines.next)
 
     // depending on whether we have silac data or not we have the "h." or not.
-    val intPosTmp = getIntensityPositions(headers, "intensity.h.")
-    val intPos = if (intPosTmp.length > 10) intPosTmp else getIntensityPositions(headers, "intensity.")
+    val intPosTmp = getIntensityPositions(headers, "intensity.h.", sampleName)
+    val intPos = if (intPosTmp.length > 10) intPosTmp else getIntensityPositions(headers, "intensity.", sampleName)
 
     val pepMap: Iterator[(MaxQuantPepId, Seq[Peptide])] = peptidesLines.map{ line: String =>
       val peptides: Seq[Peptide] = lineToPeptides(line, headers, intPos)

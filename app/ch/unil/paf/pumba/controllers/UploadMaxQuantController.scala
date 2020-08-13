@@ -42,7 +42,13 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
   /**
     * Upload a zip file and start the pre-processing
     */
-  def uploadZipFile(dataSetName: String, sample: String, colorGroup: Int, organism: String, lowDensityThreshold: Option[Int], ignoreSlices: Option[String]) = Action(parse.multipartFormData) { request =>
+  def uploadZipFile(dataSetName: String,
+                    sample: String,
+                    colorGroup: Int,
+                    organism: String,
+                    lowDensityThreshold: Option[Int],
+                    ignoreSlices: Option[String],
+                    sampleName: Option[String] = None) = Action(parse.multipartFormData) { request =>
     // create a new id
     val dataSetId: DataSetId = new DataSetId(Calendar.getInstance().getTime().getTime.toString)
     val uploadDir = new File(rootDataDir + dataSetId.value)
@@ -65,7 +71,7 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
       createDir(new File(uploadDir.toString + "/mass_fit_res"))
 
       // start Rserve for preprocessing
-      startScriptToFitMasses(dataSetId, uploadDir, rScriptData, rScriptBin, lowDensityThreshold, ignoreSlices)
+      startScriptToFitMasses(dataSetId, uploadDir, rScriptData, rScriptBin, lowDensityThreshold, ignoreSlices, sampleName)
     }
 
     Ok(dataSetId.value)
@@ -84,11 +90,12 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
                              rScriptDir: String,
                              rScriptBin: String,
                              lowDensityThreshold: Option[Int],
-                             ignoreSlices: Option[String]) = {
+                             ignoreSlices: Option[String],
+                             sampleName: Option[String] = None) = {
     val actorSystem = ActorSystem()
 
     val changeCallback = new DataSetChangeStatus(dataSetService, dataSetId)
-    val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId, proteinService, sequenceService, rootDataDir)
+    val postprocCallback = new DataSetPostprocessing(dataSetService, dataSetId, proteinService, sequenceService, rootDataDir, sampleName)
     val (stdOutFile, stdErrFile) = createRoutputFiles(uploadDir + "/logs")
     val rexecActor = actorSystem.actorOf(
                         Props(new RexecActor(
@@ -102,7 +109,8 @@ class UploadMaxQuantController @Inject()(implicit ec: ExecutionContext,
     import ch.unil.paf.pumba.common.rexec.RexecActor.StartScript
     val scriptParams: List[String] = List("-i " + uploadDir.toString + "/txt/proteinGroups.txt", "-o " + uploadDir.toString + "/mass_fit_res") ++
       lowDensityThreshold.map("--low-density-threshold " + _.toString) ++
-      ignoreSlices.map("--ignore-slice " + _)
+      ignoreSlices.map("--ignore-slice " + _) ++
+      sampleName.map("--sample-name " + _)
     rexecActor ! StartScript(filePath = Paths.get(rScriptDir + "create_mass_fit.R"), parameters = scriptParams)
   }
 

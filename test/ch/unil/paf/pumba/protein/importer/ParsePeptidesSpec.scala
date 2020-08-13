@@ -18,10 +18,19 @@ class ParsePeptidesSpec extends Specification{
     val peptidesFile = new File("test/resources/max_quant/parse_peptides/peptides.txt")
     val headerLine:String = Source.fromFile(peptidesFile).getLines().next
 
+    val mergedPeptidesFile = new File("test/resources/max_quant/parse_peptides/HEK293_11971_11973_12019_peptides.txt")
+    val mergedHeaderLine:String = Source.fromFile(mergedPeptidesFile).getLines().next
+
     "give back correct HashMap" in {
       val headers: Map[String, Int] = ParsePeptides().parseHeaders(headerLine)
       headers.size mustEqual(581)
       headers("id") mustEqual(573)
+    }
+
+    "merged - give back correct HashMap" in {
+      val headers: Map[String, Int] = ParsePeptides().parseHeaders(mergedHeaderLine)
+      headers.size mustEqual(615)
+      headers("id") mustEqual(606)
     }
 
     "get correct intensity positions" in {
@@ -31,6 +40,15 @@ class ParsePeptidesSpec extends Specification{
       intPos.length mustEqual(47)
       intPos(0) mustEqual(432)
       intPos.last mustEqual(570)
+    }
+
+    "merged - get correct intensity positions" in {
+      val headers: Map[String, Int] = ParsePeptides().parseHeaders(mergedHeaderLine)
+      val intPos = ParsePeptides().getIntensityPositions(headers, "intensity.", sampleName = Some("12019"))
+
+      intPos.length mustEqual(46)
+      intPos(0) mustEqual(558)
+      intPos.last mustEqual(603)
     }
 
   }

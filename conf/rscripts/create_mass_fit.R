@@ -60,7 +60,7 @@ cat(file = paste0(opt$output_path, "/mass_fit_coeffs.csv"), sep=",", as.vector(m
 cat(file = paste0(opt$output_path, "/mass_fits.csv"), sep=",", as.vector(predict(mass_fit, data.frame(variable = get_slice_numbers(pg)))))
 
 # normalize intensities and write them to a new file
-norm_pg <- get_normalized_table(pg)
+norm_pg <- get_normalized_table(pg, sample_name = opt$sample_name)
 write.table(norm_pg, file=paste0(opt$output_path, "/normalizedProteinGroups.txt"), sep="\t", quote=FALSE, row.names=FALSE)
 
 # write max normalized intensity to a file

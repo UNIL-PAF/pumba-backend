@@ -22,7 +22,8 @@ class DataSetPostprocessing(
                              dataSetId: DataSetId,
                              proteinService: ProteinService,
                              sequenceService: SequenceService,
-                             dataRootPath: String
+                             dataRootPath: String,
+                             sampleName: Option[String] = None
                            )(implicit ec: ExecutionContext) extends PostprocessingCallback{
 
   def startPostProcessing(): Future[Int] = {
@@ -32,7 +33,7 @@ class DataSetPostprocessing(
     for {
       oldData <- oldDataFuture
       newDataSet <- addMassFitResult(oldData)
-      ok_prots <- addProteinsToDb(newDataSet)
+      ok_prots <- addProteinsToDb(newDataSet, sampleName)
       writeRes <- setStatusToDone(newDataSet)
     } yield (writeRes.n)
 
@@ -66,9 +67,9 @@ class DataSetPostprocessing(
     futDataSet
   }
 
-  private def addProteinsToDb(dataSet: DataSet): Future[Int] = {
+  private def addProteinsToDb(dataSet: DataSet, sampleName: Option[String] = None): Future[Int] = {
     Logger.info("Add proteins and peptides to db")
-    val peptides = ParsePeptides().parsePeptidesTable(peptidesFile = new File(dataRootPath + dataSet.massFitResult.get.peptidesPath))
+    val peptides = ParsePeptides().parsePeptidesTable(peptidesFile = new File(dataRootPath + dataSet.massFitResult.get.peptidesPath), sampleName)
     val proteins = ParseProteinGroups().parseProteinGroupsTable(proteinGroupsFile = new File(dataRootPath + dataSet.massFitResult.get.proteinGroupsPath), dataSetId, peptides)
     val res = ImportProteins().importProteins(proteins, proteinService)
     res
