@@ -20,7 +20,8 @@ libraryDependencies ++= Seq(
 	specs2 % Test,
   "com.typesafe.akka" %% "akka-testkit" % "2.5.11",
 	"org.nuiton.thirdparty" % "REngine" % "1.7-3",
-	"org.nuiton.thirdparty" % "Rserve" % "1.7-3"
+	"org.nuiton.thirdparty" % "Rserve" % "1.7-3",
+	"org.biojava" % "biojava-core" % "5.4.0"
 )
 
 // Adds additional packages into Twirl

@@ -3,6 +3,7 @@ package ch.unil.paf.pumba.sequences.importer
 import java.io.File
 
 import ch.unil.paf.pumba.protein.importer.ParsePeptides
+import ch.unil.paf.pumba.protein.models.{OrganismName, ProteinId}
 import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
 import org.specs2.mutable.Specification
 
@@ -15,11 +16,12 @@ import scala.io.Source
 class ParseFastaSpec extends Specification{
 
   val fastaFile = new File("test/resources/fasta/tiny_UP000005640_9606.fasta")
+  val fastaFileIsoforms = new File("test/resources/fasta/tiny_uniprot-proteome_UP000005640.fasta")
 
   "parseHeader" should {
 
     val fastaHeader = "tr|A0A024R161|A0A024R161_HUMAN Guanine nucleotide-binding protein subunit gamma OS=Homo sapiens GN=DNAJC25-GNG10 PE=3 SV=1"
-    val (proteinId, entryName, geneName, organismName, proteinName) = ParseFasta().parseHeader(fastaHeader)
+    val (proteinId, entryName, geneName, proteinName, isoformId) = ParseFasta().parseHeader(fastaHeader)
 
     "extract correct proteinId" in {
       proteinId.value mustEqual("A0A024R161")
@@ -27,10 +29,6 @@ class ParseFastaSpec extends Specification{
 
     "extract correct entryName" in {
       entryName.value mustEqual("A0A024R161_HUMAN")
-    }
-
-    "extract correct organismName" in {
-      organismName.value mustEqual("Homo sapiens")
     }
 
     "extract correct proteinName" in {
@@ -42,11 +40,15 @@ class ParseFastaSpec extends Specification{
       geneName.get.value mustEqual("DNAJC25-GNG10")
     }
 
+    "not have an isoform" in {
+      isoformId.isEmpty mustEqual(true)
+    }
+
   }
 
   "parse" should {
 
-    val peptideSequences: Seq[ProteinSequence]  = ParseFasta().parse(fastaFile, DataBaseName("test_db")).toSeq
+    val peptideSequences: Seq[ProteinSequence]  = ParseFasta().parse(fastaFile, DataBaseName("test_db"), OrganismName("human")).toSeq
 
     "give correct number of ProteinSequences" in {
       peptideSequences.length mustEqual(142)
@@ -57,6 +59,29 @@ class ParseFastaSpec extends Specification{
       pepSeq.sequence mustEqual("MGAPLLSPGWGAGAAGRRWWMLLAPLLPALLLVRPAGALVEGLYCGTRDCYEVLGVSRSAGKAEIARAYRQLARRYHPDRYRPQPGDEGPGRTPQSAEEAFLLVATAYETLKVSQAAAELQQYCMQNACKDALLVGVPAGSNPFREPRSCALL")
       pepSeq.length mustEqual(153)
       pepSeq.entryName.value mustEqual("A0A024R161_HUMAN")
+      pepSeq.organismName.value mustEqual("human")
+    }
+
+  }
+
+  "parse with isoforms" should {
+
+    val peptideSequences: Seq[ProteinSequence]  = ParseFasta().parse(fastaFileIsoforms, DataBaseName("test_db_isoforms"), OrganismName("human")).toSeq
+
+    "give correct number of ProteinSequences" in {
+      peptideSequences.length mustEqual(44)
+    }
+
+    "contain correct ProteinSequences" in {
+      val pepSeq = peptideSequences(43)
+      pepSeq.isoformId mustEqual(Some(2))
+      pepSeq.proteinId mustEqual(ProteinId("Q6ZUS6-2"))
+      pepSeq.entryName.value mustEqual("CC149_HUMAN")
+      pepSeq.geneName.get.value mustEqual("CCDC149")
+      pepSeq.proteinName.value mustEqual("Isoform 2 of Coiled-coil domain-containing protein 149")
+      pepSeq.sequence mustEqual("MEEEAMNGDRTESDWQGLVSEYLVCKRKLESKKEALLILSKELDTCQQERDQYKLMANQLRERHQSLKKKYRELIDGDPSLPPEKRKQANLAQLLRDSQDRNKHLGEEIKELQQRLGEVQGDNKLLRMTIAKQRLGDEAIGVRHFAAHEREDLVQQLERAKEQIESLEHDLQASVDELQDVKEERSSYQDKVERLNQELNHILSGHENRIIDVDALCMENRYLQERLKQLHEEVNLLKSN")
+      pepSeq.length mustEqual(240)
+      pepSeq.organismName.value mustEqual("human")
     }
 
   }

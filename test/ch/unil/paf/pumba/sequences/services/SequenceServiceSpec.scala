@@ -29,6 +29,7 @@ class SequenceServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     organismName = OrganismName("Homo sapiens"),
     geneName = Some(GeneName("DNAJC25-GNG10")),
     dataBaseName = DataBaseName("test_db"),
+    isoformId = None,
     sequence = "MGAPLLSPGWGAGAAGRRWWMLLAPLLPALLLVRPAGALVEGLYCGTRDCYEVLGVSRSAGKAEIARAYRQLARRYHPDRYRPQPGDEGPGRTPQSAEEAFLLVATAYETLKVSQAAAELQQYCMQNACKDALLVGVPAGSNPFREPRSCALL",
     length = 153
   )

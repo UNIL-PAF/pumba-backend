@@ -3,6 +3,8 @@ package ch.unil.paf.pumba.controllers
 import java.io.File
 import java.nio.file.{Path, Paths}
 import java.util.Calendar
+
+import ch.unil.paf.pumba.protein.models.OrganismName
 import ch.unil.paf.pumba.protein.services.{ProteinService, SequenceService}
 import ch.unil.paf.pumba.sequences.importer.ParseFasta
 import ch.unil.paf.pumba.sequences.models.DataBaseName
@@ -12,6 +14,7 @@ import play.api._
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc._
 import play.modules.reactivemongo._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -44,7 +47,7 @@ class UploadSequencesController @Inject()(implicit ec: ExecutionContext,
 
       // parse and insert data
       Logger.info("Upload FASTA: start inserting.")
-      val sequenceIt = ParseFasta().parse(localFile, DataBaseName(dataBaseName))
+      val sequenceIt = ParseFasta().parse(localFile, DataBaseName(dataBaseName), OrganismName("human"))
       val res: Future[Int] = ImportSequences().importSequences(sequenceIt, sequenceService)
       res.map(nr => Logger.info(s"Upload FASTA: finished inserting [$nr] sequences."))
     }
