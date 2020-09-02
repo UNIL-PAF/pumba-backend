@@ -10,6 +10,8 @@ import org.rosuda.REngine.Rserve.{RConnection, RserveException}
 import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
+import org.apache.commons.math3
+
 
 /**
   * @author Roman Mylonas
@@ -46,6 +48,8 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
     rCommandBuff.append(s"$resName")
     val rCommand = rCommandBuff.toString
 
+    Logger.info("Start R command: [" + rCommand + "].")
+
     val resObj: Try[REXP] = Try(rConnection.eval(rCommand))
     val resTry: Try[RList] = resObj.map(_.asList)
 
@@ -54,6 +58,8 @@ class ProteinMergeService (rServeHost: String, rServePort: Int){
       val removeTry: Try[REXP] = Try(rConnection.eval(s"rm($listName, $resName)"))
 
       removeTry.map( remove => {
+        Logger.info("R command finished, clean session.")
+
         // create the result
         val mainProtId = proteins(0).proteinIDs(0)
         val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"

@@ -11,6 +11,8 @@ scalaVersion := "2.12.10"
 //	"mvnrepository" at "https://repo.maven.apache.org/maven2"
 //)
 
+resolvers += DefaultMavenRepository
+
 libraryDependencies ++= Seq(
 	guice,
 	"org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
@@ -23,7 +25,10 @@ libraryDependencies ++= Seq(
 	"org.nuiton.thirdparty" % "Rserve" % "1.7-3",
 	"org.biojava" % "biojava-core" % "5.4.0",
 	"org.biojava" % "biojava-aa-prop" % "5.4.0"
+	"org.apache.commons" % "commons-math3" % "3.6.1"
 )
+
+// https://repo.typesafe.com/typesafe/maven-releases/
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "ch.unil.controllers._"
