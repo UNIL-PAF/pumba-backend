@@ -75,7 +75,7 @@ class ParseFastaSpec extends Specification{
     "contain correct ProteinSequences" in {
       val pepSeq = peptideSequences(41)
       pepSeq.isoformId mustEqual(Some(4))
-      pepSeq.proteinId mustEqual(ProteinId("Q5JW98-4"))
+      pepSeq.proteinId mustEqual(ProteinId("Q5JW98"))
       pepSeq.entryName.value mustEqual("CAHM4_HUMAN")
       pepSeq.geneName.get.value mustEqual("CALHM4")
       pepSeq.proteinName.value mustEqual("Isoform 4 of Calcium homeostasis modulator protein 4")

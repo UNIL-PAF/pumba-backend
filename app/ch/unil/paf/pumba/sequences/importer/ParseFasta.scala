@@ -45,7 +45,7 @@ class ParseFasta {
 
         val geneName = if(restMap.contains("GN")) Some(GeneName(restMap("GN"))) else None
 
-        (ProteinId(proteinId), ProteinEntryName(proteinEntry), geneName, ProteinName(proteinName), isoformId)
+        (ProteinId(proteinIdSplit(0)), ProteinEntryName(proteinEntry), geneName, ProteinName(proteinName), isoformId)
       }
 
       case _ => throw new Exception(s"Failed to parse header: [$headline].")
