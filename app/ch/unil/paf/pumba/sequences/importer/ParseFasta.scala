@@ -5,6 +5,7 @@ import java.util.Scanner
 
 import ch.unil.paf.pumba.protein.models._
 import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
+import org.biojava.nbio.aaproperties.PeptideProperties
 
 /**
   * @author Roman Mylonas
@@ -62,7 +63,10 @@ class ParseFasta {
     val (proteinId, entryName, geneName, proteinName, isoformId) = parseHeader(headline)
     val seq = seqLines.replaceAll( """\s+""", "")
 
-    ProteinSequence(proteinId, entryName, proteinName, organismName, geneName, dataBaseName, isoformId, seq, seq.length)
+    // compute mol mass using BioJava
+    val molMass: Double = PeptideProperties.getMolecularWeight(seq)
+
+    ProteinSequence(proteinId, entryName, proteinName, organismName, geneName, dataBaseName, isoformId, seq, seq.length, molMass)
   }
 
 }

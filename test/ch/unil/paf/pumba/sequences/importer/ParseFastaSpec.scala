@@ -73,15 +73,16 @@ class ParseFastaSpec extends Specification{
     }
 
     "contain correct ProteinSequences" in {
-      val pepSeq = peptideSequences(43)
-      pepSeq.isoformId mustEqual(Some(2))
-      pepSeq.proteinId mustEqual(ProteinId("Q6ZUS6-2"))
-      pepSeq.entryName.value mustEqual("CC149_HUMAN")
-      pepSeq.geneName.get.value mustEqual("CCDC149")
-      pepSeq.proteinName.value mustEqual("Isoform 2 of Coiled-coil domain-containing protein 149")
-      pepSeq.sequence mustEqual("MEEEAMNGDRTESDWQGLVSEYLVCKRKLESKKEALLILSKELDTCQQERDQYKLMANQLRERHQSLKKKYRELIDGDPSLPPEKRKQANLAQLLRDSQDRNKHLGEEIKELQQRLGEVQGDNKLLRMTIAKQRLGDEAIGVRHFAAHEREDLVQQLERAKEQIESLEHDLQASVDELQDVKEERSSYQDKVERLNQELNHILSGHENRIIDVDALCMENRYLQERLKQLHEEVNLLKSN")
-      pepSeq.length mustEqual(240)
+      val pepSeq = peptideSequences(41)
+      pepSeq.isoformId mustEqual(Some(4))
+      pepSeq.proteinId mustEqual(ProteinId("Q5JW98-4"))
+      pepSeq.entryName.value mustEqual("CAHM4_HUMAN")
+      pepSeq.geneName.get.value mustEqual("CALHM4")
+      pepSeq.proteinName.value mustEqual("Isoform 4 of Calcium homeostasis modulator protein 4")
+      pepSeq.sequence mustEqual("MAPRSAKETFRINPNVAANLSAPSDVILVRDEIALLHRYQSQMLGWILITLATIAALVSCCVAKCCSPLTSLQHCYWTSHLQNERELFEQAAEQHSRLLMMHRIKKLFGFIPGSEDVKHIRIPSCQDWKDISVPTLLCMGDDLQGHYSFLGNRVDEDNEEDRSRGIELKP")
+      pepSeq.length mustEqual(170)
       pepSeq.organismName.value mustEqual("human")
+      Math.round(pepSeq.molWeight) mustEqual(19305)
     }
 
   }

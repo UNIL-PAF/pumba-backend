@@ -15,7 +15,8 @@ case class ProteinSequence(
                             dataBaseName: DataBaseName,
                             isoformId: Option[Int],
                             sequence: String,
-                            length: Int
+                            length: Int,
+                            molWeight: Double
                           )
 
 

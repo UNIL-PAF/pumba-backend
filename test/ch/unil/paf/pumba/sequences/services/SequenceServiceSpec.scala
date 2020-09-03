@@ -31,7 +31,8 @@ class SequenceServiceSpec extends PlayWithMongoSpec with BeforeAndAfter {
     dataBaseName = DataBaseName("test_db"),
     isoformId = None,
     sequence = "MGAPLLSPGWGAGAAGRRWWMLLAPLLPALLLVRPAGALVEGLYCGTRDCYEVLGVSRSAGKAEIARAYRQLARRYHPDRYRPQPGDEGPGRTPQSAEEAFLLVATAYETLKVSQAAAELQQYCMQNACKDALLVGVPAGSNPFREPRSCALL",
-    length = 153
+    length = 153,
+    molWeight = 16499.0
   )
 
   before {
