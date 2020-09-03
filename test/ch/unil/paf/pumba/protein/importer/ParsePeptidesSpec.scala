@@ -78,31 +78,53 @@ class ParsePeptidesSpec extends Specification{
     "first peptide contain the correct data" in {
       val pep1: Peptide = pepMap(MaxQuantPepId(2))(0)
 
-      pep1.startPos mustEqual(2)
-      pep1.endPos mustEqual(26)
-      pep1.aminoAcidBefore mustEqual("M")
-      pep1.aminoAcidAfter mustEqual("K")
+      pep1.startPos mustEqual(Some(2))
+      pep1.endPos mustEqual(Some(26))
+      pep1.aminoAcidBefore mustEqual(Some("M"))
+      pep1.aminoAcidAfter mustEqual(Some("K"))
       pep1.sequence mustEqual("AAAAAAAGDSDSWDADAFSVEDPVR")
       pep1.theoMass.toInt mustEqual(3)
       pep1.isRazor mustEqual(None)
       pep1.sliceNr mustEqual(32)
       pep1.score mustEqual(156.87)
       pep1.uniqueByGroup mustEqual(true)
+      pep1.proteinIDs.length mustEqual(1)
+      pep1.proteinIDs(0).value mustEqual("O75822")
     }
 
     "second peptide contain the correct data" in {
       val pep2: Peptide = pepMap(MaxQuantPepId(2))(1)
 
-      pep2.startPos mustEqual(2)
-      pep2.endPos mustEqual(26)
-      pep2.aminoAcidBefore mustEqual("M")
-      pep2.aminoAcidAfter mustEqual("K")
+      pep2.startPos mustEqual(Some(2))
+      pep2.endPos mustEqual(Some(26))
+      pep2.aminoAcidBefore mustEqual(Some("M"))
+      pep2.aminoAcidAfter mustEqual(Some("K"))
       pep2.sequence mustEqual("AAAAAAAGDSDSWDADAFSVEDPVR")
       pep2.theoMass.toInt mustEqual(3)
       pep2.isRazor mustEqual(None)
       pep2.sliceNr mustEqual(33)
       pep2.score mustEqual(156.87)
       pep2.uniqueByGroup mustEqual(true)
+      pep2.proteinIDs.length mustEqual(1)
+      pep2.proteinIDs(0).value mustEqual("O75822")
+    }
+
+    "peptide from other protein contain the correct data" in {
+      val pep2: Peptide = pepMap(MaxQuantPepId(593))(0)
+
+      pep2.proteinIDs.length mustEqual(2)
+      pep2.proteinIDs(0).value mustEqual("P35579")
+      pep2.proteinIDs(1).value mustEqual("P35580")
+      pep2.startPos mustEqual(Some(581))
+      pep2.endPos mustEqual(Some(587))
+      pep2.aminoAcidBefore mustEqual(Some("K"))
+      pep2.aminoAcidAfter mustEqual(Some("N"))
+      pep2.sequence mustEqual("ADEWLMK")
+      pep2.theoMass.toInt mustEqual(2)
+      pep2.isRazor mustEqual(None)
+      pep2.sliceNr mustEqual(8)
+      pep2.score mustEqual(58.981)
+      pep2.uniqueByGroup mustEqual(false)
     }
 
   }

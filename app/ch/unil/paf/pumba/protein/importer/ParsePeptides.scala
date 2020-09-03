@@ -2,7 +2,7 @@ package ch.unil.paf.pumba.protein.importer
 
 import java.io.File
 
-import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide}
+import ch.unil.paf.pumba.protein.models.{MaxQuantPepId, Peptide, ProteinId}
 import play.api.Logger
 
 import scala.io.Source
@@ -53,22 +53,22 @@ class ParsePeptides {
 
     val maxQuantId = MaxQuantPepId(values(headers("id")).toInt)
     val sequence = values(headers("sequence"))
-    val aminoAcidBefore = values(headers("amino.acid.before"))
-    val aminoAcidAfter = values(headers("amino.acid.after"))
 
-    // TODO make startPos optional
-    if(values(headers("start.position")) == "") return Seq.empty[Peptide]
+    val rawStartPos = values(headers("start.position"))
+    val startPos = if(rawStartPos == "") None else Some(rawStartPos.toInt)
+    val endPos = if(rawStartPos == "") None else Some(values(headers("end.position")).toInt)
+    val aminoAcidBefore = if(rawStartPos == "") None else Some(values(headers("amino.acid.before")))
+    val aminoAcidAfter = if(rawStartPos == "") None else Some(values(headers("amino.acid.after")))
 
-    val startPos = values(headers("start.position")).toInt
-    val endPos = values(headers("end.position")).toInt
     // we have to parse the razor information from the proteinGroups.txt table.
     val isRazor = None
     val theoMass = Math.log10(values(headers("mass")).toDouble)
     val score = values(headers("score")).toDouble
     val uniqueByGroup = if(values(headers("unique..groups.")) == "yes") true else false
+    val proteinIds: Seq[ProteinId] = values(headers("proteins")).split(";").map(ProteinId(_))
 
     ints.map{ i =>
-      Peptide(maxQuantId, sequence, aminoAcidBefore, aminoAcidAfter, startPos, endPos, isRazor, sliceNr = i._2 + 1, theoMass, score, uniqueByGroup, i._1)
+      Peptide(maxQuantId, proteinIds, sequence, aminoAcidBefore, aminoAcidAfter, startPos, endPos, isRazor, sliceNr = i._2 + 1, theoMass, score, uniqueByGroup, i._1)
     }
   }
 

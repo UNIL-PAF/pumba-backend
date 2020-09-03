@@ -2,15 +2,16 @@ package ch.unil.paf.pumba.protein.models
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018-2019, Protein Analysis Facility UNIL
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 case class Peptide(
                     maxQuantId: MaxQuantPepId,
+                    proteinIDs: Seq[ProteinId],
                     sequence: String,
-                    aminoAcidBefore: String,
-                    aminoAcidAfter: String,
-                    startPos: Int,
-                    endPos: Int,
+                    aminoAcidBefore: Option[String],
+                    aminoAcidAfter: Option[String],
+                    startPos: Option[Int],
+                    endPos: Option[Int],
                     isRazor: Option[Boolean],
                     sliceNr: Int,
                     theoMass: Double,
