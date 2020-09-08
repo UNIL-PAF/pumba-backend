@@ -3,14 +3,13 @@ package ch.unil.paf.pumba.protein.services
 import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseError}
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId, Sample}
 import ch.unil.paf.pumba.dataset.services.DataSetService
-import ch.unil.paf.pumba.protein.models.{Protein, ProteinFactory, ProteinId, ProteinWithDataSet}
+import ch.unil.paf.pumba.protein.models.{OrganismName, Protein, ProteinFactory, ProteinId, ProteinOrGene, ProteinWithDataSet}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
 import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
-import play.api.Logger
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
 import reactivemongo.api.commands.WriteResult
-import reactivemongo.bson.BSONDocument
+import reactivemongo.bson.{BSONArray, BSONDocument}
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -69,6 +68,25 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
 
     val errorMessage = s"Could not find ProteinSequence [${proteinId}]."
     checkOrError[List[ProteinSequence]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
+  }
+
+
+  /**
+    * get proteinSequences with a given proteinOrGene and filter the results by isoformId if provided
+    *
+    * @param proteinOrGene
+    * @return
+    */
+  def getSequences(proteinOrGene: ProteinOrGene, organismName: OrganismName, isoformId: Option[Int]): Future[List[ProteinSequence]] = {
+    val query = BSONDocument("$or" -> BSONArray(BSONDocument("proteinId" -> proteinOrGene.value), BSONDocument("geneName" -> proteinOrGene.value)), "organismName" -> organismName.value)
+    val findRes: Future[List[ProteinSequence]] = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](-1, Cursor.FailOnError[List[ProteinSequence]]()))
+
+    val errorMessage = s"Could not find ProteinSequence [${proteinOrGene}]."
+    val futureRes = checkOrError[List[ProteinSequence]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
+
+    futureRes.map{ _.filter{ seq =>
+      isoformId.isEmpty || ( seq.isoformId.isDefined && seq.isoformId.get == isoformId.get)
+    }}
   }
 
 }

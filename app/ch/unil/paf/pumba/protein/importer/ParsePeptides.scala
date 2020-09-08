@@ -72,7 +72,6 @@ class ParsePeptides {
     }
   }
 
-
   def parseHeaders(line: String, sep: String = SEPARATOR): Map[String, Int] = {
     val headers = line.split(sep)
     val cleanHeaders = headers.map(_.replaceAll("[^a-z|0-9|A-Z]", ".").toLowerCase)

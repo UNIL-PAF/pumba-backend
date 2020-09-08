@@ -1,10 +1,11 @@
 package ch.unil.paf.pumba.protein.models
 
 import ch.unil.paf.pumba.dataset.models.Sample
+import ch.unil.paf.pumba.sequences.models.ProteinSequence
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 
 /**
@@ -24,5 +25,11 @@ case class TheoMergedProtein(name: String, theoMolWeights: Seq[Double], intensit
   */
 case class ProteinMerge(mainProteinId: ProteinId, sample: Sample, theoMergedProtein: TheoMergedProtein, proteins: Seq[ProteinWithDataSet])
 
+/**
+  * Contains the merged proteins and the sequences
+  * @param proteinMerges
+  * @param sequences
+  */
+case class ProteinMergeWithSequence(proteinMerges: Seq[ProteinMerge], sequences: Seq[ProteinSequence])
 
 

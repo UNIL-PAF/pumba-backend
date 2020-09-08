@@ -60,4 +60,6 @@ object ProteinJsonFormats {
 
   implicit val formatProteinSequence = Json.format[ProteinSequence]
 
+  implicit val formatProteinMergesWithSequence = Json.format[ProteinMergeWithSequence]
+
 }

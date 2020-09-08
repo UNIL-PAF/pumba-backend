@@ -21,7 +21,7 @@ import scala.util.{Failure, Success}
 
 /**
   * @author Roman Mylonas
-  * copyright 2018, Protein Analysis Facility UNIL
+  * copyright 2018-2020, Protein Analysis Facility UNIL
   */
 class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext) extends DatabaseError {
   val collectionName = "protein"

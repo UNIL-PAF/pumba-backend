@@ -1,7 +1,7 @@
 package ch.unil.paf.pumba.controllers
 import ch.unil.paf.pumba.common.helpers.DataNotFoundException
 import ch.unil.paf.pumba.dataset.models.{DataSetId, Sample}
-import ch.unil.paf.pumba.protein.services.{ProteinMergeService, ProteinService}
+import ch.unil.paf.pumba.protein.services.{PeptideMatchService, ProteinMergeService, ProteinService, SequenceService}
 import javax.inject._
 import play.api._
 import play.api.mvc._
@@ -10,14 +10,15 @@ import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMo
 import scala.concurrent.{ExecutionContext, Future}
 import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataBaseName, formatDataSet, formatDataSetId, formatSample}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
-import ch.unil.paf.pumba.protein.models.{ProteinId, ProteinMerge, ProteinOrGene, ProteinWithDataSet, TheoMergedProtein}
+import ch.unil.paf.pumba.protein.models.{OrganismName, ProteinId, ProteinMerge, ProteinMergeWithSequence, ProteinOrGene, ProteinWithDataSet, TheoMergedProtein}
+import ch.unil.paf.pumba.sequences.models.ProteinSequence
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 @Singleton
 class ProteinsController @Inject()(implicit ec: ExecutionContext,
@@ -28,6 +29,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
 
   // services
   val proteinService = new ProteinService(reactiveMongoApi)
+  val sequenceService = new SequenceService(reactiveMongoApi)
 
   // environment variables
   val rServeHost: String = config.get[String]("Rserve.host")
@@ -38,24 +40,38 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
     * @param proteinId
     * @return
     */
-  def mergeProteins(proteinId: String, dataSetString: Option[String]) = Action.async{
+  def mergeProteins(proteinId: String, organism: String, dataSetString: Option[String], isoformId: Option[Int]) = Action.async{
 
     val dataSetIds: Option[Seq[DataSetId]] = dataSetString.map( s => {
       val SAMPLE_SEP = ","
       s.split(SAMPLE_SEP).map(DataSetId(_))
     })
 
-    val sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(ProteinOrGene(proteinId), dataSetIds)
+    val sequences: Future[List[ProteinSequence]] = sequenceService.getSequences(ProteinOrGene(proteinId), OrganismName(organism), isoformId: Option[Int])
+    val mainSequence: Future[ProteinSequence] = sequences.map(seq => if(seq.length == 1) seq(0) else seq.find(s => s.isoformId.isEmpty).get)
+    val proteinIdSeq: Future[ProteinId] = mainSequence.map(seq => seq.proteinId)
 
-    val proteinMerges: Future[Seq[ProteinMerge]] = sampleProteinsMap.flatMap { a =>
+    val sampleProteinsMapFuture: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(ProteinOrGene(proteinId), dataSetIds)
+
+    def mergeProteinsMap(sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]], proteinId: ProteinId, seq: String): Future[Seq[ProteinMerge]] = sampleProteinsMap.flatMap { a =>
       Future.sequence{
-        a.map { case (sample, protList) =>
-          Future.fromTry(ProteinMergeService(rServeHost, rServePort).mergeProteins(protList, sample))
+        a.map { case (sample: Sample, protList: Seq[ProteinWithDataSet]) =>
+          val remapProtList = for {prot <- protList} yield { PeptideMatchService().remapPeptides(prot, proteinId, seq) }
+          Future.fromTry(ProteinMergeService(rServeHost, rServePort).mergeProteins(remapProtList, sample))
         }.toSeq
       }
     }
 
-    proteinMerges.map({ merges =>
+    val mergesWithSeqs = for {
+      seqs <- sequences
+      mainSeq <- mainSequence
+      protId <- proteinIdSeq
+      proteinMerges <- mergeProteinsMap(sampleProteinsMapFuture, protId, mainSeq.sequence)
+    } yield {
+      ProteinMergeWithSequence(proteinMerges, seqs)
+    }
+
+    mergesWithSeqs.map({ merges =>
       Ok(Json.toJson(merges))
     })
 
