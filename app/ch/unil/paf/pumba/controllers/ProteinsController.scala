@@ -62,7 +62,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       }
     }
 
-    val mergesWithSeqs = for {
+    val mergesWithSeqs: Future[ProteinMergeWithSequence] = for {
       seqs <- sequences
       mainSeq <- mainSequence
       protId <- proteinIdSeq

@@ -36,7 +36,7 @@ class UploadSequencesController @Inject()(implicit ec: ExecutionContext,
   /**
     * Upload a fasta file and start the pre-processing
     */
-  def uploadFastaFile(dataBaseName: String) = Action(parse.multipartFormData) { request =>
+  def uploadFastaFile(dataBaseName: String, organismName: String) = Action(parse.multipartFormData) { request =>
     // process the ZIP file
     request.body.file("fastaFile").map { fastaFile =>
       val timeStamp: String = Calendar.getInstance().getTime().getTime.toString
@@ -47,7 +47,7 @@ class UploadSequencesController @Inject()(implicit ec: ExecutionContext,
 
       // parse and insert data
       Logger.info("Upload FASTA: start inserting.")
-      val sequenceIt = ParseFasta().parse(localFile, DataBaseName(dataBaseName), OrganismName("human"))
+      val sequenceIt = ParseFasta().parse(localFile, DataBaseName(dataBaseName), OrganismName(organismName))
       val res: Future[Int] = ImportSequences().importSequences(sequenceIt, sequenceService)
       res.map(nr => Logger.info(s"Upload FASTA: finished inserting [$nr] sequences."))
     }

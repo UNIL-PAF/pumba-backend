@@ -14,11 +14,9 @@ class PeptideMatchService {
 
     // we only have to remap if it's not the first proteinId in the list
     if(protein.proteinIDs.indexOf(proteinId) > 0){
-      println("remap!!")
       val remapedPeps = filteredPeps.map( remapPeptide(_, seq, proteinId))
       protein.copy(peptides = remapedPeps.filter(_.startPos.isDefined))
     }else{
-      println("no remapping")
       protein.copy(peptides = filteredPeps)
     }
   }

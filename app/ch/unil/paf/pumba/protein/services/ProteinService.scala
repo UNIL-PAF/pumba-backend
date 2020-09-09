@@ -96,6 +96,7 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
     */
   def getSamplesFromProtein(proteinOrGene: ProteinOrGene): Future[Map[Sample, Seq[DataSetId]]] = {
     val query = BSONDocument("$or" -> BSONArray(BSONDocument("proteinIDs" -> proteinOrGene.value), BSONDocument("geneNames" -> proteinOrGene.value)))
+
     val projection = BSONDocument("dataSetId" -> 1)
     val findResFuture: Future[List[BSONDocument]] = collection(collectionName).flatMap(_.find(query, projection).cursor[BSONDocument]().collect[List](-1, Cursor.FailOnError[List[BSONDocument]]()))
 
@@ -153,6 +154,7 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
     * @return
     */
   def getProteinsBySample(proteinOrGene: ProteinOrGene, dataSetIds: Option[Seq[DataSetId]]): Future[Map[Sample, Seq[ProteinWithDataSet]]] = {
+
     // get the map of samples with corresponding dataSets
     val fSampleDataSetMap = getSamplesFromProtein(proteinOrGene)
 

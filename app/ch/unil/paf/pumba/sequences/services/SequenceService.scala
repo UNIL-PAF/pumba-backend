@@ -66,7 +66,7 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
     val query = BSONDocument("proteinId" -> proteinId.value, "dataBaseName" -> dataBaseName.value)
     val findRes: Future[List[ProteinSequence]] = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](-1, Cursor.FailOnError[List[ProteinSequence]]()))
 
-    val errorMessage = s"Could not find ProteinSequence [${proteinId}]."
+    val errorMessage = s"Could not find ProteinSequence [${proteinId.value}]."
     checkOrError[List[ProteinSequence]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
   }
 
@@ -81,7 +81,7 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
     val query = BSONDocument("$or" -> BSONArray(BSONDocument("proteinId" -> proteinOrGene.value), BSONDocument("geneName" -> proteinOrGene.value)), "organismName" -> organismName.value)
     val findRes: Future[List[ProteinSequence]] = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](-1, Cursor.FailOnError[List[ProteinSequence]]()))
 
-    val errorMessage = s"Could not find ProteinSequence [${proteinOrGene}]."
+    val errorMessage = s"Could not find ProteinSequence [${proteinOrGene.value}] from organism [${organismName.value}]."
     val futureRes = checkOrError[List[ProteinSequence]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
 
     futureRes.map{ _.filter{ seq =>

@@ -10,10 +10,10 @@ GET     /                                                                       
 POST /upload/:dataSetName/sample/:sample/color-group/:colorGroup/organism/:organism     ch.unil.paf.pumba.controllers.UploadMaxQuantController.uploadZipFile(dataSetName: String, sample: String, colorGroup: Int, organism: String, lowDensityThreshold: Option[Int], ignoreSlices: Option[String], sampleName: Option[String])
 
 # get the protein infos
-GET /merge-protein/:proteinId                                                           ch.unil.paf.pumba.controllers.ProteinsController.mergeProteins(proteinId: String, dataSetsString: Option[String])
+GET /merge-protein/:proteinId/organism/:organism                                        ch.unil.paf.pumba.controllers.ProteinsController.mergeProteins(proteinId: String, organism: String, dataSetsString: Option[String], isoformId: Option[Int])
 
 # upload sequence data from FASTA file
-POST /sequence/:dataBaseName                                                            ch.unil.paf.pumba.controllers.UploadSequencesController.uploadFastaFile(dataBaseName: String)
+POST /sequence/:dataBaseName/organism/:organismName                                     ch.unil.paf.pumba.controllers.UploadSequencesController.uploadFastaFile(dataBaseName: String, organismName: String)
 
 # get a sequence
 GET /sequence/:proteinId/database/:dataBaseName                                         ch.unil.paf.pumba.controllers.SequenceController.getSequence(proteinId: String, dataBaseName: String)
