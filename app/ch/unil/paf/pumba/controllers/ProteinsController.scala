@@ -68,7 +68,8 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       protId <- proteinIdSeq
       proteinMerges <- mergeProteinsMap(sampleProteinsMapFuture, protId, mainSeq.sequence)
     } yield {
-      ProteinMergeWithSequence(proteinMerges, seqs)
+      val fltSeqs = seqs.filter(_.proteinId != mainSeq.proteinId)
+      ProteinMergeWithSequence(proteinMerges, fltSeqs, mainSeq)
     }
 
     mergesWithSeqs.map({ merges =>

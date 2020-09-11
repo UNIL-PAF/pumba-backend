@@ -30,6 +30,6 @@ case class ProteinMerge(mainProteinId: ProteinId, sample: Sample, theoMergedProt
   * @param proteinMerges
   * @param sequences
   */
-case class ProteinMergeWithSequence(proteinMerges: Seq[ProteinMerge], sequences: Seq[ProteinSequence])
+case class ProteinMergeWithSequence(proteinMerges: Seq[ProteinMerge], sequences: Seq[ProteinSequence], mainSequence: ProteinSequence)
 
 
