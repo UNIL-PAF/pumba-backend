@@ -10,7 +10,7 @@ import play.api.Logger
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 class ParseProteinGroups {
 

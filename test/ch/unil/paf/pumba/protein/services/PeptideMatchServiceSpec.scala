@@ -50,7 +50,34 @@ class PeptideMatchServiceSpec extends Specification {
       score = 122.46,
       uniqueByGroup = true,
       intensity = 14560000
+    ),
+
+    Peptide(
+      proteinIDs = Seq("Q6VEQ5").map(ProteinId(_)),
+      maxQuantId = MaxQuantPepId(13580),
+      sequence = "GPGAGEGPGGAFAR",
+      aminoAcidBefore = Some("K"),
+      aminoAcidAfter = Some("V"),
+      startPos = Some(426),
+      endPos = Some(439),
+      isRazor = Some(true),
+      sliceNr = 25,
+      theoMass = 3.0790249804978087,
+      score = 122.46,
+      uniqueByGroup = true,
+      intensity = 50000
     )
+  )
+
+  val massFitRes_1 = MassFitResult(
+    massFitCoeffs = Array(0),
+    massFitPicturePath = "",
+    proteinGroupsPath = "",
+    massFitRData = "",
+    peptidesPath = "",
+    massFits = Array(0),
+    maxInt = 0,
+    normCorrFactor = 10
   )
 
   val dataSet_1 = DataSet(
@@ -59,7 +86,7 @@ class PeptideMatchServiceSpec extends Specification {
     sample = Sample("Jurkat"),
     status = DataSetDone,
     message = None,
-    massFitResult = None,
+    massFitResult = Some(massFitRes_1),
     dataBaseName = None,
     colorGroup = 1,
     organism = "human"
@@ -85,24 +112,27 @@ class PeptideMatchServiceSpec extends Specification {
       mappedPeps.peptides(0).endPos mustEqual (Some(369))
       mappedPeps.peptides(0).aminoAcidBefore mustEqual (Some("R"))
       mappedPeps.peptides(0).aminoAcidAfter mustEqual (Some("Q"))
+      mappedPeps.intensities.sum mustEqual(1.39399E8)
     }
 
     "correctly remap C4AMC7" in {
       val mappedPeps = PeptideMatchService().remapPeptides(protein, ProteinId("C4AMC7"), "MTPVRMQHSLAGQTYAVPLIQPDLRREEAVQQMADALQYLQKVSGDIFSRISQQVEQSRSQVQAIGEKVSLAQAKIEKIKGSKKAIKVFSSAKYPAPERLQEYGSIFTGAQDPGLQRRPRHRIQSKHRPLDERALQEKDFPVCVSTKPEPEDDAEEGLGGLPSNISSVSSLLLFNTTENLGKKYVFLDPLAGAVTKTHVMLGAETEEKLFDAPLSISKREQLEQQVPENYFYVPDLGQVPEIDVPSYLPDLPGITNDLMYIADLGPGIAPSAPGTIPELPTFHTEVAEPLKVDLQDGVLTPPPPPPPPPPAPEVLASAPPLPPSTAAPVGQGARQDDSSSSASPSVQGAPREVVDPSGGRATLLESIRQAGGIGKAKLRSMKERKLEKKQQKEQEQVRATSQGGHLMSDLFNKLVMRRKGISGKGPGAGEGPGGAFARVSDSIPPLPPPQQPQAEEDEDDWES")
       mappedPeps.peptides.length mustEqual(1)
-      mappedPeps.peptides(0).startPos mustEqual (Some(425))
-      mappedPeps.peptides(0).endPos mustEqual (Some(438))
+      mappedPeps.peptides(0).startPos mustEqual (Some(426))
+      mappedPeps.peptides(0).endPos mustEqual (Some(439))
       mappedPeps.peptides(0).aminoAcidBefore mustEqual (Some("K"))
       mappedPeps.peptides(0).aminoAcidAfter mustEqual (Some("V"))
+      mappedPeps.intensities.sum mustEqual(1456000.0)
     }
 
     "correctly remap Q6VEQ5" in {
       val mappedPeps = PeptideMatchService().remapPeptides(protein, ProteinId("Q6VEQ5"), "MTPVRMQHSLAGQTYAVPLIQPDLRREEAVQQMADALQYLQKVSGDIFSRISQQVEQSRSQVQAIGEKVSLAQAKIEKIKGSKKAIKVFSSAKYPAPERLQEYGSIFTGAQDPGLQRRPRHRIQSKHRPLDERALQEKLKDFPVCVSTKPEPEDDAEEGLGGLPSNISSVSSLLLFNTTENLYKKYVFLDPLAGAVTKTHVMLGAETEEKLFDAPLSISKREQLEQQVPENYFYVPDLGQVPEIDVPSYLPDLPGIANDLMYIADLGPGIAPSAPGTIPELPTFHTEVAEPLKVDLQDGVLTPPPPPPPPPPAPEVLASAPPLPPSTAAPVGQGARQDDSSSSASPSVQGAPREVVDPSGGRATLLESIRQAGGIGKAKLRSMKERKLEKKKQKEQEQVRATSQGGHLMSDLFNKLVMRRKGISGKGPGAGEGPGGAFARVSDSIPPLPPPQQPQAEEDEDDWES")
-      mappedPeps.peptides.length mustEqual(1)
+      mappedPeps.peptides.length mustEqual(2)
       mappedPeps.peptides(0).startPos mustEqual (Some(427))
       mappedPeps.peptides(0).endPos mustEqual (Some(440))
       mappedPeps.peptides(0).aminoAcidBefore mustEqual (Some("K"))
       mappedPeps.peptides(0).aminoAcidAfter mustEqual (Some("V"))
+      mappedPeps.intensities.sum mustEqual(1461000.0)
     }
 
   }

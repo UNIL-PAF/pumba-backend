@@ -48,6 +48,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
     })
 
     val sequences: Future[List[ProteinSequence]] = sequenceService.getSequences(ProteinOrGene(proteinId), OrganismName(organism), isoformId: Option[Int])
+
     val mainSequence: Future[ProteinSequence] = sequences.map(seq => if(seq.length == 1) seq(0) else seq.find(s => s.isoformId.isEmpty).get)
     val proteinIdSeq: Future[ProteinId] = mainSequence.map(seq => seq.proteinId)
 
@@ -68,7 +69,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       protId <- proteinIdSeq
       proteinMerges <- mergeProteinsMap(sampleProteinsMapFuture, protId, mainSeq.sequence)
     } yield {
-      val fltSeqs = seqs.filter(_.proteinId != mainSeq.proteinId)
+      val fltSeqs = seqs.filter(_.isoformId.isDefined)
       ProteinMergeWithSequence(proteinMerges, fltSeqs, mainSeq)
     }
 

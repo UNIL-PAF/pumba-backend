@@ -11,5 +11,6 @@ case class MassFitResult(
                           peptidesPath: String,
                           massFitCoeffs: Array[Double],
                           massFits: Array[Double],
-                          maxInt: Double
+                          maxInt: Double,
+                          normCorrFactor: Double
                         )

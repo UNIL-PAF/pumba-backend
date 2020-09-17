@@ -67,6 +67,10 @@ write.table(norm_pg, file=paste0(opt$output_path, "/normalizedProteinGroups.txt"
 max_norm_int <- get_max_norm_int(norm_pg)
 cat(file = paste0(opt$output_path, "/max_norm_intensity.csv"), sep=",", max_norm_int)
 
+# write normalization correction factor to a file
+norm_corr_factor <- get_correction_factor(get_intensities(pg, sample_name = opt$sample_name))
+cat(file = paste0(opt$output_path, "/norm_corr_factor.csv"), sep=",", norm_corr_factor)
+
 # create the images for the mass fit
 print(paste0("create fit plot in [", mass_fit_png, "]."))
 png(file = mass_fit_png, width = png_width, height = png_height, units="px", pointsize = png_pointsize)

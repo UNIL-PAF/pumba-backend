@@ -10,7 +10,7 @@ import scala.io.Source
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018-2019, Protein Analysis Facility UNIL
+  *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 class ParseParameters {
 

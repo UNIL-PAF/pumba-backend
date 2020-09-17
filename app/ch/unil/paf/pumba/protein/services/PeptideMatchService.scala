@@ -10,9 +10,28 @@ import play.api.Logger
 class PeptideMatchService {
 
   def remapPeptides(protein: ProteinWithDataSet, proteinId: ProteinId, seq: String): ProteinWithDataSet = {
+
     val filteredPeps = protein.peptides.filter(p => p.proteinIDs.contains(proteinId))
+
+    def getProteinIntensies(filteredPeps: Seq[Peptide], nrIntensities: Int, normCorrFactor: Double, protein: ProteinWithDataSet): Seq[Double] = {
+      // we only have to remap if it's not the first proteinId in the list
+      if(protein.proteinIDs.indexOf(proteinId) == 0){
+        protein.intensities
+      }else{
+        val proteinIntensities: Seq[Double] = filteredPeps.foldLeft(Array.fill(nrIntensities){0d}){ (ints: Array[Double], pep: Peptide) =>
+          val i = pep.sliceNr - 1
+          ints(i) = ints(i) + pep.intensity
+          ints
+        }.toSeq
+
+        proteinIntensities.map(_/normCorrFactor)
+      }
+    }
+
+    val proteinIntensities = getProteinIntensies(filteredPeps, protein.intensities.length, protein.dataSet.massFitResult.get.normCorrFactor, protein)
+
     val remapedPeps = filteredPeps.map( remapPeptide(_, seq, proteinId))
-    protein.copy(peptides = remapedPeps.filter(_.startPos.isDefined))
+    protein.copy(peptides = remapedPeps.filter(_.startPos.isDefined), intensities = proteinIntensities)
   }
 
   def remapPeptide(peptide: Peptide, seq: String, proteinId: ProteinId): Peptide = {

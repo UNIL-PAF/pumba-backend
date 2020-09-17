@@ -11,7 +11,9 @@ import ch.unil.paf.pumba.protein.services.{ImportProteins, ProteinService, Seque
 import ch.unil.paf.pumba.sequences.models.DataBaseName
 import play.api.Logger
 import reactivemongo.api.commands.UpdateWriteResult
+
 import scala.concurrent.{ExecutionContext, Future}
+import scala.io.Source
 
 /**
   * @author Roman Mylonas
@@ -43,6 +45,9 @@ class DataSetPostprocessing(
     Logger.info("Add mass fit results to dataset.")
 
     val oldDataSet = oldDataSetOption.get
+
+    val corrFactor = Source.fromFile(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/norm_corr_factor.csv").mkString.toDouble
+
     val massFitResult = MassFitResult(
       massFitPicturePath = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.png",
       massFitRData = s"${oldDataSet.id.value}/mass_fit_res/mass_fit.RData",
@@ -50,7 +55,8 @@ class DataSetPostprocessing(
       peptidesPath = s"${oldDataSet.id.value}/txt/peptides.txt",
       massFitCoeffs = ParseMassFit().parseCsvCoeffs(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fit_coeffs.csv"),
       massFits = ParseMassFit().parseCsvFits(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/mass_fits.csv"),
-      maxInt = ParseMassFit().parseMaxInt(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/max_norm_intensity.csv")
+      maxInt = ParseMassFit().parseMaxInt(s"${dataRootPath}/${oldDataSet.id.value}/mass_fit_res/max_norm_intensity.csv"),
+      normCorrFactor = corrFactor
     )
 
     val dataBaseName: DataBaseName = ParseParameters().parseTable(new File(s"${dataRootPath}/${oldDataSet.id.value}/txt/parameters.txt"))
