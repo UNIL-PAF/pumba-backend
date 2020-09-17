@@ -23,7 +23,6 @@ class PeptideMatchService {
           ints(i) = ints(i) + pep.intensity
           ints
         }.toSeq
-
         proteinIntensities.map(_/normCorrFactor)
       }
     }
