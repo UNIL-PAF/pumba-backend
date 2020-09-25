@@ -1,7 +1,7 @@
 name := """Pumba"""
 organization := "ch.unil"
 
-version := "0.6.0"
+version := "0.6.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
