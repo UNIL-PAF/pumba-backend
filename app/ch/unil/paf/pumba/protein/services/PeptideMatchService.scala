@@ -14,17 +14,12 @@ class PeptideMatchService {
     val filteredPeps = protein.peptides.filter(p => p.proteinIDs.contains(proteinId))
 
     def getProteinIntensies(filteredPeps: Seq[Peptide], nrIntensities: Int, normCorrFactor: Double, protein: ProteinWithDataSet): Seq[Double] = {
-      // we only have to remap if it's not the first proteinId in the list
-      if(protein.proteinIDs.indexOf(proteinId) == 0){
-        protein.intensities
-      }else{
         val proteinIntensities: Seq[Double] = filteredPeps.foldLeft(Array.fill(nrIntensities){0d}){ (ints: Array[Double], pep: Peptide) =>
           val i = pep.sliceNr - 1
           ints(i) = ints(i) + pep.intensity
           ints
         }.toSeq
         proteinIntensities.map(_/normCorrFactor)
-      }
     }
 
     val proteinIntensities = getProteinIntensies(filteredPeps, protein.intensities.length, protein.dataSet.massFitResult.get.normCorrFactor, protein)
@@ -34,9 +29,6 @@ class PeptideMatchService {
   }
 
   def remapPeptide(peptide: Peptide, seq: String, proteinId: ProteinId): Peptide = {
-
-    // we only have to remap if it's not the first proteinId in the list
-    if(peptide.proteinIDs.indexOf(proteinId) > 0 || peptide.startPos.isEmpty){
       val startIndex = seq.indexOfSlice(peptide.sequence)
       val pepLen = peptide.sequence.length
       if(startIndex >= 0){
@@ -50,9 +42,6 @@ class PeptideMatchService {
         Logger.info(s"Warning: Could not map peptide [${peptide.maxQuantId}] to protein [${proteinId.value}].")
         peptide.copy(startPos = None)
       }
-    }else{
-      peptide
-    }
   }
 
 }
