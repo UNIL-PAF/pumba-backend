@@ -24,7 +24,7 @@ libraryDependencies ++= Seq(
 	"org.nuiton.thirdparty" % "REngine" % "1.7-3",
 	"org.nuiton.thirdparty" % "Rserve" % "1.7-3",
 	"org.biojava" % "biojava-core" % "5.4.0",
-	"org.biojava" % "biojava-aa-prop" % "5.4.0"
+	"org.biojava" % "biojava-aa-prop" % "5.4.0",
 	"org.apache.commons" % "commons-math3" % "3.6.1"
 )
 
