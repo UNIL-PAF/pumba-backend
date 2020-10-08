@@ -3,7 +3,7 @@ package ch.unil.paf.pumba.controllers
 import ch.unil.paf.pumba.dataset.models.{DataSetId, Sample}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
 import ch.unil.paf.pumba.protein.models.{ProteinId, ProteinMerge, ProteinWithDataSet}
-import ch.unil.paf.pumba.protein.services.{ProteinMergeService, ProteinService, SequenceService}
+import ch.unil.paf.pumba.protein.services.{ProteinMergeServiceR, ProteinService, SequenceService}
 import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
 import javax.inject._
 import play.api._

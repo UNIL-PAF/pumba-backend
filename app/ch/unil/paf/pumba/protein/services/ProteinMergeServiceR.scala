@@ -5,8 +5,8 @@ import java.util.Calendar
 import ch.unil.paf.pumba.common.rexec.RexecException
 import ch.unil.paf.pumba.dataset.models.Sample
 import ch.unil.paf.pumba.protein.models.{ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
-import org.rosuda.REngine.Rserve.{RConnection, RserveException}
 import org.rosuda.REngine._
+import org.rosuda.REngine.Rserve.{RConnection, RserveException}
 import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
@@ -24,20 +24,7 @@ class ProteinMergeServiceR(rServeHost: String, rServePort: Int){
   // load pumbaR
   val loadLibRes: REXP = rConnection.eval("library(pumbaR)")
 
-  def fittingFunc(massFitCoeffs: Seq[Double]): Double = {
-
-  }
-
-  def extractInts(ints: Seq[Double], massFitCoeffs: Seq[Double], cutSize: Int): Unit ={
-
-
-  }
-
   def mergeProteins(proteins: Seq[ProteinWithDataSet], sample: Sample): Try[ProteinMerge] = {
-
-    val ints: Seq[Double] = proteins(0).intensities
-    val massFitCoeffs: Seq[Double] = proteins(0).dataSet.massFitResult.get.massFitCoeffs
-
     // make a new unique name for the list
     val uniqTag = Calendar.getInstance().getTimeInMillis.toString
     val listName = "list_" + uniqTag
@@ -92,4 +79,19 @@ class ProteinMergeServiceR(rServeHost: String, rServePort: Int){
 
 }
 
+/**
+  * companion object - we want only one Rserve instance and pumbaR loaded
+  */
+object ProteinMergeServiceR {
 
+  //var proteinMergeService: ProteinMergeServiceR = null
+
+  def apply(rServeHost: String, rServePort: Int):ProteinMergeServiceR = {
+//    if(proteinMergeService == null){
+//      proteinMergeService = new ProteinMergeServiceR(rServeHost, rServePort)
+//    }
+//    proteinMergeService
+    new ProteinMergeServiceR(rServeHost, rServePort)
+  }
+
+}
