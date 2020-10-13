@@ -1,95 +1,83 @@
 package ch.unil.paf.pumba.protein.services
 
-import java.util.Calendar
-
-import ch.unil.paf.pumba.common.rexec.RexecException
-import ch.unil.paf.pumba.dataset.models.Sample
-import ch.unil.paf.pumba.protein.models.{ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
-import org.rosuda.REngine.Rserve.{RConnection, RserveException}
-import org.rosuda.REngine._
-import play.api.Logger
-
-import scala.util.{Failure, Success, Try}
-
-
 /**
   * @author Roman Mylonas
   *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
-class ProteinMergeServiceR(rServeHost: String, rServePort: Int){
+class ProteinMergeService{
 
-  // make the RConnection
-  val rConnection = new RConnection(rServeHost, rServePort)
+  def fittingFunc(x: Double, massFitCoeffs: Seq[Double]): Double = {
+    massFitCoeffs(0) + massFitCoeffs(1) * x + massFitCoeffs(2) * Math.pow(x, 2) + massFitCoeffs(3) * Math.pow(x, 3)
+  }
 
-  // load pumbaR
-  val loadLibRes: REXP = rConnection.eval("library(pumbaR)")
+  def extractInts(ints: Seq[Double], massFitCoeffs: Seq[Double], cutSize: Int): Array[ExtractedInt] ={
 
-  def fittingFunc(massFitCoeffs: Seq[Double]): Double = {
+    val limits: Seq[Double] = (0.5 to (ints.length + 0.5) by 1).dropRight(1)
+
+    (0 to (limits.length - 1)).map{ i =>
+      val limit: Double = limits(i)
+      val cuts: Seq[Double] = (limit to (limit + 1) by (1d/cutSize)).dropRight(1)
+
+      val extractedInts: Seq[ExtractedInt] = cuts.map{ cut =>
+        val roundedCut = BigDecimal(cut).setScale(5, BigDecimal.RoundingMode.HALF_UP).toDouble
+        val weight = fittingFunc(roundedCut, massFitCoeffs)
+        ExtractedInt(cut = roundedCut, int = ints(i), molMass = weight)
+      }
+      extractedInts
+    }.flatten.toArray
 
   }
 
-  def extractInts(ints: Seq[Double], massFitCoeffs: Seq[Double], cutSize: Int): Unit ={
 
+  def sumSlides(extractedData: Seq[Array[ExtractedInt]]): Seq[SumSlide] = {
+    val nrSamples = extractedData.length
 
-  }
+    // take the first as reference
+    val ref = extractedData(0)
 
-  def mergeProteins(proteins: Seq[ProteinWithDataSet], sample: Sample): Try[ProteinMerge] = {
+    val summedInts: Seq[SumSlide] = (0 to (ref.length - 1)).map{ i =>
+      val refMass = ref(i).molMass
+      val refInt = ref(i).int
 
-    val ints: Seq[Double] = proteins(0).intensities
-    val massFitCoeffs: Seq[Double] = proteins(0).dataSet.massFitResult.get.massFitCoeffs
+      // define the borders of the current slice
+      val distLeft = if(i > 0) ref(i-1).molMass - refMass else refMass - ref(i+1).molMass
+      val distRight = if(i < (ref.length - 1)) refMass - ref(i+1).molMass else distLeft
+      val limitLeft = refMass - distLeft/2
+      val limitRight = refMass + distRight/2
 
-    // make a new unique name for the list
-    val uniqTag = Calendar.getInstance().getTimeInMillis.toString
-    val listName = "list_" + uniqTag
-    val resName = "res_" + uniqTag
+      val intRes: Double = if(nrSamples > 1){
+        // look for entries within this border in the other samples
+        val sampleInts: Double = (1 to (nrSamples - 1)).map{ idx =>
+          val sampleData = extractedData(idx)
+          val sampleSlicesOk: Array[ExtractedInt] = sampleData.filter { sd =>
+            sd.molMass >= limitLeft && sd.molMass < limitRight
+          }
 
-    val rCommandBuff = new StringBuilder
-    rCommandBuff.append(s"$listName <- list();\n")
+          if(sampleSlicesOk.length > 0) {
+            sampleSlicesOk.map(_.int).sum
+          }else{
+            0
+          }
+        }.sum
 
-    // build up the list with data for the merge
-    for((prot, i) <- proteins.zip(Stream from 1)){
-      val mass_fit_params = prot.dataSet.massFitResult.get.massFitCoeffs.mkString(",")
-      val ints = prot.intensities.mkString(",")
-      rCommandBuff.append(s"$listName[[$i]] <- list();\n")
-      rCommandBuff.append(s"$listName[[$i]][['mass_fit_params']] <- c($mass_fit_params);\n")
-      rCommandBuff.append(s"$listName[[$i]][['ints']] <- c($ints);\n")
-    }
+        sampleInts + refInt
 
-    // the merge function
-    rCommandBuff.append(s"$resName <- merge_proteins($listName, cut_size=100, loess_span=0.05);\n")
-    rCommandBuff.append(s"$resName")
-    val rCommand = rCommandBuff.toString
+      }else{
+        refInt
+      }
 
-    Logger.info("Start R command: [" + rCommand + "].")
-
-    val resObj: Try[REXP] = Try(rConnection.eval(rCommand))
-    val resTry: Try[RList] = resObj.map(_.asList)
-
-    val protMerge: Try[ProteinMerge] = resTry.flatMap { res =>
-      // remove all R objects
-      val removeTry: Try[REXP] = Try(rConnection.eval(s"rm($listName, $resName)"))
-
-      removeTry.map( remove => {
-        Logger.info("R command finished, clean session.")
-
-        // create the result
-        val mainProtId = proteins(0).proteinIDs(0)
-        val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
-        val mergedProtein: TheoMergedProtein = new TheoMergedProtein(mergeName, res.at("x").asDoubles, res.at("y").asDoubles)
-        new ProteinMerge(mainProtId, sample, mergedProtein, proteins)
-      })
+      SumSlide(refMass, intRes/nrSamples)
 
     }
-
-    // we want the command in case it was an RserveException
-    protMerge match {
-      case Failure(e: RserveException) => Failure(RexecException(s"Failed to execute command: [$rCommand]", e))
-      case Failure(e) => Failure(e)
-      case Success(s) => Success(s)
-    }
-
+    summedInts
   }
 
 }
 
+object ProteinMergeService {
+  def apply() = new ProteinMergeService()
+}
 
+case class ExtractedInt (cut: Double, int: Double, molMass: Double)
+
+case class SumSlide (molMass: Double, int: Double)
