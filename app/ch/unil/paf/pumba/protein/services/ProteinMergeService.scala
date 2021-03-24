@@ -1,10 +1,24 @@
 package ch.unil.paf.pumba.protein.services
 
+import ch.unil.paf.pumba.dataset.models.Sample
+import ch.unil.paf.pumba.protein.models.{ProteinMerge, ProteinWithDataSet}
+
+import scala.util.Try
+
 /**
   * @author Roman Mylonas
   *         copyright 2018-2020, Protein Analysis Facility UNIL
   */
 class ProteinMergeService{
+
+  def mergeProteins(proteins: Seq[ProteinWithDataSet], sample: Sample): Try[ProteinMerge] = {
+    val extractedData: Seq[Array[ExtractedInt]] = proteins.map{
+      p => extractInts(p.intensities, p.dataSet.massFitResult.get.massFitCoeffs, 100)
+    }
+
+
+  }
+
 
   def fittingFunc(x: Double, massFitCoeffs: Seq[Double]): Double = {
     massFitCoeffs(0) + massFitCoeffs(1) * x + massFitCoeffs(2) * Math.pow(x, 2) + massFitCoeffs(3) * Math.pow(x, 3)
