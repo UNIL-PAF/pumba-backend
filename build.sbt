@@ -5,7 +5,7 @@ version := "0.6.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.10"
 
 //resolvers ++= Seq(
 //	"mvnrepository" at "https://repo.maven.apache.org/maven2"
