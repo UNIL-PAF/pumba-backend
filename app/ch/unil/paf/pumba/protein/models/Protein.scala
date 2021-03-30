@@ -4,7 +4,7 @@ import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId}
 
 /**
   * @author Roman Mylonas
-  * copyright 2018-2020, Protein Analysis Facility UNIL
+  * copyright 2018-2021, Protein Analysis Facility UNIL
   */
 
 case class ProteinId(value: String) extends AnyVal

@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext
 
   /**
   * @author Roman Mylonas
-  *         copyright 2018-2020, Protein Analysis Facility UNIL
+  *         copyright 2018-2021, Protein Analysis Facility UNIL
   *
   * Upload MaxQuant data
   */

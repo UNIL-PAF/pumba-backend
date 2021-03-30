@@ -5,7 +5,7 @@ import org.specs2.mutable.Specification
 
 /**
   * @author Roman Mylonas
-  * copyright 2018-2020, Protein Analysis Facility UNIL
+  * copyright 2018-2021, Protein Analysis Facility UNIL
   */
 class ProteinMergeServiceSpec extends Specification {
 
