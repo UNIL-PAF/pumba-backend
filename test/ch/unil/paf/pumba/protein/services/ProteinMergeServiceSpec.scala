@@ -123,7 +123,7 @@ class ProteinMergeServiceSpec extends Specification {
     }
 
     "Max intensity is ok" in {
-      merge.theoMergedProtein.intensities.max mustEqual(8996897187d)
+      merge.theoMergedProtein.intensities.max.round mustEqual(8.134231390063242E9.round)
     }
 
   }
