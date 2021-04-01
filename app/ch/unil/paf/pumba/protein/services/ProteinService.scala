@@ -15,6 +15,7 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.modules.reactivemongo.json.ImplicitBSONHandlers._
+import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.play.json.BSONFormats.BSONDocumentFormat
 
 import scala.util.{Failure, Success}
@@ -28,6 +29,14 @@ class ProteinService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Execu
 
   // we need the dataSetService for 
   val dataSetService = new DataSetService(reactiveMongoApi)
+
+  // ensure that indexes are cretead
+  def createIndex(field: String) = {
+    val index = Index(Seq(field -> IndexType.Ascending), unique = false)
+    collection(collectionName).flatMap(_.indexesManager.create(index))
+  }
+  createIndex("geneNames")
+  createIndex("proteinIDs")
 
   def collection(name: String): Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection](name))
 
