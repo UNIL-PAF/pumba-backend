@@ -1,7 +1,8 @@
 package ch.unil.paf.pumba.controllers
 import ch.unil.paf.pumba.common.helpers.DataNotFoundException
 import ch.unil.paf.pumba.dataset.models.{DataSetId, Sample}
-import ch.unil.paf.pumba.protein.services.{PeptideMatchService, ProteinMergeServiceR, ProteinService, SequenceService}
+import ch.unil.paf.pumba.protein.services.{PeptideMatchService, ProteinMergeService, ProteinMergeServiceR, ProteinService, SequenceService}
+
 import javax.inject._
 import play.api._
 import play.api.mvc._
@@ -58,7 +59,8 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       Future.sequence{
         a.map { case (sample: Sample, protList: Seq[ProteinWithDataSet]) =>
           val remapProtList = for {prot <- protList} yield { PeptideMatchService().remapPeptides(prot, proteinId, seq) }
-          Future.fromTry(ProteinMergeServiceR(rServeHost, rServePort).mergeProteins(remapProtList, sample))
+          //Future.fromTry(ProteinMergeServiceR(rServeHost, rServePort).mergeProteins(remapProtList, sample))
+          Future.fromTry(ProteinMergeService().mergeProteins(remapProtList, sample))
         }.toSeq
       }
     }

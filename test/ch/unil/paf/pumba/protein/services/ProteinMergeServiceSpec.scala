@@ -1,6 +1,8 @@
 package ch.unil.paf.pumba.protein.services
 
+import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetDone, DataSetId, DataSetStatus, MassFitResult, Sample}
 import ch.unil.paf.pumba.protein.models._
+import ch.unil.paf.pumba.sequences.models.DataBaseName
 import org.specs2.mutable.Specification
 
 /**
@@ -35,6 +37,29 @@ class ProteinMergeServiceSpec extends Specification {
     1.3405e+10,3747900000d,17037000,15226000,0,0,
     17088000,3872700,0,14897000,8817200)
 
+  def createProteinWithDataSet(name: String, ints: Seq[Double], massFitParams: Seq[Double]): ProteinWithDataSet = {
+    val dataset = DataSet(
+      id = DataSetId(name),
+      name = name,
+      sample = Sample("sample"),
+      status = DataSetDone,
+      message = None,
+      massFitResult = Some(MassFitResult("path", "data", "group_path","pep_path",massFitParams.toArray , Array.empty, 0d, 0d)),
+      dataBaseName = None,
+      colorGroup = 0,
+      organism = "human"
+    )
+
+    ProteinWithDataSet(
+      proteinIDs = Seq(ProteinId("P02786")),
+      geneNames = Seq(GeneName("TFRC")),
+      theoMolWeight = 84.871,
+      intensities = ints,
+      dataSet = dataset,
+      peptides = Seq.empty
+    )
+
+  }
 
   val extData: Seq[Array[ExtractedInt]] = Seq(ProteinMergeService().extractInts(ints1, massFitParams1, 100),
     ProteinMergeService().extractInts(ints2, massFitParams2, 100),
@@ -80,5 +105,28 @@ class ProteinMergeServiceSpec extends Specification {
     }
 
   }
+
+  "mergeProteins" should {
+
+    val prots = Seq(
+      createProteinWithDataSet("1", ints1, massFitParams1),
+      createProteinWithDataSet("2", ints2, massFitParams2),
+      createProteinWithDataSet("3", ints3, massFitParams3)
+    )
+
+    val merge = ProteinMergeService().mergeProteins(prots, Sample("Test")).get
+    //merge.theoMergedProtein.intensities.take(100).foreach(println)
+
+    "have correct length" in {
+      merge.theoMergedProtein.intensities.length mustEqual(4700)
+      merge.theoMergedProtein.theoMolWeights.length mustEqual(4700)
+    }
+
+    "Max intensity is ok" in {
+      merge.theoMergedProtein.intensities.max mustEqual(8996897187d)
+    }
+
+  }
+
 
 }

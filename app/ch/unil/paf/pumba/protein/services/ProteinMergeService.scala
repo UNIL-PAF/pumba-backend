@@ -1,9 +1,11 @@
 package ch.unil.paf.pumba.protein.services
 
 import ch.unil.paf.pumba.dataset.models.Sample
-import ch.unil.paf.pumba.protein.models.{ProteinMerge, ProteinWithDataSet}
+import ch.unil.paf.pumba.protein.models.{ProteinId, ProteinMerge, ProteinWithDataSet, TheoMergedProtein}
 
 import scala.util.Try
+import org.apache.commons.math3.analysis.interpolation.LoessInterpolator
+import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction
 
 /**
   * @author Roman Mylonas
@@ -12,11 +14,23 @@ import scala.util.Try
 class ProteinMergeService{
 
   def mergeProteins(proteins: Seq[ProteinWithDataSet], sample: Sample): Try[ProteinMerge] = {
+
     val extractedData: Seq[Array[ExtractedInt]] = proteins.map{
       p => extractInts(p.intensities, p.dataSet.massFitResult.get.massFitCoeffs, 100)
     }
 
+    val summedInts: Array[(Double, Double)] = sumSlides(extractedData).reverse.toArray.map(a => (a.molMass, a.int))
+    val massAndInts: (Array[Double], Array[Double]) = summedInts.unzip
 
+    Try {
+      val interpolator = new LoessInterpolator(0.03, 0)
+      val smooth = interpolator.smooth(massAndInts._1, massAndInts._2)
+
+      val mainProtId = proteins(0).proteinIDs(0)
+      val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
+      val mergedProtein: TheoMergedProtein = TheoMergedProtein(mergeName, massAndInts._1, smooth)
+      ProteinMerge(mainProtId, sample, mergedProtein, proteins)
+    }
   }
 
 
