@@ -25,10 +25,11 @@ class ProteinMergeService{
     Try {
       val interpolator = new LoessInterpolator(0.03, 0)
       val smooth = interpolator.smooth(massAndInts._1, massAndInts._2)
+      val smoothNoZero = smooth.map(a => if(a < 0) 0 else a)
 
       val mainProtId = proteins(0).proteinIDs(0)
       val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
-      val mergedProtein: TheoMergedProtein = TheoMergedProtein(mergeName, massAndInts._1, smooth)
+      val mergedProtein: TheoMergedProtein = TheoMergedProtein(mergeName, massAndInts._1, smoothNoZero)
       ProteinMerge(mainProtId, sample, mergedProtein, proteins)
     }
   }
