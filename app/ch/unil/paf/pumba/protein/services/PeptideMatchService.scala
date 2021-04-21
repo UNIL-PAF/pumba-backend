@@ -13,7 +13,7 @@ class PeptideMatchService {
 
     val filteredPeps = protein.peptides.filter(p => p.proteinIDs.contains(proteinId))
 
-    def getProteinIntensies(filteredPeps: Seq[Peptide], nrIntensities: Int, normCorrFactor: Double, protein: ProteinWithDataSet): Seq[Double] = {
+    def getProteinIntensies(filteredPeps: Seq[Peptide], nrIntensities: Int, normCorrFactor: Double): Seq[Double] = {
         val proteinIntensities: Seq[Double] = filteredPeps.foldLeft(Array.fill(nrIntensities){0d}){ (ints: Array[Double], pep: Peptide) =>
           val i = pep.sliceNr - 1
           ints(i) = ints(i) + pep.intensity
@@ -22,7 +22,7 @@ class PeptideMatchService {
         proteinIntensities.map(_/normCorrFactor)
     }
 
-    val proteinIntensities = getProteinIntensies(filteredPeps, protein.intensities.length, protein.dataSet.massFitResult.get.normCorrFactor, protein)
+    val proteinIntensities = getProteinIntensies(filteredPeps, protein.intensities.length, protein.dataSet.massFitResult.get.normCorrFactor)
 
     val remapedPeps = filteredPeps.map( remapPeptide(_, seq, proteinId))
     protein.copy(peptides = remapedPeps.filter(_.startPos.isDefined), intensities = proteinIntensities)
