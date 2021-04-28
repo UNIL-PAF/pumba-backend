@@ -59,7 +59,6 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       Future.sequence{
         a.map { case (sample: Sample, protList: Seq[ProteinWithDataSet]) =>
           val remapProtList = for {prot <- protList} yield { PeptideMatchService().remapPeptides(prot, proteinId, seq) }
-          //Future.fromTry(ProteinMergeServiceR(rServeHost, rServePort).mergeProteins(remapProtList, sample))
           Future.fromTry(ProteinMergeService().mergeProteins(remapProtList, sample))
         }.toSeq
       }
