@@ -38,7 +38,6 @@ class ParsePeptides {
         (peptides(0).maxQuantId, peptides)
       }
     }
-
     pepMap.filter(_._1.value > 0).toMap
   }
 

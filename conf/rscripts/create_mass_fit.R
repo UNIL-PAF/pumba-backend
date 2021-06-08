@@ -42,7 +42,7 @@ print(opt$sample_name)
 
 # load and fit the data
 print(paste0("load data from [", opt$proteingroups_path, "]."))
-pg <- load_MQ(opt$proteingroups_path, ignore_slice = ignore_slice, sample_name = opt$sample_name)
+pg <- load_MQ(opt$proteingroups_path, ignore_slices = ignore_slice, sample_name = opt$sample_name)
 print(paste0("dimensions: ", dim(pg)))
 
 # filter and fit
