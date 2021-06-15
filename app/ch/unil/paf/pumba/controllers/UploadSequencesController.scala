@@ -3,12 +3,12 @@ package ch.unil.paf.pumba.controllers
 import java.io.File
 import java.nio.file.{Path, Paths}
 import java.util.Calendar
-
 import ch.unil.paf.pumba.protein.models.OrganismName
-import ch.unil.paf.pumba.protein.services.{ProteinService, SequenceService}
+import ch.unil.paf.pumba.protein.services.ProteinService
 import ch.unil.paf.pumba.sequences.importer.ParseFasta
 import ch.unil.paf.pumba.sequences.models.DataBaseName
-import ch.unil.paf.pumba.sequences.services.ImportSequences
+import ch.unil.paf.pumba.sequences.services.{ImportSequences, SequenceService}
+
 import javax.inject._
 import play.api._
 import play.api.libs.Files.TemporaryFile

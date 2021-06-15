@@ -1,6 +1,5 @@
 package ch.unil.paf.pumba.sequences.services
 
-import ch.unil.paf.pumba.protein.services.SequenceService
 import ch.unil.paf.pumba.sequences.models.ProteinSequence
 import reactivemongo.api.commands.WriteResult
 import scala.concurrent.{ExecutionContext, Future}

@@ -1,14 +1,14 @@
 package ch.unil.paf.pumba.dataset.importer
 
 import java.io.File
-
 import ch.unil.paf.pumba.common.rexec.PostprocessingCallback
 import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.dataset.services.DataSetService
 import ch.unil.paf.pumba.protein.importer.{ParseParameters, ParsePeptides, ParseProteinGroups}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
-import ch.unil.paf.pumba.protein.services.{ImportProteins, ProteinService, SequenceService}
+import ch.unil.paf.pumba.protein.services.{ImportProteins, ProteinService}
 import ch.unil.paf.pumba.sequences.models.DataBaseName
+import ch.unil.paf.pumba.sequences.services.SequenceService
 import play.api.Logger
 import reactivemongo.api.commands.UpdateWriteResult
 
@@ -17,7 +17,7 @@ import scala.io.Source
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL
+  *         copyright 2018-2021, Protein Analysis Facility UNIL
   */
 class DataSetPostprocessing(
                              dataSetService: DataSetService,

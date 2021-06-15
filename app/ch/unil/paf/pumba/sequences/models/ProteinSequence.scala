@@ -21,3 +21,8 @@ case class ProteinSequence(
 
 
 case class DataBaseName(value: String) extends AnyVal
+
+case class ProteinSequenceString(
+                                proteinId: ProteinId,
+                                string: String
+                                )

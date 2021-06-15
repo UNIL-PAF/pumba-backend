@@ -1,7 +1,7 @@
 package ch.unil.paf.pumba.protein.models
 
-import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataSet, formatDataSetId, formatSample, formatDataBaseName}
-import ch.unil.paf.pumba.sequences.models.ProteinSequence
+import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataBaseName, formatDataSet, formatDataSetId, formatSample}
+import ch.unil.paf.pumba.sequences.models.{ProteinSequence, ProteinSequenceString}
 import play.api.libs.json._
 
 
@@ -59,6 +59,8 @@ object ProteinJsonFormats {
   implicit val formatProteinMerge = Json.format[ProteinMerge]
 
   implicit val formatProteinSequence = Json.format[ProteinSequence]
+
+  implicit val formatProteinSequenceString = Json.format[ProteinSequenceString]
 
   implicit val formatProteinMergesWithSequence = Json.format[ProteinMergeWithSequence]
 

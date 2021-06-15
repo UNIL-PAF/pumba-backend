@@ -1,7 +1,7 @@
 package ch.unil.paf.pumba.controllers
 import ch.unil.paf.pumba.common.helpers.DataNotFoundException
 import ch.unil.paf.pumba.dataset.models.{DataSetId, Sample}
-import ch.unil.paf.pumba.protein.services.{PeptideMatchService, ProteinMergeService, ProteinMergeServiceR, ProteinService, SequenceService}
+import ch.unil.paf.pumba.protein.services.{PeptideMatchService, ProteinMergeService, ProteinService}
 
 import javax.inject._
 import play.api._
@@ -13,6 +13,7 @@ import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataBaseName, 
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
 import ch.unil.paf.pumba.protein.models.{OrganismName, ProteinId, ProteinMerge, ProteinMergeWithSequence, ProteinOrGene, ProteinWithDataSet, TheoMergedProtein}
 import ch.unil.paf.pumba.sequences.models.ProteinSequence
+import ch.unil.paf.pumba.sequences.services.SequenceService
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}

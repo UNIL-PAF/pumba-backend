@@ -18,6 +18,9 @@ POST /sequence/:dataBaseName/organism/:organismName                             
 # get a sequence
 GET /sequence/:proteinId/database/:dataBaseName                                         ch.unil.paf.pumba.controllers.SequenceController.getSequence(proteinId: String, dataBaseName: String)
 
+# get the sequence string
+GET /sequence-string/:term/database/:dataBaseName                                       ch.unil.paf.pumba.controllers.SequenceController.getSequenceString(term: String, dataBaseName: String)
+
 # delete whole dataset including protein data
 DELETE /dataset/:dataSetId                                                              ch.unil.paf.pumba.controllers.DataSetController.deleteDataSet(dataSetId: String)
 

@@ -1,10 +1,10 @@
 package ch.unil.paf.pumba.controllers
 
-import ch.unil.paf.pumba.dataset.models.{DataSetId, Sample}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
-import ch.unil.paf.pumba.protein.models.{ProteinId, ProteinMerge, ProteinWithDataSet}
-import ch.unil.paf.pumba.protein.services.{ProteinMergeServiceR, ProteinService, SequenceService}
-import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
+import ch.unil.paf.pumba.protein.models.ProteinId
+import ch.unil.paf.pumba.sequences.services.SequenceService
+import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence, ProteinSequenceString}
+
 import javax.inject._
 import play.api._
 import play.api.libs.json._
@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018, Protein Analysis Facility UNIL
+  *         copyright 2018-2021, Protein Analysis Facility UNIL
   */
 @Singleton
 class SequenceController @Inject()(implicit ec: ExecutionContext,
@@ -42,5 +42,20 @@ class SequenceController @Inject()(implicit ec: ExecutionContext,
 
   }
 
+  /**
+    * Get multiple sequence strings (Name | Gene | description) containing the given term.
+    * First tries to match Name, then Gene, then description and gives back 30 matches.
+    * @param term
+    * @return
+    */
+  def getSequenceString(term: String, dataBaseName: String) = Action.async {
+
+    val fSeq: Future[List[ProteinSequenceString]] = sequenceService.getSequenceStrings(term, DataBaseName(dataBaseName))
+
+    fSeq.map({ seq =>
+      Ok(Json.toJson(seq))
+    })
+
+  }
 
 }

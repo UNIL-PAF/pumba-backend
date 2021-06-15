@@ -1,11 +1,11 @@
-package ch.unil.paf.pumba.protein.services
+package ch.unil.paf.pumba.sequences.services
 
 import ch.unil.paf.pumba.common.helpers.{DataNotFoundException, DatabaseError}
 import ch.unil.paf.pumba.dataset.models.{DataSet, DataSetId, Sample}
 import ch.unil.paf.pumba.dataset.services.DataSetService
-import ch.unil.paf.pumba.protein.models.{OrganismName, Protein, ProteinFactory, ProteinId, ProteinOrGene, ProteinWithDataSet}
+import ch.unil.paf.pumba.protein.models.{GeneName, OrganismName, Protein, ProteinFactory, ProteinId, ProteinOrGene, ProteinWithDataSet}
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
-import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence}
+import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence, ProteinSequenceString}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
 import reactivemongo.api.commands.WriteResult
@@ -88,5 +88,49 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
       isoformId.isEmpty || ( seq.isoformId.isDefined && seq.isoformId.get == isoformId.get)
     }}
   }
+
+  /**
+    * Sequence strings (Name | Gene | description) containing the given term.
+    *
+    * @param proteinId
+    * @param dataBaseName
+    * @return
+    */
+  def getSequenceStrings(term: String, dataBaseName: DataBaseName, nrResults: Int = 30): Future[List[ProteinSequenceString]] = {
+
+    val proteinIdQuery = BSONDocument("proteinId" -> BSONDocument("$regex" -> term), "dataBaseName" -> dataBaseName.value)
+    val entryNameQuery = BSONDocument("geneName" -> BSONDocument("$regex" -> term), "dataBaseName" -> dataBaseName.value)
+    val proteinNameQuery = BSONDocument("proteinName" -> BSONDocument("$regex" -> term), "dataBaseName" -> dataBaseName.value)
+
+    def commonFind(query: BSONDocument) = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](nrResults, Cursor.FailOnError[List[ProteinSequence]]()))
+
+    def findProteinId: Future[List[ProteinSequence]] = commonFind(proteinIdQuery)
+    def findEntryName: Future[List[ProteinSequence]] = commonFind(entryNameQuery)
+    def findProteinName: Future[List[ProteinSequence]] = commonFind(proteinNameQuery)
+
+    val results: Future[List[ProteinSequence]] = findProteinId.flatMap(resProteinId => {
+      val res2F = if(resProteinId.length < nrResults){
+        findEntryName.map(resEntryName => (resProteinId ++ resEntryName))
+      }else{
+        Future{resProteinId}
+      }
+      res2F.flatMap( res2 => {
+        if(res2.length < nrResults){
+          findProteinName.map(resProtName => (res2 ++ resProtName))
+        }else{
+          Future{res2}
+        }
+      })
+    })
+
+    results.map{l =>
+      l.map { e =>
+        ProteinSequenceString(e.proteinId,
+          s"${e.proteinId.value} | ${e.geneName.getOrElse(GeneName("-")).value} | ${e.proteinName.value}")
+      }
+    }
+  }
+
+
 
 }

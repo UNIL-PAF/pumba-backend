@@ -3,13 +3,14 @@ package ch.unil.paf.pumba.controllers
 import java.io.File
 import java.nio.file.{Path, Paths}
 import java.util.Calendar
-
 import akka.actor.{ActorSystem, Props}
 import ch.unil.paf.pumba.common.rexec.RexecActor
 import ch.unil.paf.pumba.dataset.importer.{DataSetChangeStatus, DataSetPostprocessing, ImportMQData}
 import ch.unil.paf.pumba.dataset.models._
 import ch.unil.paf.pumba.dataset.services.DataSetService
-import ch.unil.paf.pumba.protein.services.{ProteinService, SequenceService}
+import ch.unil.paf.pumba.protein.services.ProteinService
+import ch.unil.paf.pumba.sequences.services.SequenceService
+
 import javax.inject._
 import play.api._
 import play.api.libs.Files.TemporaryFile
