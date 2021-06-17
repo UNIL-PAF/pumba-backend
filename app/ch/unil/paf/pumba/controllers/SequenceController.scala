@@ -1,7 +1,7 @@
 package ch.unil.paf.pumba.controllers
 
 import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
-import ch.unil.paf.pumba.protein.models.ProteinId
+import ch.unil.paf.pumba.protein.models.{OrganismName, ProteinId}
 import ch.unil.paf.pumba.sequences.services.SequenceService
 import ch.unil.paf.pumba.sequences.models.{DataBaseName, ProteinSequence, ProteinSequenceString}
 
@@ -48,9 +48,9 @@ class SequenceController @Inject()(implicit ec: ExecutionContext,
     * @param term
     * @return
     */
-  def getSequenceString(term: String, dataBaseName: String) = Action.async {
+  def getSequenceString(term: String, organismName: String) = Action.async {
 
-    val fSeq: Future[List[ProteinSequenceString]] = sequenceService.getSequenceStrings(term, DataBaseName(dataBaseName))
+    val fSeq: Future[List[ProteinSequenceString]] = sequenceService.getSequenceStrings(term, OrganismName(organismName))
 
     fSeq.map({ seq =>
       Ok(Json.toJson(seq))

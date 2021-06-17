@@ -96,17 +96,14 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
     * @param dataBaseName
     * @return
     */
-  def getSequenceStrings(term: String, dataBaseName: DataBaseName, nrResults: Int = 30): Future[List[ProteinSequenceString]] = {
+  def getSequenceStrings(term: String, organismName: OrganismName, nrResults: Int = 100): Future[List[ProteinSequenceString]] = {
 
-    val proteinIdQuery = BSONDocument("proteinId" -> BSONDocument("$regex" -> term), "dataBaseName" -> dataBaseName.value)
-    val entryNameQuery = BSONDocument("geneName" -> BSONDocument("$regex" -> term), "dataBaseName" -> dataBaseName.value)
-    val proteinNameQuery = BSONDocument("proteinName" -> BSONDocument("$regex" -> term), "dataBaseName" -> dataBaseName.value)
+    def query(field: String) = BSONDocument(field -> BSONDocument("$regex" -> term, "$options" -> "i"), "organismName" -> organismName.value)
+    def findSeqs(query: BSONDocument) = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](nrResults, Cursor.FailOnError[List[ProteinSequence]]()))
 
-    def commonFind(query: BSONDocument) = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](nrResults, Cursor.FailOnError[List[ProteinSequence]]()))
-
-    def findProteinId: Future[List[ProteinSequence]] = commonFind(proteinIdQuery)
-    def findEntryName: Future[List[ProteinSequence]] = commonFind(entryNameQuery)
-    def findProteinName: Future[List[ProteinSequence]] = commonFind(proteinNameQuery)
+    def findProteinId: Future[List[ProteinSequence]] = findSeqs(query("proteinId"))
+    def findEntryName: Future[List[ProteinSequence]] = findSeqs(query("geneName"))
+    def findProteinName: Future[List[ProteinSequence]] = findSeqs(query("proteinName"))
 
     val results: Future[List[ProteinSequence]] = findProteinId.flatMap(resProteinId => {
       val res2F = if(resProteinId.length < nrResults){
