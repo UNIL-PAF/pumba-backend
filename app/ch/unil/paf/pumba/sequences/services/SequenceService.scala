@@ -98,7 +98,7 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
     */
   def getSequenceStrings(term: String, organismName: OrganismName, nrResults: Int = 100): Future[List[ProteinSequenceString]] = {
 
-    def query(field: String) = BSONDocument(field -> BSONDocument("$regex" -> term, "$options" -> "i"), "organismName" -> organismName.value)
+    def query(field: String) = BSONDocument(field -> BSONDocument("$regex" -> term, "$options" -> "i"), "organismName" -> organismName.value, "isoformId" -> BSONDocument("$exists" ->  0))
     def findSeqs(query: BSONDocument) = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](nrResults, Cursor.FailOnError[List[ProteinSequence]]()))
 
     def findProteinId: Future[List[ProteinSequence]] = findSeqs(query("proteinId"))
