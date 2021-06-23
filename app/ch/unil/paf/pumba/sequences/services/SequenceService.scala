@@ -63,7 +63,7 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
     * @return
     */
   def getSequences(proteinId: ProteinId, dataBaseName: DataBaseName): Future[List[ProteinSequence]] = {
-    val query = BSONDocument("proteinId" -> proteinId.value, "dataBaseName" -> dataBaseName.value)
+    val query = BSONDocument("proteinId" -> proteinId.value, "dataBaseName" -> dataBaseName.value, "isoformId" -> BSONDocument("$exists" ->  0))
     val findRes: Future[List[ProteinSequence]] = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](-1, Cursor.FailOnError[List[ProteinSequence]]()))
 
     val errorMessage = s"Could not find ProteinSequence [${proteinId.value}]."
@@ -122,7 +122,7 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
 
     results.map{l =>
       l.map { e =>
-        ProteinSequenceString(e.proteinId,
+        ProteinSequenceString(e.proteinId, e.geneName,
           s"${e.proteinId.value} | ${e.geneName.getOrElse(GeneName("-")).value} | ${e.proteinName.value}")
       }
     }
