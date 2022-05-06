@@ -39,13 +39,14 @@ case class ProteinWithDataSet (
                                 theoMolWeight: Double,
                                 intensities: Seq[Double],
                                 dataSet: DataSet,
-                                peptides: Seq[Peptide]
+                                peptides: Seq[Peptide],
+                                isFirstAC: Option[Boolean]
                               )extends BaseProtein
 
 
 object ProteinFactory {
 
   def apply(protein: Protein, dataSet: DataSet) : ProteinWithDataSet = ProteinWithDataSet(protein.proteinIDs,
-    protein.geneNames, protein.theoMolWeight, protein.intensities, dataSet, protein.peptides)
+    protein.geneNames, protein.theoMolWeight, protein.intensities, dataSet, protein.peptides, None)
 
 }
