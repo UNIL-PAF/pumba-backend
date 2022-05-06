@@ -1,4 +1,5 @@
 package ch.unil.paf.pumba.controllers
+
 import ch.unil.paf.pumba.common.helpers.DataNotFoundException
 import ch.unil.paf.pumba.dataset.models.{DataSetId, Sample}
 import ch.unil.paf.pumba.protein.services.{PeptideMatchService, ProteinMergeService, ProteinService}
@@ -39,29 +40,37 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
 
   /**
     * Merge proteins from all datasets and create a theoretical merge.
+    *
     * @param proteinId
     * @return
     */
-  def mergeProteins(proteinId: String, organism: String, dataSetString: Option[String], isoformId: Option[Int]) = Action.async{
+  def mergeProteins(proteinId: String, organism: String, dataSetString: Option[String], isoformId: Option[Int]) = Action.async {
 
-    val dataSetIds: Option[Seq[DataSetId]] = dataSetString.map( s => {
+    val dataSetIds: Option[Seq[DataSetId]] = dataSetString.map(s => {
       val SAMPLE_SEP = ","
       s.split(SAMPLE_SEP).map(DataSetId(_))
     })
 
     val sequences: Future[List[ProteinSequence]] = sequenceService.getSequences(ProteinOrGene(proteinId), OrganismName(organism), isoformId: Option[Int])
 
-    val mainSequence: Future[ProteinSequence] = sequences.map(seq => if(seq.length == 1) seq(0) else seq.find(s => s.isoformId.isEmpty).get)
+    val mainSequence: Future[ProteinSequence] = sequences.map(seq => if (seq.length == 1) seq(0) else seq.find(s => s.isoformId.isEmpty).get)
     val proteinIdSeq: Future[ProteinId] = mainSequence.map(seq => seq.proteinId)
 
     val sampleProteinsMapFuture: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(ProteinOrGene(proteinId), dataSetIds)
 
-    def mergeProteinsMap(sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]], proteinId: ProteinId, seq: String): Future[Seq[ProteinMerge]] = sampleProteinsMap.flatMap { a =>
-      Future.sequence{
-        a.map { case (sample: Sample, protList: Seq[ProteinWithDataSet]) =>
-          val remapProtList = for {prot <- protList} yield { PeptideMatchService().remapPeptides(prot, proteinId, seq) }
-          Future.fromTry(ProteinMergeService().mergeProteins(remapProtList, sample))
-        }.toSeq
+    def mergeProteinsMap(sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]], proteinId: ProteinId, seq: String): Future[(Seq[ProteinMerge], Boolean)] = {
+      sampleProteinsMap.flatMap { a =>
+        Future.sequence {
+          a.map { case (sample: Sample, protList: Seq[ProteinWithDataSet]) =>
+            val remapProtList = for {prot <- protList} yield {
+              PeptideMatchService().remapPeptides(prot, proteinId, seq)
+            }
+            Future.fromTry(ProteinMergeService().mergeProteins(remapProtList, sample))
+          }.toSeq
+        }
+      }.map { proteinMerges =>
+        val containsNotFirstAC: Boolean = proteinMerges.find( pm => pm.proteins.find(_.isFirstAC.getOrElse(true) == false).isDefined).isDefined
+        (proteinMerges, containsNotFirstAC)
       }
     }
 
@@ -72,7 +81,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       proteinMerges <- mergeProteinsMap(sampleProteinsMapFuture, protId, mainSeq.sequence)
     } yield {
       val fltSeqs = seqs.filter(_.isoformId.isDefined)
-      ProteinMergeWithSequence(proteinMerges, fltSeqs, mainSeq)
+      ProteinMergeWithSequence(proteinMerges._1, fltSeqs, mainSeq, Some(proteinMerges._2))
     }
 
     mergesWithSeqs.map({ merges =>
