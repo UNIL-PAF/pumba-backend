@@ -9,7 +9,7 @@ import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018-2021, Protein Analysis Facility UNIL
+  *         copyright 2018-2022, Protein Analysis Facility UNIL
   */
 class ProteinMergeService{
 
@@ -30,7 +30,11 @@ class ProteinMergeService{
       val mainProtId = proteins(0).proteinIDs(0)
       val mergeName = mainProtId + ":(" + proteins.map(_.dataSet.sample).mkString(";") + ")"
       val mergedProtein: TheoMergedProtein = TheoMergedProtein(mergeName, massAndInts._1, smoothNoZero)
-      ProteinMerge(mainProtId, sample, mergedProtein, proteins)
+
+      // normalize the peptide intensities
+      val normPepsProteins = proteins.map(prot => prot.copy(peptides=prot.peptides.map(pep => pep.copy(intensity=pep.intensity / prot.dataSet.massFitResult.get.normCorrFactor))))
+
+      ProteinMerge(mainProtId, sample, mergedProtein, normPepsProteins)
     }
   }
 
