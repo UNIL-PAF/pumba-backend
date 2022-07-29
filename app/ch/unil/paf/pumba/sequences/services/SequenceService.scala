@@ -70,6 +70,15 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
     checkOrError[List[ProteinSequence]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
   }
 
+  def findSequence(protein: ProteinId): Future[ProteinSequence] = {
+    val query = BSONDocument("proteinId" -> protein.value)
+    val findRes: Future[List[ProteinSequence]] = collection(collectionName).flatMap(_.find(query).cursor[ProteinSequence]().collect[List](-1, Cursor.FailOnError[List[ProteinSequence]]()))
+
+    val errorMessage = s"Could not find ProteinSequence [${protein.value}]."
+    val futureRes = checkOrError[List[ProteinSequence]](findRes, (res) => (res.isEmpty), (res) => (errorMessage))
+
+    futureRes.map(_.head)
+  }
 
   /**
     * get proteinSequences with a given proteinOrGene and filter the results by isoformId if provided

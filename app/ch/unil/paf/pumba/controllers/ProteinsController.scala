@@ -38,13 +38,24 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
   val rServeHost: String = config.get[String]("Rserve.host")
   val rServePort: Int = config.get[Int]("Rserve.port")
 
+  def findProteinMerge(proteinId: String) = Action.async {
+    val sequence = sequenceService.findSequence(ProteinId(proteinId)).map(List(_))
+    val proteinIdSeq: Future[ProteinId] = sequence.map(seq => seq.head.proteinId)
+    val sampleProteinsMapFuture: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(ProteinOrGene(proteinId), None)
+    val mergesWithSeqs = mergeProtein(sequence, sequence.map(_.head), proteinIdSeq, sampleProteinsMapFuture)
+
+    mergesWithSeqs.map({ merges =>
+      Ok(Json.toJson(merges))
+    })
+  }
+
   /**
     * Merge proteins from all datasets and create a theoretical merge.
     *
     * @param proteinId
     * @return
     */
-  def mergeProteins(proteinId: String, organism: String, dataSetString: Option[String], isoformId: Option[Int]) = Action.async {
+  def findProteinMergeByOrganism(proteinId: String, organism: String, dataSetString: Option[String], isoformId: Option[Int]) = Action.async {
 
     val dataSetIds: Option[Seq[DataSetId]] = dataSetString.map(s => {
       val SAMPLE_SEP = ","
@@ -58,6 +69,16 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
 
     val sampleProteinsMapFuture: Future[Map[Sample, Seq[ProteinWithDataSet]]] = proteinService.getProteinsBySample(ProteinOrGene(proteinId), dataSetIds)
 
+    val mergesWithSeqs = mergeProtein(sequences, mainSequence, proteinIdSeq, sampleProteinsMapFuture)
+
+    mergesWithSeqs.map({ merges =>
+      Ok(Json.toJson(merges))
+    })
+
+  }
+
+  def mergeProtein(sequences: Future[List[ProteinSequence]],  mainSequence: Future[ProteinSequence], proteinIdSeq: Future[ProteinId], sampleProteinsMapFuture: Future[Map[Sample, Seq[ProteinWithDataSet]]]): Future[ProteinMergeWithSequence] = {
+
     def mergeProteinsMap(sampleProteinsMap: Future[Map[Sample, Seq[ProteinWithDataSet]]], proteinId: ProteinId, seq: String): Future[(Seq[ProteinMerge], Boolean)] = {
       sampleProteinsMap.flatMap { a =>
         Future.sequence {
@@ -69,7 +90,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
           }.toSeq
         }
       }.map { proteinMerges =>
-        val containsNotFirstAC: Boolean = proteinMerges.find( pm => pm.proteins.find(_.isFirstAC.getOrElse(true) == false).isDefined).isDefined
+        val containsNotFirstAC: Boolean = proteinMerges.find(pm => pm.proteins.find(_.isFirstAC.getOrElse(true) == false).isDefined).isDefined
         (proteinMerges, containsNotFirstAC)
       }
     }
@@ -84,11 +105,7 @@ class ProteinsController @Inject()(implicit ec: ExecutionContext,
       ProteinMergeWithSequence(proteinMerges._1, fltSeqs, mainSeq, Some(proteinMerges._2))
     }
 
-    mergesWithSeqs.map({ merges =>
-      Ok(Json.toJson(merges))
-    })
-
+    mergesWithSeqs
   }
-
 
 }
