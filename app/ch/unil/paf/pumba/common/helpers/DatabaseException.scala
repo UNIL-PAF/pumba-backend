@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * @author Roman Mylonas
-  * copyright 2018, Protein Analysis Facility UNIL
+  * copyright 2023, Protein Analysis Facility UNIL
   */
 
 
