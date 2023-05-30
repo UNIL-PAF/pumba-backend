@@ -1,27 +1,22 @@
 package ch.unil.paf.pumba.controllers
 
-import ch.unil.paf.pumba.common.helpers.DataNotFoundException
 import ch.unil.paf.pumba.dataset.models.{DataSetId, Sample}
+import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
+import ch.unil.paf.pumba.protein.models._
 import ch.unil.paf.pumba.protein.services.{PeptideMatchService, ProteinMergeService, ProteinService}
-
-import javax.inject._
+import ch.unil.paf.pumba.sequences.models.ProteinSequence
+import ch.unil.paf.pumba.sequences.services.SequenceService
 import play.api._
+import play.api.libs.json._
 import play.api.mvc._
 import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
 
+import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
-import ch.unil.paf.pumba.dataset.models.DataSetJsonFormats.{formatDataBaseName, formatDataSet, formatDataSetId, formatSample}
-import ch.unil.paf.pumba.protein.models.ProteinJsonFormats._
-import ch.unil.paf.pumba.protein.models.{OrganismName, ProteinId, ProteinMerge, ProteinMergeWithSequence, ProteinOrGene, ProteinWithDataSet, TheoMergedProtein}
-import ch.unil.paf.pumba.sequences.models.ProteinSequence
-import ch.unil.paf.pumba.sequences.services.SequenceService
-import play.api.libs.json._
-
-import scala.util.{Failure, Success, Try}
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018-2021, Protein Analysis Facility UNIL
+  *         copyright 2018-2023, Protein Analysis Facility UNIL
   */
 @Singleton
 class ProteinsController @Inject()(implicit ec: ExecutionContext,

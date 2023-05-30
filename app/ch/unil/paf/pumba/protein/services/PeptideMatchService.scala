@@ -5,7 +5,7 @@ import play.api.Logger
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018-2022, Protein Analysis Facility UNIL
+  *         copyright 2018-2023, Protein Analysis Facility UNIL
   */
 class PeptideMatchService {
 
