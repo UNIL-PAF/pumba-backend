@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author Roman Mylonas
-  *         copyright 2018-2021, Protein Analysis Facility UNIL
+  *         copyright 2018-2023, Protein Analysis Facility UNIL
   */
 @Singleton
 class SequenceController @Inject()(implicit ec: ExecutionContext,

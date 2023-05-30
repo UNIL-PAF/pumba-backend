@@ -19,7 +19,7 @@ import scala.util.{Failure, Success}
 
 /**
   * @author Roman Mylonas
-  * copyright 2018-2021, Protein Analysis Facility UNIL
+  * copyright 2018-2023, Protein Analysis Facility UNIL
   */
 class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext) extends DatabaseError {
   val collectionName = "sequence"
@@ -129,10 +129,22 @@ class SequenceService (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: Exec
       })
     })
 
-    results.map{l =>
-      l.map { e =>
-        ProteinSequenceString(e.proteinId, e.geneName,
-          s"${e.proteinId.value} | ${e.geneName.getOrElse(GeneName("-")).value} | ${e.proteinName.value}")
+    /* keep only if they really exist as results */
+    def queryProt(ac: String) = BSONDocument("proteinIDs" -> ac)
+    val protProj = BSONDocument("_id" -> 1)
+    def findProt(query: BSONDocument) = collection("protein").flatMap(_.find(query, protProj).cursor[BSONDocument]().collect[List](nrResults, Cursor.FailOnError[List[BSONDocument]]()))
+
+    val resultsVerif: Future[List[(ProteinSequence, Boolean)]] = results.flatMap{ res =>
+      Future.sequence{ res.map{ oneRes =>
+        val protRes: Future[List[BSONDocument]] = findProt(queryProt(oneRes.proteinId.value))
+        protRes.map{a => (oneRes, a.length > 0)}
+      }}
+    }
+
+    resultsVerif.map{l =>
+      l.filter(_._2).sortBy(_._1.proteinName.value).map { e =>
+        ProteinSequenceString(e._1.proteinId, e._1.geneName,
+          s"${e._1.proteinId.value} | ${e._1.geneName.getOrElse(GeneName("-")).value} | ${e._1.proteinName.value}")
       }
     }
   }
